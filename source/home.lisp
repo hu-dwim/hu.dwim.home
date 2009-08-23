@@ -73,6 +73,13 @@
         (setf (root-component-of *frame*) (make-frame-component "dwim.hu"))
         (make-redirect-response-for-current-application))))
 
+(def file-serving-entry-point *home-application* "/static/darcsweb/" #P"/home/levy/workspace/darcsweb/")
+
+;; TODO: why these two falses?
+(def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f :requires-valid-frame #f) ()
+  (make-raw-functional-response ()
+    (handle-cgi-request #P"/home/levy/workspace/darcsweb/darcsweb.cgi")))
+
 ;;;;;;
 ;;; Server
 
