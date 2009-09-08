@@ -11,6 +11,7 @@
         :hu.dwim.common-lisp
         :hu.dwim.def
         :hu.dwim.defclass-star
+        :hu.dwim.logger
         :hu.dwim.syntax-sugar
         :hu.dwim.util
         :hu.dwim.wui

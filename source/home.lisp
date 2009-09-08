@@ -70,7 +70,7 @@
   (if (root-component-of *frame*)
       (make-root-component-rendering-response *frame*)
       (progn
-        (setf (root-component-of *frame*) (make-frame-component "dwim.hu"))
+        (setf (root-component-of *frame*) "dwim.hu")
         (make-redirect-response-for-current-application))))
 
 (def file-serving-entry-point *home-application* "/static/darcsweb/" #P"/home/levy/workspace/darcsweb/")
@@ -87,3 +87,11 @@
                                                        :host +any-host+
                                                        :port 8080
                                                        :brokers (list *home-application*)))
+
+;;;;;;
+;;; Production
+
+(def logger log ())
+
+(def function production-image-toplevel ()
+  (hu.dwim.meta-model::production-image-toplevel :hu.dwim.home *home-server* *home-application*))
