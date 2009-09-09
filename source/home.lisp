@@ -122,88 +122,105 @@
 ;;;;;;
 ;;; TODO: move
 
-(def book hu.dwim.home/install-guide (:title "Install guide")
+(def book hu.dwim.home/install-guide (:title "Install Guide")
   (chapter (:title "Introduction")
     (paragraph ()
-      "The installation guide describes how to setup the same web service that is running at "
-      (parse-uri "http://dwim.hu/")
-      " on your local computer."))
-  (chapter (:title "Installing Ubuntu")
+      "The Install Guide describes how to install and configure the same web service that is running at this site ("
+      (parse-uri "http://dwim.hu/") ") on your local computer."))
+  (chapter (:title "Install Ubuntu")
     (paragraph ()
       (parse-uri "http://www.ubuntu.com/")))
   (chapter (:title "Creating the workspace")
     (shell-script ()
       "cd ~"
       "mkdir workspace"))
-  (chapter (:title "Installing SBCL")
+  (chapter (:title "Install SBCL")
     (paragraph ()
-      (parse-uri "http://www.sbcl.org/"))))
-
-#|
-Steps to reproduce the http://dwim.hu/ website on your local computer:
- - ubuntu linux - http://www.ubuntu.com/
-
- - terminal - click the menu item Applications/Accessories/Terminal
-
- - workspace
-   $ cd ~
-   $ mkdir workspace
-
- - sbcl - http://www.sbcl.org/
-   $ sudo apt-get install cvs clisp
-   $ cd ~/workspace
-   $ cvs -z3 -d :pserver:anonymous:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl co -P sbcl
-   $ cd sbcl
-   $ wget http://dwim.hu/static/sbcl/cutomize-target-features.lisp
-   $ ./make.sh "clisp -ansi -on-error abort"
-   $ sudo ./install.sh
-
- - PostgreSQL - http://www.postgresql.org/
-   $ sudo apt-get install postgresql
-
- - PostgreSQL database and users
-   $ sudo su - postgres
-   $ createdb hu.dwim.home
-   $ createuser -P hu.dwim.home --no-superuser --no-createdb --no-createrole
-     engedjbe
-     engedjbe
-   $ exit
-
- - sqlite - http://www.sqlite.org/
-   $ sudo apt-get install sqlite3
-
- - oracle
-
- - java
-   $ sudo apt-get install sun-java6-jdk
-
- - repos
-   $ darcs get http://dwim.hu/darcs/hu.dwim.asdf
-   ...
-
- - build image
-   $ ~/workspace/hu.dwim.environment/bin/build-image hu.dwim.home
-
- - startup
-   $ ~/workspace/hu.dwim.home/server
-
- - shutdown
-   press Control-C
-
- - hu.dwim.home - http://localhost.localdomain/
-
- - test suite - http://localhost.localdomain/test/
-
- - emacs - http://www.gnu.org/software/emacs/
-   $ sudo apt-get install emacs-snapshot
-   $ cd ~
-   $ wget http://dwim.hu/install/.emacs
-
- - slime - http://common-lisp.net/project/slime/
-   $ cd workspace
-   $ cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot co slime
-
- - connect server with slime
-   $ emacs
-     M-x slime
-|#
+      (parse-uri "http://www.sbcl.org/"))
+    (shell-script ()
+      "sudo apt-get install cvs clisp"
+      "cd ~/workspace"
+      "cvs -z3 -d :pserver:anonymous:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl co -P sbcl"
+      "cd sbcl"
+      "wget http://dwim.hu/static/sbcl/cutomize-target-features.lisp"
+      "./make.sh \"clisp -ansi -on-error abort\""
+      "sudo ./install.sh"))
+  (chapter (:title "Install PostgreSQL")
+    (paragraph ()
+      (parse-uri "http://www.postgresql.org/"))
+    (shell-script ()
+      "sudo apt-get install postgresql"))
+  (chapter (:title "Configure PostgreSQL")
+    (paragraph ()
+      (parse-uri "http://www.postgresql.org/"))
+    (shell-script ()
+      "sudo su - postgres"
+      "createdb hu.dwim.home"
+      "createuser -P hu.dwim.home --no-superuser --no-createdb --no-createrole"
+      "exit")
+    (paragraph ()
+      "When prompted for the password type in engedjbe"))
+  (chapter (:title "Install Sqlite")
+    (paragraph ()
+      (parse-uri "http://www.sqlite.org/"))
+    (shell-script ()
+      "sudo apt-get install sqlite3"))
+  (chapter (:title "Install Oracle")
+    (paragraph ()
+      (parse-uri "http://www.oracle.com/")))
+  (chapter (:title "Install Java")
+    (paragraph ()
+      (parse-uri "http://java.sun.com/"))
+    (shell-script ()
+      "sudo apt-get install sun-java6-jdk"))
+  (chapter (:title "Install Graphviz")
+    (paragraph ()
+      (parse-uri "http://www.graphviz.org/"))
+    (shell-script ()
+      "sudo apt-get install libgraphviz4"))
+  (chapter (:title "Install Darcs Repositories")
+    (make-instance 'shell-script
+                   :contents (list* "sudo apt-get darcs"
+                                    (mapcar (lambda (pathname)
+                                              (bind ((name (subseq (namestring pathname)
+                                                                   (length (namestring cl-user::*workspace-directory*)))))
+                                                (concatenate 'string
+                                                             "darcs get http://dwim.hu/darcs/"
+                                                             name)))
+                                            (directory (merge-pathnames cl-user::*workspace-directory* "/*.*"))))))
+  (chapter (:title "Configure hu.dwim.home")
+    (shell-script ()
+      "createlinks.sh"))
+  (chapter (:title "Build Production Server")
+    (shell-script ()
+      "~/workspace/hu.dwim.environment/bin/build-image hu.dwim.home"))
+  (chapter (:title "Startup Server")
+    (shell-script ()
+      "~/workspace/hu.dwim.home/server"))
+  (chapter (:title "Shutdown Server")
+    (paragraph ()
+      "press Control-C"))
+  (chapter (:title "Browse Server")
+    (paragraph ()
+      (parse-uri "http://localhost.localdomain:8080/")))
+  (chapter (:title "Run Test Suite")
+    (paragraph ()
+      (parse-uri "http://localhost.localdomain/test/")))
+  (chapter (:title "Install Emacs")
+    (paragraph ()
+      (parse-uri "http://www.gnu.org/software/emacs/"))
+    (shell-script ()
+      "sudo apt-get install emacs-snapshot"
+      "cd ~"
+      "wget http://dwim.hu/install/.emacs"))
+  (chapter (:title "Install Slime")
+    (paragraph ()
+      (parse-uri "http://common-lisp.net/project/slime/"))
+    (shell-script ()
+      "cd workspace"
+      "cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot co slime"))
+  (chapter (:title "Connect Server with Slime")
+    (paragraph ()
+      (parse-uri "http://common-lisp.net/project/slime/"))
+    (shell-script ()
+      "emacs")))
