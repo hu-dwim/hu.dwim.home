@@ -66,11 +66,34 @@
                                                           :initial-alternative-type 'inspector/abstract)))
         (make-redirect-response-for-current-application (concatenate-string "project/" system-name)))))
 
+(def entry-point (*home-application* :path-prefix "function" :ensure-session #t :ensure-frame #t) ()
+  (if (root-component-of *frame*)
+      (make-root-component-rendering-response *frame*)
+      (bind ((path (path-of (uri-of *request*)))
+             (function-name (string-downcase (subseq path (1+ (position #\/ path :from-end #t))))))
+        (setf (root-component-of *frame*)
+              (make-frame-component (make-value-inspector (fdefinition (bind ((*read-eval* #f))
+                                                                         (read-from-string function-name)))
+                                                          :initial-alternative-type 't/lisp-form/inspector)))
+        (make-redirect-response-for-current-application (concatenate-string "function/" function-name)))))
+
+(def entry-point (*home-application* :path-prefix "class" :ensure-session #t :ensure-frame #t) ()
+  (if (root-component-of *frame*)
+      (make-root-component-rendering-response *frame*)
+      (bind ((path (path-of (uri-of *request*)))
+             (class-name (string-downcase (subseq path (1+ (position #\/ path :from-end #t))))))
+        (setf (root-component-of *frame*)
+              (make-frame-component (make-value-inspector (find-class (bind ((*read-eval* #f))
+                                                                        (read-from-string class-name)))
+                                                          :initial-alternative-type 't/lisp-form/inspector)))
+        (make-redirect-response-for-current-application (concatenate-string "class/" class-name)))))
+
 (def entry-point (*home-application* :path "" :ensure-session #t :ensure-frame #t) ()
   (if (root-component-of *frame*)
       (make-root-component-rendering-response *frame*)
       (progn
-        (setf (root-component-of *frame*) "dwim.hu")
+        (setf (root-component-of *frame*) (make-frame-component (make-value-inspector (find-book 'hu.dwim.home/install-guide)
+                                                                                      :initial-alternative-type 'book/text/inspector)))
         (make-redirect-response-for-current-application))))
 
 (def file-serving-entry-point *home-application* "/static/darcsweb/" #P"/home/levy/workspace/darcsweb/")
@@ -95,3 +118,92 @@
 
 (def function production-image-toplevel ()
   (hu.dwim.meta-model::production-image-toplevel :hu.dwim.home *home-server* *home-application*))
+
+;;;;;;
+;;; TODO: move
+
+(def book hu.dwim.home/install-guide (:title "Install guide")
+  (chapter (:title "Introduction")
+    (paragraph ()
+      "The installation guide describes how to setup the same web service that is running at "
+      (parse-uri "http://dwim.hu/")
+      " on your local computer."))
+  (chapter (:title "Installing Ubuntu")
+    (paragraph ()
+      (parse-uri "http://www.ubuntu.com/")))
+  (chapter (:title "Creating the workspace")
+    (shell-script ()
+      "cd ~"
+      "mkdir workspace"))
+  (chapter (:title "Installing SBCL")
+    (paragraph ()
+      (parse-uri "http://www.sbcl.org/"))))
+
+#|
+Steps to reproduce the http://dwim.hu/ website on your local computer:
+ - ubuntu linux - http://www.ubuntu.com/
+
+ - terminal - click the menu item Applications/Accessories/Terminal
+
+ - workspace
+   $ cd ~
+   $ mkdir workspace
+
+ - sbcl - http://www.sbcl.org/
+   $ sudo apt-get install cvs clisp
+   $ cd ~/workspace
+   $ cvs -z3 -d :pserver:anonymous:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl co -P sbcl
+   $ cd sbcl
+   $ wget http://dwim.hu/static/sbcl/cutomize-target-features.lisp
+   $ ./make.sh "clisp -ansi -on-error abort"
+   $ sudo ./install.sh
+
+ - PostgreSQL - http://www.postgresql.org/
+   $ sudo apt-get install postgresql
+
+ - PostgreSQL database and users
+   $ sudo su - postgres
+   $ createdb hu.dwim.home
+   $ createuser -P hu.dwim.home --no-superuser --no-createdb --no-createrole
+     engedjbe
+     engedjbe
+   $ exit
+
+ - sqlite - http://www.sqlite.org/
+   $ sudo apt-get install sqlite3
+
+ - oracle
+
+ - java
+   $ sudo apt-get install sun-java6-jdk
+
+ - repos
+   $ darcs get http://dwim.hu/darcs/hu.dwim.asdf
+   ...
+
+ - build image
+   $ ~/workspace/hu.dwim.environment/bin/build-image hu.dwim.home
+
+ - startup
+   $ ~/workspace/hu.dwim.home/server
+
+ - shutdown
+   press Control-C
+
+ - hu.dwim.home - http://localhost.localdomain/
+
+ - test suite - http://localhost.localdomain/test/
+
+ - emacs - http://www.gnu.org/software/emacs/
+   $ sudo apt-get install emacs-snapshot
+   $ cd ~
+   $ wget http://dwim.hu/install/.emacs
+
+ - slime - http://common-lisp.net/project/slime/
+   $ cd workspace
+   $ cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot co slime
+
+ - connect server with slime
+   $ emacs
+     M-x slime
+|#
