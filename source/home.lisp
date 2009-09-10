@@ -138,7 +138,7 @@
                                                          (sb-ext:run-program "/usr/bin/darcs"
                                                                              `("show" "repo" "--repodir" ,pathname-string)
                                                                              :output output)))
-                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)\\n.*" darcs-info))
+                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
                                            (repository (first-elt groups)))
                                       (concatenate-string "darcs get " repository)))
                                    ((probe-file (merge-pathnames ".git" pathname))
@@ -146,7 +146,7 @@
                                                        (sb-ext:run-program "/usr/bin/git"
                                                                            `("--git-dir" ,(concatenate-string pathname-string "/.git") "remote" "show" "origin" "-n")
                                                                            :output output)))
-                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)\\n.*" git-info))
+                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
                                            (repository (first-elt groups)))
                                       (concatenate-string "git clone " repository)))
                                    ((probe-file (merge-pathnames ".svn" pathname))
@@ -154,9 +154,9 @@
                                                        (sb-ext:run-program "/usr/bin/svn"
                                                                            `("info" ,pathname-string)
                                                                            :output output)))
-                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)\\n.*" svn-info))
+                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
                                            (repository (first-elt groups)))
-                                      (concatenate-string "svn checkout " repository)))
+                                      (concatenate-string "svn checkout " repository " " name)))
                                    ((probe-file (merge-pathnames "CVS" pathname))
                                     (bind ((repository (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Root" pathname)))))
                                       (concatenate-string "cvs -z3 -d " repository " checkout")))
@@ -222,21 +222,27 @@
       "sudo apt-get install libgraphviz4"))
   (chapter (:title "Install Darcs Repositories")
     (make-instance 'shell-script
-                   :contents (list* "sudo apt-get install cvs subversion git darcs"
+                   :contents (list* "sudo apt-get install cvs subversion git git-core darcs"
                                     (collect-get-repository-shell-script-commands))))
-  (chapter (:title "Configure hu.dwim.home")
+  (chapter (:title "Configure the Environment")
+    (shell-script ()
+      "cd ~"
+      "wget http://dwim.hu/static/install/.sbclrc"))
+  (chapter (:title "Configure the Server")
     (shell-script ()
       "cd ~/workspace/hu.dwim.home/www"
-      "../etc/createlinks.sh"))
+      "sh ../etc/createlinks.sh"))
   (chapter (:title "Build Production Server")
     (shell-script ()
       "~/workspace/hu.dwim.environment/bin/build-image hu.dwim.home"))
   (chapter (:title "Startup Server")
+    (paragraph ()
+      "The Server startup should not take more than a few seconds.")
     (shell-script ()
       "~/workspace/hu.dwim.home/server"))
   (chapter (:title "Shutdown Server")
     (paragraph ()
-      "press Control-C"))
+      "Press Control-C and wait until the Server shutdown is completed. The process should not take more than a few seconds."))
   (chapter (:title "Browse Server")
     (paragraph ()
       (parse-uri "http://localhost.localdomain:8080/")))
