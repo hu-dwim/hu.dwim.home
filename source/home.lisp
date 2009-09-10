@@ -166,8 +166,8 @@
 (def book hu.dwim.home/install-guide (:title "Install Guide")
   (chapter (:title "Introduction")
     (paragraph ()
-      "The Install Guide describes how to install and configure the same web service that is running at this site ("
-      (parse-uri "http://dwim.hu/") ") on your local computer."))
+      "The Install Guide describes how to install and configure the same web service that is running at "
+      (parse-uri "http://dwim.hu/") " on your local computer."))
   (chapter (:title "Install Ubuntu")
     (paragraph ()
       (parse-uri "http://www.ubuntu.com/")))
@@ -200,7 +200,7 @@
       "createuser -P hu.dwim.home --no-superuser --no-createdb --no-createrole"
       "exit")
     (paragraph ()
-      "When prompted for the password type in engedjbe"))
+      "When prompted for the password type in 'engedjbe'"))
   (chapter (:title "Install Sqlite")
     (paragraph ()
       (parse-uri "http://www.sqlite.org/"))
@@ -225,7 +225,8 @@
                                     (collect-get-repository-shell-script-commands))))
   (chapter (:title "Configure hu.dwim.home")
     (shell-script ()
-      "createlinks.sh"))
+      "cd ~/workspace/hu.dwim.home/www"
+      "../etc/createlinks.sh"))
   (chapter (:title "Build Production Server")
     (shell-script ()
       "~/workspace/hu.dwim.environment/bin/build-image hu.dwim.home"))
