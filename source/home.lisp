@@ -51,7 +51,7 @@
 ;;;;;;
 ;;; Entry points
 
-(def file-serving-entry-point *home-application* "/static/" (system-relative-pathname :hu.dwim.wui "www/"))
+(def file-serving-entry-point *home-application* "/static/" (system-relative-pathname :hu.dwim.home "www/"))
 
 (def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
@@ -142,7 +142,7 @@
       "cd ~/workspace"
       "cvs -z3 -d :pserver:anonymous:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl co -P sbcl"
       "cd sbcl"
-      "wget http://dwim.hu/static/sbcl/cutomize-target-features.lisp"
+      "wget http://dwim.hu/static/install/sbcl/cutomize-target-features.lisp"
       "./make.sh \"clisp -ansi -on-error abort\""
       "sudo ./install.sh"))
   (chapter (:title "Install PostgreSQL")
@@ -212,7 +212,7 @@
     (shell-script ()
       "sudo apt-get install emacs-snapshot"
       "cd ~"
-      "wget http://dwim.hu/install/.emacs"))
+      "wget http://dwim.hu/static/install/.emacs"))
   (chapter (:title "Install Slime")
     (paragraph ()
       (parse-uri "http://common-lisp.net/project/slime/"))
