@@ -53,6 +53,10 @@
 
 (def file-serving-entry-point *home-application* "/static/" (system-relative-pathname :hu.dwim.home "www/"))
 
+(def file-serving-entry-point *home-application* "/static/darcs/" #P"/opt/darcs/")
+
+(def file-serving-entry-point *home-application* "/static/darcsweb/" (truename (system-relative-pathname :hu.dwim.home "../darcsweb/")))
+
 (def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
 ;; TODO: this repeated code is quite boring
@@ -101,8 +105,6 @@
         (setf (root-component-of *frame*) (make-frame-component (make-value-inspector (find-book 'hu.dwim.home/install-guide)
                                                                                       :initial-alternative-type 'book/text/inspector)))
         (make-redirect-response-for-current-application))))
-
-(def file-serving-entry-point *home-application* "/static/darcsweb/" (truename (system-relative-pathname :hu.dwim.home "../darcsweb/")))
 
 ;; TODO: why these two falses?
 (def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f :requires-valid-frame #f) ()
