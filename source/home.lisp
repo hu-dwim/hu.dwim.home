@@ -96,12 +96,12 @@
                                                                                       :initial-alternative-type 'book/text/inspector)))
         (make-redirect-response-for-current-application))))
 
-(def file-serving-entry-point *home-application* "/static/darcsweb/" #P"/home/levy/workspace/darcsweb/")
+(def file-serving-entry-point *home-application* "/static/darcsweb/" (truename (system-relative-pathname :hu.dwim.home "../darcsweb/")))
 
 ;; TODO: why these two falses?
 (def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f :requires-valid-frame #f) ()
   (make-raw-functional-response ()
-    (handle-cgi-request #P"/home/levy/workspace/darcsweb/darcsweb.cgi")))
+    (handle-cgi-request (truename (system-relative-pathname :hu.dwim.home "../darcsweb/darcsweb.cgi")))))
 
 ;;;;;;
 ;;; Server
