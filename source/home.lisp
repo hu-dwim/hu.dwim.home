@@ -122,6 +122,41 @@
 ;;;;;;
 ;;; TODO: move
 
+(def special-variable *get-repository-shell-script-commands* nil)
+
+(def function collect-get-repository-shell-script-commands ()
+  (or *get-repository-shell-script-commands*
+      (setf *get-repository-shell-script-commands*
+            (iter (with workspace-directory-prefix-length = (length (namestring cl-user::*workspace-directory*)))
+                  (for pathname :in (directory (merge-pathnames cl-user::*workspace-directory* "/*.*")))
+                  (unless (or (pathname-name pathname)
+                              (char= #\. (first-elt (last-elt (pathname-directory pathname)))))
+                    (bind ((pathname-string (namestring pathname))
+                           (name (subseq pathname-string workspace-directory-prefix-length (1- (length pathname-string)))))
+                      (unless (search "sbcl" name)
+                        (collect (cond ((search "hu.dwim" name)
+                                        (concatenate-string "darcs get http://dwim.hu/darcs/" name))
+                                       ((probe-file (merge-pathnames "_darcs" pathname))
+                                        (bind ((darcs-info (trivial-shell:shell-command (concatenate-string "cd " pathname-string "; darcs show repo")))
+                                               ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)\\n.*" darcs-info))
+                                               (repository (first-elt groups)))
+                                          (concatenate-string "darcs get " repository)))
+                                       ((probe-file (merge-pathnames ".git" pathname))
+                                        (bind ((git-info (trivial-shell:shell-command (concatenate-string "cd " pathname-string "; git remote show origin -n")))
+                                               ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)\\n.*" git-info))
+                                               (repository (first-elt groups)))
+                                          (concatenate-string "git clone " repository)))
+                                       ((probe-file (merge-pathnames ".svn" pathname))
+                                        (bind ((svn-info (trivial-shell:shell-command (concatenate-string "cd " pathname-string "; svn info")))
+                                               ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)\\n.*" svn-info))
+                                               (repository (first-elt groups)))
+                                          (concatenate-string "svn checkout " repository)))
+                                       ((probe-file (merge-pathnames "CVS" pathname))
+                                        (bind ((repository (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Root" pathname)))))
+                                          (concatenate-string "cvs -z3 -d " repository " checkout")))
+                                       (t
+                                        (concatenate-string "TODO: " name)))))))))))
+
 (def book hu.dwim.home/install-guide (:title "Install Guide")
   (chapter (:title "Introduction")
     (paragraph ()
@@ -140,7 +175,7 @@
     (shell-script ()
       "sudo apt-get install cvs clisp"
       "cd ~/workspace"
-      "cvs -z3 -d :pserver:anonymous:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl co -P sbcl"
+      "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl"
       "cd sbcl"
       "wget http://dwim.hu/static/install/sbcl/cutomize-target-features.lisp"
       "./make.sh \"clisp -ansi -on-error abort\""
@@ -180,14 +215,8 @@
       "sudo apt-get install libgraphviz4"))
   (chapter (:title "Install Darcs Repositories")
     (make-instance 'shell-script
-                   :contents (list* "sudo apt-get darcs"
-                                    (mapcar (lambda (pathname)
-                                              (bind ((name (subseq (namestring pathname)
-                                                                   (length (namestring cl-user::*workspace-directory*)))))
-                                                (concatenate 'string
-                                                             "darcs get http://dwim.hu/darcs/"
-                                                             name)))
-                                            (directory (merge-pathnames cl-user::*workspace-directory* "/*.*"))))))
+                   :contents (list* "sudo apt-get install cvs svn git darcs"
+                                    (collect-get-repository-shell-script-commands))))
   (chapter (:title "Configure hu.dwim.home")
     (shell-script ()
       "createlinks.sh"))
@@ -218,7 +247,7 @@
       (parse-uri "http://common-lisp.net/project/slime/"))
     (shell-script ()
       "cd workspace"
-      "cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot co slime"))
+      "cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot checkout slime"))
   (chapter (:title "Connect Server with Slime")
     (paragraph ()
       (parse-uri "http://common-lisp.net/project/slime/"))
