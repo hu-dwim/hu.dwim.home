@@ -57,6 +57,8 @@
 
 (def file-serving-entry-point *home-application* "/darcs/" #P"/opt/darcs/")
 
+(def file-serving-entry-point *home-application* "/live/" common-lisp-user::*workspace-directory*)
+
 (def file-serving-entry-point *home-application* "/darcsweb/" (truename (system-relative-pathname :hu.dwim.home "../darcsweb/")))
 
 (def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
@@ -132,46 +134,72 @@
 ;;;;;;
 ;;; TODO: move
 
-(def function collect-get-repository-shell-script-commands ()
-  (sort (iter (with workspace-directory-prefix-length = (length (namestring cl-user::*workspace-directory*)))
-              (for pathname :in (directory (merge-pathnames cl-user::*workspace-directory* "/*.*")))
+(def function collect-get-repository-shell-script-commands (live?)
+  (sort (iter (for pathname :in (directory (merge-pathnames common-lisp-user::*workspace-directory* "/*.*")))
               (unless (or (pathname-name pathname)
                           (char= #\. (first-elt (last-elt (pathname-directory pathname)))))
                 (bind ((pathname-string (namestring pathname))
-                       (name (subseq pathname-string workspace-directory-prefix-length (1- (length pathname-string)))))
+                       (name (last-elt (pathname-directory pathname))))
                   (unless (search "sbcl" name)
                     (format *debug-io* "Getting repository information for ~A~%" pathname-string)
-                    (collect (cond ((search "hu.dwim" name)
-                                    (concatenate-string "darcs get http://dwim.hu/darcs/" name))
+                    (collect (cond ((or (search "ironclad" name)
+                                        (search "net-telent-date" name)
+                                        (search "parse-number" name)
+                                        (search "split-sequence" name))
+                                    (format nil "clisp -q -x \"(asdf-install:install :~A)\"" name))
+                                   ((or (search "/var/opt" pathname-string)
+                                        (search "hu.dwim" name))
+                                    (string+ "darcs get http://dwim.hu/"
+                                             (if live?
+                                                 "live/"
+                                                 "darcs/")
+                                             name))
                                    ((probe-file (merge-pathnames "_darcs" pathname))
-                                    (bind ((darcs-info (with-output-to-string (output)
-                                                         (sb-ext:run-program "/usr/bin/darcs"
-                                                                             `("show" "repo" "--repodir" ,pathname-string)
-                                                                             :output output)))
-                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
-                                           (repository (first-elt groups)))
-                                      (concatenate-string "darcs get " repository)))
+                                    (if live?
+                                        (string+ "darcs get http://dwim.hu/live/" name)
+                                        (bind ((darcs-info (with-output-to-string (output)
+                                                             (sb-ext:run-program "/usr/bin/darcs"
+                                                                                 `("show" "repo" "--repodir" ,pathname-string)
+                                                                                 :output output)))
+                                               ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
+                                               (repository (first-elt groups)))
+                                          (string+ "darcs get " repository))))
                                    ((probe-file (merge-pathnames ".git" pathname))
                                     (bind ((git-info (with-output-to-string (output)
                                                        (sb-ext:run-program "/usr/bin/git"
-                                                                           `("--git-dir" ,(concatenate-string pathname-string "/.git") "remote" "show" "origin" "-n")
+                                                                           `("--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
                                                                            :output output)))
                                            ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
                                            (repository (first-elt groups)))
-                                      (concatenate-string "git clone " repository)))
+                                      (string+ "git clone " repository
+                                               (when live?
+                                                 (bind ((git-info (with-output-to-string (output)
+                                                                    (sb-ext:run-program "/usr/bin/git"
+                                                                                        `("--git-dir" ,(string+ pathname-string "/.git") "rev-list" "--max-count=1" "HEAD")
+                                                                                        :output output)))
+                                                        (hash (string-trim-whitespace git-info)))
+                                                   (string+ " ; git --git-dir " ;
+                                                            name
+                                                            "/.git checkout -q " hash))))))
                                    ((probe-file (merge-pathnames ".svn" pathname))
                                     (bind ((svn-info (with-output-to-string (output)
                                                        (sb-ext:run-program "/usr/bin/svn"
                                                                            `("info" ,pathname-string)
                                                                            :output output)))
                                            ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
-                                           (repository (first-elt groups)))
-                                      (concatenate-string "svn checkout " repository " " name)))
+                                           (repository (first-elt groups))
+                                           ((:values nil groups) (cl-ppcre:scan-to-strings ".*Revision: (.*?)\\n.*" svn-info))
+                                           (revision (first-elt groups)))
+                                      (string+ "svn checkout " repository
+                                               (when live?
+                                                 (string+ " -r " revision))
+                                               " " name)))
                                    ((probe-file (merge-pathnames "CVS" pathname))
                                     (bind ((repository (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Root" pathname)))))
-                                      (concatenate-string "cvs -z3 -d " repository " checkout")))
+                                      (string+ "cvs -z3 -d " repository " checkout")))
                                    (t
-                                    (concatenate-string "TODO: " name))))))))
+                                    (warn "Don't know how to install project ~A" name)
+                                    (string+ "# TODO: Don't know how to install project " name))))))))
         #'string<))
 
 (def book hu.dwim.home/install-guide (:title "Install Guide")
@@ -231,9 +259,16 @@
     (shell-script ()
       "sudo apt-get install libgraphviz4"))
   (chapter (:title "Install Darcs Repositories")
+    (paragraph ()
+      "Live")
     (make-instance 'shell-script
                    :contents (list* "sudo apt-get install cvs subversion git git-core darcs"
-                                    (collect-get-repository-shell-script-commands))))
+                                    (collect-get-repository-shell-script-commands #t)))
+    (paragraph ()
+      "Main")
+    (make-instance 'shell-script
+                   :contents (list* "sudo apt-get install cvs subversion git git-core darcs"
+                                    (collect-get-repository-shell-script-commands #f))))
   (chapter (:title "Configure the Environment")
     (shell-script ()
       "cd ~"
