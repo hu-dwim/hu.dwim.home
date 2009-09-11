@@ -130,7 +130,7 @@
 (def special-variable *http-port-command-line-argument-specification*
   '("http-port"
     :type integer
-    :initial-value 80
+    :initial-value #.+default-home-server-port+
     :documentation "The HTTP server port where it will listening"))
 
 (def function process-http-port-command-line-argument (command-line-arguments)
@@ -166,7 +166,7 @@
                                         (search "parse-number" name)
                                         (search "split-sequence" name))
                                     (format nil "clisp -q -x \"(asdf-install:install :~A)\"" name))
-                                   ((or (search "/var/opt" pathname-string)
+                                   ((or (search "/var/opt/darcs" pathname-string)
                                         (search "hu.dwim" name))
                                     (string+ "darcs get http://dwim.hu/"
                                              (if live?
