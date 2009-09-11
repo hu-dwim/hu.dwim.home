@@ -1,0 +1,1 @@
+(load (merge-pathnames "workspace/hu.dwim.environment/source/environment.lisp" (user-homedir-pathname)))

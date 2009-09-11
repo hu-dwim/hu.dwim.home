@@ -53,9 +53,11 @@
 
 (def file-serving-entry-point *home-application* "/static/" (system-relative-pathname :hu.dwim.home "www/"))
 
-(def file-serving-entry-point *home-application* "/static/darcs/" #P"/opt/darcs/")
+(def file-serving-entry-point *home-application* "/install/" (system-relative-pathname :hu.dwim.home "www/install"))
 
-(def file-serving-entry-point *home-application* "/static/darcsweb/" (truename (system-relative-pathname :hu.dwim.home "../darcsweb/")))
+(def file-serving-entry-point *home-application* "/darcs/" #P"/opt/darcs/")
+
+(def file-serving-entry-point *home-application* "/darcsweb/" (truename (system-relative-pathname :hu.dwim.home "../darcsweb/")))
 
 (def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
@@ -192,7 +194,7 @@
       "cd ~/workspace"
       "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl"
       "cd sbcl"
-      "wget http://dwim.hu/static/install/customize-target-features.lisp"
+      "wget http://dwim.hu/install/customize-target-features.lisp"
       "./make.sh \"clisp -ansi -on-error abort\""
       "sudo sh ./install.sh"))
   (chapter (:title "Install PostgreSQL")
@@ -235,7 +237,7 @@
   (chapter (:title "Configure the Environment")
     (shell-script ()
       "cd ~"
-      "wget http://dwim.hu/static/install/.sbclrc"))
+      "wget http://dwim.hu/install/.sbclrc"))
   (chapter (:title "Configure the Server")
     (shell-script ()
       "cd ~/workspace/hu.dwim.home/www"
@@ -263,7 +265,7 @@
     (shell-script ()
       "sudo apt-get install emacs-snapshot"
       "cd ~"
-      "wget http://dwim.hu/static/install/.emacs"))
+      "wget http://dwim.hu/install/.emacs"))
   (chapter (:title "Install Slime")
     (paragraph ()
       (parse-uri "http://common-lisp.net/project/slime/"))
