@@ -110,26 +110,45 @@
                                                                                       :initial-alternative-type 'book/text/inspector)))
         (make-redirect-response-for-current-application))))
 
-;; TODO: why these two falses?
-(def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f :requires-valid-frame #f) ()
+(def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f) ()
   (make-raw-functional-response ()
     (handle-cgi-request (truename (system-relative-pathname :hu.dwim.home "../darcsweb/darcsweb.cgi")))))
 
 ;;;;;;
 ;;; Server
 
+(def constant +default-home-server-port+ 8080)
+
 (def (special-variable e) *home-server* (make-instance 'broker-based-server
                                                        :host +any-host+
-                                                       :port 8080
+                                                       :port +default-home-server-port+
                                                        :brokers (list *home-application*)))
 
 ;;;;;;
 ;;; Production
 
-(def logger log ())
+(def special-variable *http-port-command-line-argument-specification*
+  '("http-port"
+    :type integer
+    :initial-value 80
+    :documentation "The HTTP server port where it will listening"))
+
+(def function process-http-port-command-line-argument (command-line-arguments)
+  (when-bind http-port (getf command-line-arguments :http-port)
+    (setf (hu.dwim.wui::port-of (find +default-home-server-port+ (hu.dwim.wui::listen-entries-of *home-server*) :key #'hu.dwim.wui::port-of))
+          http-port)))
 
 (def function production-image-toplevel ()
-  (hu.dwim.meta-model::production-image-toplevel :hu.dwim.home *home-server* *home-application*))
+  (bind ((command-line-argument-specifications (sort (append (list *help-command-line-argument-specification*)
+                                                             (list *http-port-command-line-argument-specification*)
+                                                             *database-command-line-argument-specifications*
+                                                             *generic-command-line-argument-specifications*)
+                                                     #'string< :key #'first))
+         (command-line-arguments (command-line-arguments:process-command-line-options command-line-argument-specifications
+                                                                                      (command-line-arguments:get-command-line-arguments))))
+    (process-help-command-line-argument command-line-argument-specifications command-line-arguments)
+    (process-http-port-command-line-argument command-line-arguments)
+    (hu.dwim.meta-model::production-image-toplevel command-line-arguments :hu.dwim.home *home-server* *home-application*)))
 
 ;;;;;;
 ;;; TODO: move
@@ -265,7 +284,7 @@
                    :contents (list* "sudo apt-get install cvs subversion git git-core darcs"
                                     (collect-get-repository-shell-script-commands #t)))
     (paragraph ()
-      "Main")
+      "Head")
     (make-instance 'shell-script
                    :contents (list* "sudo apt-get install cvs subversion git git-core darcs"
                                     (collect-get-repository-shell-script-commands #f))))
