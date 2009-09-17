@@ -7,7 +7,8 @@
 (in-package :common-lisp-user)
 
 (defpackage :hu.dwim.home
-  (:use :hu.dwim.asdf
+  (:use :command-line-arguments
+        :hu.dwim.asdf
         :hu.dwim.common-lisp
         :hu.dwim.def
         :hu.dwim.defclass-star

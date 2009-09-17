@@ -6,191 +6,6 @@
 
 (in-package :hu.dwim.home)
 
-;;;;;;
-;;; Parameters
-
-(def (constant :test 'equalp) +script-uris+ '("wui/js/wui.js"))
-
-(def (constant :test 'string=) +page-icon+ "static/favicon.ico")
-
-(def special-variable *stylesheet-uris* (append (flet ((entry (path)
-                                                         (list (string+ "static/" path)
-                                                               (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
-                                                       (dojo-relative-path (path)
-                                                         (string+ *dojo-directory-name* path)))
-                                                  (list (entry "wui/css/wui.css")
-                                                        (entry "wui/css/icon.css")
-                                                        (entry "wui/css/widget.css")
-                                                        (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
-                                                        (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
-
-;;;;;;
-;;; Application
-
-(def (class* e) home-application (application-with-home-package application-with-dojo-support)
-  ()
-  (:metaclass funcallable-standard-class))
-
-(def (special-variable e) *home-application* (make-instance 'home-application
-                                                            :path-prefix "/"
-                                                            :ajax-enabled #t))
-
-(def function make-frame-component (&optional content)
-  (frame/widget (:title "dwim.hu"
-                 :page-icon +page-icon+
-                 :script-uris +script-uris+
-                 :stylesheet-uris *stylesheet-uris*)
-    (top/widget (:menu-bar (menu-bar/widget ()
-                             (make-documentation-menu-item)
-                             (make-project-menu-item)
-                             (make-source-menu-item)
-                             (make-debug-menu-item)))
-      (content/widget ()
-        content))))
-
-(def layered-method make-frame-component-with-content ((application home-application) session frame content)
-  (make-frame-component content))
-
-(def function make-project-menu-item ()
-  (make-menu-item "Project"
-                  (mapcar [bind ((project (make-instance 'project :path !1)))
-                            (menu-item/widget ()
-                                (replace-target-place/widget ()
-                                    (hu.dwim.wui::name-of project)
-                                  (make-value-inspector project :initial-alternative-type 't/detail/presentation)))]
-                          (collect-live-project-pathnames))))
-
-(def function make-documentation-menu-item ()
-  (menu-item/widget ()
-      "Documentation"
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-            "Install Guide"
-          (make-value-inspector (find-book 'hu.dwim.home/install-guide) :initial-alternative-type 'book/text/inspector)))))
-
-(def function make-source-menu-item ()
-  (menu-item/widget ()
-      "Source"
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-            "Class Browser"
-          (make-value-inspector (find-class 'hu.dwim.perec::persistent-class) :initial-alternative-type 't/lisp-form/inspector)))
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-            "Function Browser"
-          (make-value-inspector (fdefinition 'make-instance) :initial-alternative-type 't/lisp-form/inspector)))))
-
-;;;;;;
-;;; Entry points
-
-(def file-serving-entry-point *home-application* "/static/" (system-relative-pathname :hu.dwim.home "www/"))
-
-(def file-serving-entry-point *home-application* "/install/" (system-relative-pathname :hu.dwim.home "www/install/"))
-
-(def file-serving-entry-point *home-application* "/darcs/" #P"/opt/darcs/")
-
-(def file-serving-entry-point *home-application* "/live/" common-lisp-user::*workspace-directory*)
-
-(def file-serving-entry-point *home-application* "/darcsweb/" (merge-pathnames "darcsweb/" common-lisp-user::*workspace-directory*))
-
-(def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
-
-;; TODO: this repeated code is quite boring
-(def entry-point (*home-application* :path-prefix "project/" :ensure-session #t :ensure-frame #t) ()
-  (if (root-component-of *frame*)
-      (make-root-component-rendering-response *frame*)
-      (progn
-        (setf (root-component-of *frame*)
-              (make-frame-component (make-value-inspector (make-instance 'project :path (asdf::system-source-directory *entry-point-relative-path*))
-                                                          :initial-alternative-type 'inspector/abstract)))
-        (make-redirect-response-for-current-application (string+ "project/" *entry-point-relative-path*)))))
-
-(def entry-point (*home-application* :path-prefix "file/" :ensure-session #t :ensure-frame #t) ()
-  (if (root-component-of *frame*)
-      (make-root-component-rendering-response *frame*)
-      (bind ((pathname (merge-pathnames *entry-point-relative-path* common-lisp-user::*workspace-directory*)))
-        (when (starts-with-subseq (namestring (truename common-lisp-user::*workspace-directory*)) (namestring pathname))
-          (setf (root-component-of *frame*)
-                (make-frame-component (make-value-inspector pathname :initial-alternative-type 'pathname/lisp-file/inspector)))
-          (make-redirect-response-for-current-application (string+ "file/" *entry-point-relative-path*))))))
-
-(def entry-point (*home-application* :path-prefix "function/" :ensure-session #t :ensure-frame #t) ()
-  (if (root-component-of *frame*)
-      (make-root-component-rendering-response *frame*)
-      (progn
-        (setf (root-component-of *frame*)
-              (make-frame-component (make-value-inspector (fdefinition (bind ((*read-eval* #f))
-                                                                         (read-from-string *entry-point-relative-path*)))
-                                                          :initial-alternative-type 't/lisp-form/inspector)))
-        (make-redirect-response-for-current-application (string+ "function/" *entry-point-relative-path*)))))
-
-(def entry-point (*home-application* :path-prefix "class/" :ensure-session #t :ensure-frame #t) ()
-  (if (root-component-of *frame*)
-      (make-root-component-rendering-response *frame*)
-      (progn
-        (setf (root-component-of *frame*)
-              (make-frame-component (make-value-inspector (find-class (bind ((*read-eval* #f))
-                                                                        (read-from-string *entry-point-relative-path*)))
-                                                          :initial-alternative-type 't/lisp-form/inspector)))
-        (make-redirect-response-for-current-application (string+ "class/" *entry-point-relative-path*)))))
-
-(def entry-point (*home-application* :path "" :ensure-session #t :ensure-frame #t) ()
-  (if (root-component-of *frame*)
-      (make-root-component-rendering-response *frame*)
-      (progn
-        (setf (root-component-of *frame*) (make-frame-component (image/widget :id "dwim-logo" :location (make-uri-for-current-application "static/wui/image/about/dwim-logo.png"))))
-        (make-redirect-response-for-current-application))))
-
-(def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f) ()
-  (make-raw-functional-response ()
-    (handle-cgi-request (merge-pathnames "darcsweb/darcsweb.cgi" common-lisp-user::*workspace-directory*))))
-
-;;;;;;
-;;; Server
-
-(def constant +default-home-server-port+ 8080)
-
-(def (special-variable e) *home-server* (make-instance 'broker-based-server
-                                                       :host +any-host+
-                                                       :port +default-home-server-port+
-                                                       :brokers (list *home-application*)))
-
-;;;;;;
-;;; Production
-
-(def special-variable *http-port-command-line-option*
-  '("http-port"
-    :type integer
-    :initial-value #.+default-home-server-port+
-    :documentation "The HTTP server port where it will listening"))
-
-(def function process-http-port-command-line-argument (command-line-arguments)
-  (when-bind http-port (getf command-line-arguments :http-port)
-    (setf (hu.dwim.wui::port-of (find +default-home-server-port+ (hu.dwim.wui::listen-entries-of *home-server*) :key #'hu.dwim.wui::port-of))
-          http-port)))
-
-(def function production-image-toplevel ()
-  (bind ((command-line-options (sort (append (list *help-command-line-option*)
-                                             (list *http-port-command-line-option*)
-                                             *database-command-line-options*
-                                             *generic-command-line-options*)
-                                     #'string< :key #'first))
-         (command-line-arguments (command-line-arguments:process-command-line-options command-line-options
-                                                                                      (command-line-arguments:get-command-line-arguments))))
-    (process-help-command-line-argument command-line-options command-line-arguments)
-    (process-http-port-command-line-argument command-line-arguments)
-    (hu.dwim.meta-model::production-image-toplevel command-line-arguments :hu.dwim.home *home-server* *home-application*)))
-
-;;;;;;
-;;; TODO: move
-
-(def function collect-live-project-pathnames ()
-  (iter (for pathname :in (directory (merge-pathnames common-lisp-user::*workspace-directory* "/*.*")))
-        (unless (or (pathname-name pathname)
-                    (char= #\. (first-elt (last-elt (pathname-directory pathname))))
-                    (string= "sbcl" (last-elt (pathname-directory pathname))))
-          (collect pathname))))
-
 (def function collect-install-project-shell-script-commands (live?)
   (sort (iter (for pathname :in (collect-live-project-pathnames))
               (for pathname-string = (namestring pathname))
@@ -263,7 +78,7 @@
                               (string+ "# TODO: Don't know how to install project " name)))))
         #'string<))
 
-(def book hu.dwim.home/install-guide (:title "Install Guide")
+(def book install-guide (:title "Install Guide")
   (chapter (:title "Introduction")
     (paragraph ()
       "The Install Guide describes how to install and configure the same web service that is running at "
@@ -300,7 +115,7 @@ described here. Other operating systems such as Windows, Mac OS X, etc. are not 
       "sudo sh ~/workspace/sbcl/install.sh"))
   (chapter (:title "Install PostgreSQL")
     (paragraph ()
-      "The Server uses the " (find-project :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database.
+      "The Server uses the " (find-project :name :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database.
 The default backend is the well known PostgreSQL open source relational database server."
       (parse-uri "http://www.postgresql.org/"))
     (shell-script ()

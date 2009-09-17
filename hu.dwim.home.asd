@@ -42,8 +42,13 @@
                :hu.dwim.util.documentation
                :hu.dwim.walker.documentation
                :hu.dwim.wui.documentation
-               :hu.dwim.wui+hu.dwim.reader+hu.dwim.syntax-sugar)
+               :hu.dwim.wui+hu.dwim.reader+hu.dwim.syntax-sugar
+               :hu.dwim.wui+stefil)
   :components ((:module "source"
-                :components ((:file "package")
-                             (:file "configuration" :depends-on ("package"))
-                             (:file "home" :depends-on ("configuration"))))))
+                :components ((:file "configuration" :depends-on ("package"))
+                             (:file "entry-point" :depends-on ("server"))
+                             (:file "install-guide" :depends-on ("screen"))
+                             (:file "tutorial" :depends-on ("configuration"))
+                             (:file "package")
+                             (:file "screen" :depends-on ("configuration"))
+                             (:file "server" :depends-on ("screen"))))))
