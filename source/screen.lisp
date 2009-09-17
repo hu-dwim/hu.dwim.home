@@ -33,6 +33,7 @@
          (menu-bar (menu-bar/widget ()
                      home-menu
                      (make-documentation-menu)
+                     (make-demo-menu)
                      (make-project-menu)
                      (make-source-menu)
                      (make-debug-menu))))
@@ -74,28 +75,28 @@
       (replace-target-place/widget ()
           "News"
         (inline-render-xhtml/widget ()
-          "TODO"))))
+          "Soon"))))
 
 (def function make-blog-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Blog"
         (inline-render-xhtml/widget ()
-          "TODO"))))
+          "Soon"))))
 
 (def function make-forum-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Forum"
         (inline-render-xhtml/widget ()
-          "TODO"))))
+          "Soon"))))
 
 (def function make-contact-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Contact"
         (inline-render-xhtml/widget ()
-          "TODO"))))
+          "Soon"))))
 
 (def function make-licence-menu-item ()
   (menu-item/widget ()
@@ -116,6 +117,28 @@
                                                                                                       (make-instance 'project :path pathname)))
                                                            :default-alternative-type 'pathname/text-file/inspector))
                                    (collect-live-project-pathnames))))
+
+;;;;;;
+;;; Demo
+
+(def function make-demo-menu ()
+  (menu-item/widget ()
+      "Demo"
+    (make-wui-demo-menu-item)
+    (make-perec-demo-menu-item)))
+
+(def function make-wui-demo-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "User Interface"
+        (hu.dwim.wui.test::make-demo-content))))
+
+(def function make-perec-demo-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Persistent Data"
+        (inline-render-xhtml/widget ()
+          "Soon"))))
 
 ;;;;;;
 ;;; Project
