@@ -7,16 +7,6 @@
 (in-package :hu.dwim.home)
 
 ;;;;;;
-;;; Server
-
-(def constant +default-home-server-port+ 8080)
-
-(def (special-variable e) *home-server* (make-instance 'broker-based-server
-                                                       :host +any-host+
-                                                       :port +default-home-server-port+
-                                                       :brokers (list *home-application*)))
-
-;;;;;;
 ;;; Application
 
 (def (class* e) home-application (application-with-home-package application-with-dojo-support)
@@ -29,6 +19,16 @@
 
 (def layered-method make-frame-component-with-content ((application home-application) session frame content)
   (make-frame-component content))
+
+;;;;;;
+;;; Server
+
+(def constant +default-home-server-port+ 8080)
+
+(def (special-variable e) *home-server* (make-instance 'broker-based-server
+                                                       :host +any-host+
+                                                       :port +default-home-server-port+
+                                                       :brokers (list *home-application*)))
 
 ;;;;;;
 ;;; Production

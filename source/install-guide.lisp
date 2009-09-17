@@ -115,7 +115,7 @@ described here. Other operating systems such as Windows, Mac OS X, etc. are not 
       "sudo sh ~/workspace/sbcl/install.sh"))
   (chapter (:title "Install PostgreSQL")
     (paragraph ()
-      "The Server uses the " (find-project :name :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database.
+      "The Server uses the " #+nil(find-project :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database.
 The default backend is the well known PostgreSQL open source relational database server."
       (parse-uri "http://www.postgresql.org/"))
     (shell-script ()

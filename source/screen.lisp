@@ -112,7 +112,7 @@
 (def function make-live-project-licences-inspector ()
   (make-instance 'vertical-list/layout
                  :contents (mapcar (lambda (pathname)
-                                     (make-value-inspector (hu.dwim.wui::project-licence-pathname (or (find-project-by-pathname pathname)
+                                     (make-value-inspector (hu.dwim.wui::project-licence-pathname (or (find-project-by-path pathname)
                                                                                                       (make-instance 'project :path pathname)))
                                                            :default-alternative-type 'pathname/text-file/inspector))
                                    (collect-live-project-pathnames))))
@@ -124,7 +124,7 @@
   (make-menu-item "Project" (mapcar #'make-project-menu-item (collect-live-project-pathnames))))
 
 (def function make-project-menu-item (pathname)
-  (bind ((project (or (find-project-by-pathname pathname)
+  (bind ((project (or (find-project-by-path pathname)
                       (make-instance 'project :path pathname))))
     (menu-item/widget ()
         (replace-target-place/widget ()
