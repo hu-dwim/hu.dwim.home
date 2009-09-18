@@ -16,9 +16,9 @@
 
 (def file-serving-entry-point *home-application* "/darcs/" #P"/opt/darcs/")
 
-(def file-serving-entry-point *home-application* "/live/" common-lisp-user::*workspace-directory*)
+(def file-serving-entry-point *home-application* "/live/" *workspace-directory*)
 
-(def file-serving-entry-point *home-application* "/darcsweb/" (merge-pathnames "darcsweb/" common-lisp-user::*workspace-directory*))
+(def file-serving-entry-point *home-application* "/darcsweb/" (merge-pathnames "darcsweb/" *workspace-directory*))
 
 (def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
@@ -42,8 +42,8 @@
 (def entry-point (*home-application* :path-prefix "file/" :ensure-session #t :ensure-frame #t) ()
   (if (root-component-of *frame*)
       (make-root-component-rendering-response *frame*)
-      (bind ((pathname (merge-pathnames *entry-point-relative-path* common-lisp-user::*workspace-directory*)))
-        (when (starts-with-subseq (namestring (truename common-lisp-user::*workspace-directory*)) (namestring pathname))
+      (bind ((pathname (merge-pathnames *entry-point-relative-path* *workspace-directory*)))
+        (when (starts-with-subseq (namestring (truename *workspace-directory*)) (namestring pathname))
           (setf (root-component-of *frame*)
                 (make-frame-component (make-value-inspector pathname :initial-alternative-type 'pathname/lisp-file/inspector)))
           (make-redirect-response-for-current-application (string+ "file/" *entry-point-relative-path*))))))
@@ -77,4 +77,4 @@
 
 (def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f) ()
   (make-raw-functional-response ()
-    (handle-cgi-request (merge-pathnames "darcsweb/darcsweb.cgi" common-lisp-user::*workspace-directory*))))
+    (handle-cgi-request (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*))))

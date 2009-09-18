@@ -176,7 +176,7 @@
         (make-value-inspector (find-book 'tutorial) :initial-alternative-type 'book/text/inspector))))
 
 (def function collect-live-project-pathnames ()
-  (iter (for pathname :in (directory (merge-pathnames common-lisp-user::*workspace-directory* "/*.*")))
+  (iter (for pathname :in (directory (merge-pathnames *workspace-directory* "/*.*")))
         (unless (or (pathname-name pathname)
                     (char= #\. (first-elt (last-elt (pathname-directory pathname))))
                     (string= "sbcl" (last-elt (pathname-directory pathname))))
