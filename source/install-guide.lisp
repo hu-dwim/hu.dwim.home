@@ -14,14 +14,7 @@
                       pathname-string (if live?
                                           "live"
                                           "head"))
-              (collect (cond ((or (string= "ironclad" name)
-                                  (string= "net-telent-date" name)
-                                  (string= "parse-number" name)
-                                  (string= "split-sequence" name))
-                              (if live?
-                                  (string+ "wget -np -r -nH --cut-dirs=1 http://dwim.hu/live/" name)
-                                  (format nil "sbcl --eval \"(progn (require :asdf-install) (asdf-install:install :~A) (quit))\"" name)))
-                             ((search "hu.dwim" name)
+              (collect (cond ((search "hu.dwim" name)
                               (string+ "darcs get http://dwim.hu/"
                                        (if live?
                                            "live/"
@@ -84,7 +77,9 @@
       "The Install Guide describes how to install and configure the same web service that is running at "
       (parse-uri "http://dwim.hu/") " on your local computer. The Install Guide is written to be as complete as possible in terms of listing all needed
 software components. While this is helpful for newcomers, it also means that some components may be already present in your system. You can safely ignore installing
-those parts that are you have already installed."))
+those parts that are you have already installed.")
+    (paragraph ()
+      "You can see the source of this install guide at " (parse-uri "http://dwim.hu/file/hu.dwim.home/source/install-guide.lisp")))
   (chapter (:title "Prerequisits")
     (paragraph ()
       "The Install Guide is tested under Virtual Box to ensure all dependencies are properly listed. First the operating system is installed and then all 
@@ -182,7 +177,7 @@ to install the HEAD revisions of all required repositories. This allows you to h
       "sudo apt-get install libz-dev"
       "sh ~/workspace/cl-l10n/bin/update-cldr.sh"
       "sh ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.wui/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
-      "sh ~/workspace/hu.dwim.environment/bin/build-image hu.dwim.home"))
+      "sh ~/workspace/hu.dwim.environment/bin/build-image.sh hu.dwim.home"))
   (chapter (:title "Startup Server")
     (paragraph ()
       "The Server startup should not take more than a few seconds.")
