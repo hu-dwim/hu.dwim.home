@@ -51,9 +51,13 @@
     (values (menu-item/widget ()
                 "Home"
               home-menu-item
+              #+nil
               (make-news-menu-item)
+              #+nil
               (make-blog-menu-item)
+              #+nil
               (make-forum-menu-item)
+              #+nil
               (make-contact-menu-item)
               (make-licence-menu-item)
               (make-help-menu-item))
