@@ -9,12 +9,13 @@
 ;;;;;;
 ;;; Entry points
 
-
 (def file-serving-entry-point *home-application* "/static/" (system-relative-pathname :hu.dwim.home "www/"))
 
 (def file-serving-entry-point *home-application* "/install/" (system-relative-pathname :hu.dwim.home "www/install/"))
 
 (def file-serving-entry-point *home-application* "/darcs/" #P"/opt/darcs/")
+
+(def file-serving-entry-point *home-application* "/git/" #P"/opt/git/")
 
 (def file-serving-entry-point *home-application* "/live/" *workspace-directory*)
 
@@ -75,6 +76,6 @@
         (setf (root-component-of *frame*) (make-frame-component))
         (make-redirect-response-for-current-application))))
 
-(def entry-point (*home-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f) ()
+(def entry-point (*home-application* :path "darcsweb" :with-session-logic #f) ()
   (make-raw-functional-response ()
     (handle-cgi-request (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*))))
