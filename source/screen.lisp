@@ -11,7 +11,7 @@
 
 (def (constant :test #'equal) +page-icon+ "static/favicon.ico")
 
-(def (constant :test #'equal) +script-uris+ '("wui/js/wui.js"))
+(def (constant :test #'equal) +script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
 
 (def (constant :test #'equal) +stylesheet-uris+ (append (flet ((entry (path)
                                                                  (list (string+ "static/" path)
