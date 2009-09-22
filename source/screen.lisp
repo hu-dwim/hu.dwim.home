@@ -165,7 +165,9 @@
   (menu-item/widget ()
       "Documentation"
     (make-install-guide-menu-item)
-    (make-tutorial-menu-item)))
+    (make-tutorial-menu-item)
+    (make-wui-documentation-item)
+    (make-perec-documentation-item)))
 
 (def function make-install-guide-menu-item ()
   (menu-item/widget ()
@@ -178,6 +180,18 @@
       (replace-target-place/widget ()
           "Tutorial"
         (make-value-inspector (find-book 'tutorial) :initial-alternative-type 'book/text/inspector))))
+
+(def function make-wui-documentation-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "User Interface"
+        (make-value-inspector (find-book 'hu.dwim.wui.documentation::user-guide) :initial-alternative-type 'book/text/inspector))))
+
+(def function make-perec-documentation-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Persistent Data"
+        (make-value-inspector (find-book 'hu.dwim.perec.documentation::user-guide) :initial-alternative-type 'book/text/inspector))))
 
 (def function collect-live-project-pathnames ()
   (iter (for pathname :in (directory (merge-pathnames *workspace-directory* "/*.*")))
