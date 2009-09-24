@@ -77,10 +77,10 @@
       "The Install Guide describes how to install and configure the same web service that is running at "
       (parse-uri "http://dwim.hu/") " on your local computer. The Install Guide is written to be as complete as possible in terms of listing all needed
 software components. While this is helpful for newcomers, it also means that some components may be already present in your system. You can safely ignore installing
-those parts that are you have already installed.")
+those parts that you have already installed.")
     (paragraph ()
       "You can see the source of this install guide at " (parse-uri "http://dwim.hu/file/hu.dwim.home/source/install-guide.lisp")))
-  (chapter (:title "Prerequisits")
+  (chapter (:title "Platform")
     (paragraph ()
       "The Install Guide is tested under Virtual Box to ensure all dependencies are properly listed. First the operating system is installed and then all 
 shell scripts are executed from the following chapters."
@@ -106,7 +106,7 @@ described here. Other operating systems such as Windows, Mac OS X, etc. are not 
       "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl"
       "cd sbcl"
       "wget http://dwim.hu/install/customize-target-features.lisp"
-      "~/workspace/sbcl/make.sh \"clisp -ansi -on-error abort\""
+      "sh ~/workspace/sbcl/make.sh \"clisp -ansi -on-error abort\""
       "sudo sh ~/workspace/sbcl/install.sh"))
   (chapter (:title "Install PostgreSQL")
     (paragraph ()
@@ -141,6 +141,17 @@ The default backend is the well known PostgreSQL open source relational database
       (parse-uri "http://java.sun.com/"))
     (shell-script ()
       "sudo apt-get install sun-java6-jdk"))
+  (chapter (:title "Install gitweb")
+    (paragraph ()
+      "This is needed for gitweb")
+    (shell-script ()
+      "sudo apt-get install curl libcurl4-gnutls-dev"
+      "make GIT_BINDIR=\"/usr/bin\" GITWEB_PROJECTROOT=\"~/workspace\" GITWEB_PROJECT_MAXDEPTH=2 gitweb/gitweb.cgi"))
+  (chapter (:title "Install darcsweb")
+    (paragraph ()
+      "This is needed for gitweb")
+    (shell-script ()
+      "sudo apt-get install curl libcurl4-gnutls-dev"))
   (chapter (:title "Install Graphviz")
     (paragraph ()
       (parse-uri "http://www.graphviz.org/"))
@@ -177,12 +188,12 @@ to install the HEAD revisions of all required repositories. This allows you to h
       "sudo apt-get install libz-dev"
       "sh ~/workspace/cl-l10n/bin/update-cldr.sh"
       "sh ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.wui/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
-      "sh ~/workspace/hu.dwim.environment/bin/build-image.sh hu.dwim.home"))
+      "sh ~/workspace/hu.dwim.environment/bin/build.sh -s -e hu.dwim.home"))
   (chapter (:title "Startup Server")
     (paragraph ()
       "The Server startup should not take more than a few seconds.")
     (shell-script ()
-      "~/workspace/hu.dwim.home/hu.dwim.home"))
+      "~/hu.dwim.home"))
   (chapter (:title "Shutdown Server")
     (paragraph ()
       "Press 'Control-C' when the server window is active and wait until the Server shutdown is completed. The process should not take more than a few seconds."))
