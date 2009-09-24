@@ -23,9 +23,9 @@
 
 (def file-serving-entry-point *home-application* "/gitweb/" (merge-pathnames "gitweb/" *workspace-directory*))
 
-(def cgi-serving-entry-point *home-application* "darcsweb/darcsweb.cgi" (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*))
+(def cgi-serving-entry-point *home-application* "darcsweb/darcsweb.cgi" (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*) :priority 1)
 
-(def cgi-serving-entry-point *home-application* "gitweb/gitweb.cgi" (merge-pathnames "gitweb/gitweb.cgi" *workspace-directory*))
+(def cgi-serving-entry-point *home-application* "gitweb/gitweb.cgi" (merge-pathnames "gitweb/gitweb.cgi" *workspace-directory*) :priority 1)
 
 (def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
@@ -78,7 +78,7 @@
                                                           :initial-alternative-type 't/lisp-form/inspector)))
         (make-redirect-response-for-current-application (string+ "class/" *entry-point-relative-path*)))))
 
-(def entry-point (*home-application* :path-prefix "status/" :with-session-logic #f) ()
+(def entry-point (*home-application* :path-prefix "status" :with-session-logic #f) ()
   (make-server-status-response))
 
 ;;;;;;
