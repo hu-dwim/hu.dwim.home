@@ -23,8 +23,6 @@
 ;;;;;;
 ;;; Server
 
-(def (constant :test #'equal) +default-home-server-hostname+ "localhost.localdomain")
-
 (def constant +default-home-server-port+ 8080)
 
 (def (special-variable e) *home-server* (make-instance 'broker-based-server
@@ -48,12 +46,11 @@
           http-port)))
 
 (def function executable-toplevel ()
-  (bind ((options (sort (append (list +help-command-line-option+)
-                                (list +http-port-command-line-option+)
-                                (list +quiet-command-line-option+)
-                                +database-command-line-options+
-                                +generic-command-line-options+)
-                        #'string< :key #'first))
+  (bind ((options (append (list +help-command-line-option+)
+                          (list +http-port-command-line-option+)
+                          (list +quiet-command-line-option+)
+                          +database-command-line-options+
+                          +generic-command-line-options+))
          (arguments (process-command-line-options options (get-command-line-arguments))))
     (process-help-command-line-argument options arguments)
     (process-http-port-command-line-argument arguments)
