@@ -35,6 +35,7 @@
                      (make-documentation-menu)
                      (make-demo-menu)
                      (make-project-menu)
+                     (make-repository-menu)
                      (make-source-menu)
                      (make-debug-menu))))
     (frame/widget (:title "dwim.hu" :page-icon +page-icon+ :script-uris +script-uris+ :stylesheet-uris +stylesheet-uris+)
@@ -65,9 +66,28 @@
 
 (def function make-home-menu-item ()
   (bind ((content (vertical-list/layout ()
-                    (make-value-inspector (paragraph () "This website is a live demostration and reflexive documentation for our Common Lisp projects.")
-                                          :initial-alternative-type 't/text/inspector)
-                    (image/widget :id "dwim-logo" :location (make-uri-for-current-application "static/wui/image/about/dwim-logo.png")))))
+                    (image/widget :id "dwim-logo" :location (make-uri-for-current-application "static/wui/image/about/dwim-logo.png"))
+                    (make-value-inspector
+                     (book (:title "dwim.hu")
+                       (chapter (:title "Introduction")
+                         (paragraph ()
+                           "This website is a live demostration and a reflexive documentation for our Common Lisp projects."))
+                       (chapter (:title "Platform")
+                         "The dwim Server runs under Ubuntu Linux x86-64 Server Edition and  Steel Banks Common Lisp (SBCL) x86-64.")
+                       (chapter (:title "Software")
+                         (paragraph ()
+                           "The dwim Server runs on our scalable iolib based pure lisp-from-the-socket web server called hu.dwim.wui.
+It stores persistent data in our Common Lisp Object System (CLOS) Object Relational Mapping (ORM) called hu.dwim.perec, backed up with PostgreSQL.
+The Common Lisp code fragments that are presented throughout the site are shown by introspection. In other words they are part of the live system."))
+                       (chapter (:title "Licence")
+                         (paragraph ()
+                           "The dwim Server is built using only Open Source software. The operating system, the Common Lisp implementation,
+the database, and our software components are all public domain software. For more details on the individual licences (BSD, MIT, LGPL) please check
+the Licence menu item."))
+                       (chapter (:title "Installation")
+                         (paragraph ()
+                           "The dwim Server can be installed for free for any purpose. The Install Guide is found under the Documentation menu item.")))
+                     :initial-alternative-type 't/text/inspector))))
     (values (menu-item/widget ()
                 (replace-target-place/widget ()
                     "Home"
@@ -138,7 +158,7 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Server Status"
-        (bind ((uri (format nil "http://~A:~A/status/" +default-home-server-hostname+ +default-home-server-port+)))
+        (bind ((uri "http://dwim.hu/status"))
           (make-value-inspector
            (book (:title "Server Status")
              (chapter (:title "Introduction")
@@ -164,11 +184,11 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Echo Server"
-        (bind ((uri (format nil "http://~A:~A/" +default-home-server-hostname+ +default-echo-server-port+)))
+        (bind ((uri "http://dwim.hu/echo"))
           (make-value-inspector
            (book (:title "Echo Server")
              (chapter (:title "Introduction")
-               "This example demonstrates how to define a simple request echo server. The live server is at: "
+               "This example demonstrates how to define a simple request echo server. The live entry point is at: "
                (parse-uri uri))
              (chapter (:title "Source")
                (paragraph ()
@@ -186,11 +206,11 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Hello World Server"
-        (bind ((uri (format nil "http://~A:~A/" +default-home-server-hostname+ +default-hello-world-server-port+)))
+        (bind ((uri "http://dwim.hu/hello-world"))
           (make-value-inspector
            (book (:title "Hello World Server")
              (chapter (:title "Introduction")
-               "This example demonstrates how to define a simple hello world server. The live server is at: "
+               "This example demonstrates how to define a simple hello world server. The live entry point is at: "
                (parse-uri uri))
              (chapter (:title "Source")
                (paragraph ()
@@ -272,6 +292,29 @@
                     (char= #\. (first-elt (last-elt (pathname-directory pathname))))
                     (string= "sbcl" (last-elt (pathname-directory pathname))))
           (collect pathname))))
+
+;;;;;;
+;;; Repository
+
+(def function make-repository-menu ()
+  (menu-item/widget ()
+      "Repository"
+    (make-darcs-repository-menu-item)
+    (make-git-repository-menu-item)))
+
+(def function make-darcs-repository-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Darcs"
+        (inline-render-xhtml/widget ()
+          <iframe (:width "100%" :height "5000px" :style "border: none; overflow: hidden" :src "/darcsweb/darcsweb.cgi")>))))
+
+(def function make-git-repository-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Git"
+        (inline-render-xhtml/widget ()
+          <iframe (:width "100%" :height "1000px" :style "border: none; overflow: hidden" :src "/gitweb/gitweb.cgi")>))))
 
 ;;;;;;
 ;;; Source
