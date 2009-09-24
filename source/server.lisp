@@ -23,6 +23,8 @@
 ;;;;;;
 ;;; Server
 
+(def (constant :test #'equal) +default-home-server-hostname+ "localhost.localdomain")
+
 (def constant +default-home-server-port+ 8080)
 
 (def (special-variable e) *home-server* (make-instance 'broker-based-server
@@ -37,7 +39,7 @@
   '("http-port"
     :type integer
     :initial-value #.+default-home-server-port+
-    :documentation "The HTTP server port where it will listening"))
+    :documentation "The HTTP port where the server will be listening"))
 
 (def function process-http-port-command-line-argument (command-line-arguments)
   (when-bind http-port (getf command-line-arguments :http-port)
@@ -45,7 +47,7 @@
                                       :key #'hu.dwim.wui::port-of))
           http-port)))
 
-(def function production-image-toplevel ()
+(def function executable-toplevel ()
   (bind ((command-line-options (sort (append (list *help-command-line-option*)
                                              (list *http-port-command-line-option*)
                                              *database-command-line-options*
@@ -54,4 +56,4 @@
          (command-line-arguments (process-command-line-options command-line-options (get-command-line-arguments))))
     (process-help-command-line-argument command-line-options command-line-arguments)
     (process-http-port-command-line-argument command-line-arguments)
-    (hu.dwim.meta-model::production-image-toplevel command-line-arguments :hu.dwim.home *home-server* *home-application*)))
+    (startup-dwim-server command-line-arguments :hu.dwim.home *home-server* *home-application*)))

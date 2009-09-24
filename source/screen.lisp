@@ -128,8 +128,81 @@
 (def function make-demo-menu ()
   (menu-item/widget ()
       "Demo"
+    (make-server-status-menu-item)
+    (make-echo-server-demo-menu-item)
+    (make-hello-world-server-demo-menu-item)
     (make-wui-demo-menu-item)
     (make-perec-demo-menu-item)))
+
+(def function make-server-status-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Server Status"
+        (bind ((uri (format nil "http://~A:~A/status/" +default-home-server-hostname+ +default-home-server-port+)))
+          (make-value-inspector
+           (book (:title "Server Status")
+             (chapter (:title "Introduction")
+               "This example demonstrates how to define a simple entry point that shows some server status information. The live entry point is at: "
+               (parse-uri uri))
+             (chapter (:title "Source")
+               (paragraph ()
+                 "The status is rendered by the following code:")
+               (make-value-inspector (fdefinition 'write-server-status) :initial-alternative-type 'function/lisp-form/inspector)
+               (paragraph ()
+                 "The entry point is defined in the following code, look at the entry-point 'status':")
+               ;; TODO: get the entry-point's code only
+               (make-value-inspector (system-relative-pathname :hu.dwim.home "source/entry-point.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+               (paragraph ()
+                 "The demo menu item is created by the following code:")
+               (make-value-inspector (fdefinition 'make-server-status-menu-item) :initial-alternative-type 'function/lisp-form/inspector))
+             (chapter (:title "Live")
+               (inline-render-xhtml/widget ()
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>)))
+           :initial-alternative-type 't/text/inspector)))))
+
+(def function make-echo-server-demo-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Echo Server"
+        (bind ((uri (format nil "http://~A:~A/" +default-home-server-hostname+ +default-echo-server-port+)))
+          (make-value-inspector
+           (book (:title "Echo Server")
+             (chapter (:title "Introduction")
+               "This example demonstrates how to define a simple request echo server. The live server is at: "
+               (parse-uri uri))
+             (chapter (:title "Source")
+               (paragraph ()
+                 "The echo server source is the following:")
+               (make-value-inspector (system-relative-pathname :hu.dwim.home "source/echo-server.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+               (paragraph ()
+                 "The demo menu item is created by the following code:")
+               (make-value-inspector (fdefinition 'make-echo-server-demo-menu-item) :initial-alternative-type 'function/lisp-form/inspector))
+             (chapter (:title "Live")
+               (inline-render-xhtml/widget ()
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>)))
+           :initial-alternative-type 't/text/inspector)))))
+
+(def function make-hello-world-server-demo-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Hello World Server"
+        (bind ((uri (format nil "http://~A:~A/" +default-home-server-hostname+ +default-hello-world-server-port+)))
+          (make-value-inspector
+           (book (:title "Hello World Server")
+             (chapter (:title "Introduction")
+               "This example demonstrates how to define a simple hello world server. The live server is at: "
+               (parse-uri uri))
+             (chapter (:title "Source")
+               (paragraph ()
+                 "The hello world server source is the following:")
+               (make-value-inspector (system-relative-pathname :hu.dwim.home "source/hello-world-server.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+               (paragraph ()
+                 "The demo menu item is created by the following code:")
+               (make-value-inspector (fdefinition 'make-hello-world-server-demo-menu-item) :initial-alternative-type 'function/lisp-form/inspector))
+             (chapter (:title "Uri")
+               (inline-render-xhtml/widget ()
+                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,uri)>)))
+           :initial-alternative-type 't/text/inspector)))))
 
 (def function make-wui-demo-menu-item ()
   (menu-item/widget ()

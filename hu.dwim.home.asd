@@ -46,9 +46,11 @@
                :hu.dwim.wui+stefil)
   :components ((:module "source"
                 :components ((:file "configuration" :depends-on ("package"))
+                             (:file "echo-server" :depends-on ("server"))
                              (:file "entry-point" :depends-on ("server"))
+                             (:file "hello-world-server" :depends-on ("server"))
                              (:file "install-guide" :depends-on ("screen"))
-                             (:file "tutorial" :depends-on ("configuration"))
                              (:file "package")
                              (:file "screen" :depends-on ("configuration"))
-                             (:file "server" :depends-on ("screen"))))))
+                             (:file "server" :depends-on ("screen"))
+                             (:file "tutorial" :depends-on ("configuration"))))))

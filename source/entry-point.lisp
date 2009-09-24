@@ -71,6 +71,12 @@
                                                           :initial-alternative-type 't/lisp-form/inspector)))
         (make-redirect-response-for-current-application (string+ "class/" *entry-point-relative-path*)))))
 
+(def entry-point (*home-application* :path-prefix "status/" :with-session-logic #f) ()
+  (make-server-status-response))
+
+;;;;;;
+;;; Main entry point
+
 (def entry-point (*home-application* :path "" :ensure-session #t :ensure-frame #t) ()
   (if (root-component-of *frame*)
       (make-root-component-rendering-response *frame*)
