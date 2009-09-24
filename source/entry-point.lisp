@@ -21,12 +21,19 @@
 
 (def file-serving-entry-point *home-application* "/darcsweb/" (merge-pathnames "darcsweb/" *workspace-directory*))
 
+(def file-serving-entry-point *home-application* "/gitweb/" (merge-pathnames "gitweb/" *workspace-directory*))
+
+(def cgi-serving-entry-point *home-application* "darcsweb/darcsweb.cgi" (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*))
+
+(def cgi-serving-entry-point *home-application* "gitweb/gitweb.cgi" (merge-pathnames "gitweb/gitweb.cgi" *workspace-directory*))
+
 (def js-file-serving-entry-point *home-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
 (def js-component-hierarchy-serving-entry-point *home-application* "wui/js/component-hierarchy.js")
 
-;; TODO: these entry points should not require session/frame if possible
-;; TODO: this repeated code is quite boring
+;;;;;;
+;;; TODO: these entry points should not require session/frame if possible
+;;; TODO: this repeated code is quite boring
 
 (def entry-point (*home-application* :path-prefix "help/" :ensure-session #t :ensure-frame #t) ()
   (setf (root-component-of *frame*) (make-frame-component (make-instance 'usage-help/widget)))
@@ -83,7 +90,3 @@
       (progn
         (setf (root-component-of *frame*) (make-frame-component))
         (make-redirect-response-for-current-application))))
-
-(def entry-point (*home-application* :path "darcsweb" :with-session-logic #f) ()
-  (make-raw-functional-response ()
-    (handle-cgi-request (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*))))
