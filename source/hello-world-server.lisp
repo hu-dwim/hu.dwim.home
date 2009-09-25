@@ -20,7 +20,8 @@
       <head
         <title "hu.dwim.wui hello world server">>
       <body
-        <h1 "hello world">>>))
+        <h1 (:style "font-style: italic;")
+          "hello world">>>))
 
 ;;;;;;
 ;;; Instead of starting the server make an entry point in the application.
