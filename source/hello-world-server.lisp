@@ -8,11 +8,11 @@
 
 (def constant +default-hello-world-server-port+ (+ 2 +default-home-server-port+))
 
-(def (special-variable e) *hello-world-server* (make-instance 'server
-                                                              :host +any-host+
-                                                              :port +default-hello-world-server-port+
-                                                              :handler (lambda ()
-                                                                         (send-response (make-hello-world-response)))))
+(def special-variable *hello-world-server* (make-instance 'server
+                                                          :host +any-host+
+                                                          :port +default-hello-world-server-port+
+                                                          :handler (lambda ()
+                                                                     (send-response (make-hello-world-response)))))
 
 (def function make-hello-world-response ()
   (make-functional-html-response ()

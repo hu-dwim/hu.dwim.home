@@ -8,11 +8,11 @@
 
 (def constant +default-echo-server-port+ (+ 1 +default-home-server-port+))
 
-(def (special-variable e) *echo-server* (make-instance 'server
-                                                       :host +any-host+
-                                                       :port +default-echo-server-port+
-                                                       :handler (lambda ()
-                                                                  (send-response (make-request-echo-response)))))
+(def special-variable *echo-server* (make-instance 'server
+                                                   :host +any-host+
+                                                   :port +default-echo-server-port+
+                                                   :handler (lambda ()
+                                                              (send-response (make-request-echo-response)))))
 
 ;;;;;;
 ;;; Instead of starting the server make an entry point in the application.
