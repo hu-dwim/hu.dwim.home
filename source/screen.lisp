@@ -9,20 +9,21 @@
 ;;;;;;
 ;;; constants
 
-(def (constant :test #'equal) +page-icon+ "static/favicon.ico")
+(def constant +page-icon+ "static/favicon.ico")
 
-(def (constant :test #'equal) +script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
+(def constant +script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
 
-(def (constant :test #'equal) +stylesheet-uris+ (append (flet ((entry (path)
-                                                                 (list (string+ "static/" path)
-                                                                       (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
-                                                               (dojo-relative-path (path)
-                                                                 (string+ *dojo-directory-name* path)))
-                                                          (list (entry "wui/css/wui.css")
-                                                                (entry "wui/css/icon.css")
-                                                                (entry "wui/css/widget.css")
-                                                                (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
-                                                                (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
+(def constant +stylesheet-uris+ (append (flet ((entry (path)
+                                                 (list (string+ "static/" path)
+                                                       (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
+                                               (dojo-relative-path (path)
+                                                 (string+ *dojo-directory-name* path)))
+                                          (list (entry "home/css/home.css")
+                                                (entry "wui/css/wui.css")
+                                                (entry "wui/css/icon.css")
+                                                (entry "wui/css/widget.css")
+                                                (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
+                                                (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
 
 
 ;;;;;;
