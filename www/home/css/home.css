@@ -3,3 +3,21 @@ body.tundra
   background-image: url('/static/wui/image/page/clouds.png');
   background-repeat: no-repeat;
 }
+
+.title-separator
+{
+  background-image: url('/static/wui/image/header/background-bottom.png');
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+.chapter.text
+{
+  margin-top: 12px;
+}
+
+.paragraph.text
+{
+  margin-top: 0px;
+  margin-left: 12px;
+}

@@ -74,7 +74,8 @@
                          (paragraph ()
                            "This website is a live demostration and a reflexive documentation for our Common Lisp projects."))
                        (chapter (:title "Platform")
-                         "The dwim Server runs under Ubuntu Linux x86-64 Server Edition and  Steel Banks Common Lisp (SBCL) x86-64.")
+                         (paragraph ()
+                           "The dwim Server runs under Ubuntu Linux x86-64 Server Edition and  Steel Banks Common Lisp (SBCL) x86-64."))
                        (chapter (:title "Software")
                          (paragraph ()
                            "The dwim Server runs on our scalable iolib based pure lisp-from-the-socket web server called hu.dwim.wui.
