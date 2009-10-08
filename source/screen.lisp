@@ -74,7 +74,7 @@
                          "The acronym dwim stands for the well known phrase: do what I mean. It is a humorous way of describing a user's feeling that a computer function should work the way the user wants, instead of the actual result that the user did not want. This term has been in use for decades. The acronym hu refers to Hungary, our home country.")
                        (chapter (:title "Introduction")
                          (paragraph ()
-                           "This website is a live demostration and a reflexive documentation for our Common Lisp projects. The site also provides Darcs based distributed version control repositories for all hu.dwim projects to make the life of third parties easier."))
+                           "This website is a live demostration and a reflexive documentation for our Common Lisp projects. The dwim Server allows browsing our project test suites and the latest test results. To aid development the site also provides Darcs based distributed version control repositories for all hu.dwim projects."))
                        (chapter (:title "Platform")
                          (paragraph ()
                            "This dwim Server installation runs under Ubuntu Linux x86-64 Server Edition and Steel Banks Common Lisp (SBCL) x86-64. In principle, other operating systems and other Common Lisp implementations may also be used, but we are not testing the dwim Server and the related software components with them. Some of our libraries use non standard Common Lisp code, so porting to another implementation might require deep understanding of the related issues. If you are interested in doing or having this, please contact us."))
