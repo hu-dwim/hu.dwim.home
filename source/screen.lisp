@@ -249,7 +249,14 @@
 ;;; Project
 
 (def function make-project-menu ()
-  (make-menu-item "Project" (mapcar #'make-project-menu-item (collect-live-project-pathnames))))
+  (bind (((dwim-projects other-projects) (hu.dwim.wui::partition (collect-live-project-pathnames)
+                                                                 (lambda (pathname)
+                                                                   (search "hu.dwim" (last-elt (pathname-directory pathname))))
+                                                                 (constantly #t))))
+    (menu-item/widget ()
+        "Project"
+      (make-menu-item "Dwim" (mapcar #'make-project-menu-item dwim-projects))
+      (make-menu-item "Other" (mapcar #'make-project-menu-item other-projects)))))
 
 (def function make-project-menu-item (pathname)
   (bind ((project (or (find-project-by-path pathname)
