@@ -236,7 +236,7 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "User Interface"
-        (hu.dwim.wui.test::make-demo-content))))
+        (hu.dwim.wui.test:make-component-demo-content))))
 
 (def function make-perec-demo-menu-item ()
   (menu-item/widget ()
