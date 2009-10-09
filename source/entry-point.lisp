@@ -23,7 +23,7 @@
 
 (def file-serving-entry-point *home-application* "/gitweb/" (merge-pathnames "gitweb/" *workspace-directory*))
 
-(def cgi-serving-entry-point *home-application* "darcsweb/darcsweb.cgi" (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*) :priority 1)
+(def cgi-serving-entry-point *home-application* "darcsweb/darcsweb.cgi" (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*) :priority 1 :environment '("PATH=/usr/bin"))
 
 (def cgi-serving-entry-point *home-application* "gitweb/gitweb.cgi" (merge-pathnames "gitweb/gitweb.cgi" *workspace-directory*) :priority 1)
 
