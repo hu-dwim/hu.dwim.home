@@ -1,31 +1,35 @@
 #!/bin/sh
 
-. /opt/hu.dwim.home/workspace/hu.dwim.home/bin/env.sh
+. `dirname "$0"`/env.sh
 
-if [ ! -e "$CORE_FILE" ]; then
+umask 0002
+
+if [ ! -e "$EXECUTABLE_CORE_FILE" ]; then
   echo
-  echo "ERROR: '$CORE_FILE' doesn't exist, try bin/build-image!"
+  echo "ERROR: '$EXECUTABLE_CORE_FILE' doesn't exist, try bin/build-image!"
   exit -1
 fi
 
 cd "$PROJECT_HOME"
 
 echo
-echo "*** Starting ebr42 from $PROJECT_HOME"
-echo "*** with sbcl from $SBCL_HOME"
+echo "*** Starting $PROJECT_NAME from $EXECUTABLE_CORE_FILE"
 echo
 
-echo `date` - normal >>${LOG_DIRECTORY}/start.log
+echo `date` - server loop started >>${LOG_DIRECTORY}/start.log
+
+# this doesn't work as expected... trap "echo \`date\` - server loop exiting >>${LOG_DIRECTORY}/start.log" exit
 
 while true; do
 
-  ${PROJECT_HOME}/bin/run-sbcl.sh ${SBCL_HOME} --core ${PROJECT_HOME}/../../${PROJECT_NAME}.core --dynamic-space-size ${DYNAMIC_SPACE_SIZE} --lose-on-corruption --end-runtime-options --no-userinit --no-sysinit --end-toplevel-options >>/var/log/${PROJECT_NAME}/stdout.log 2>&1 $*
+  # TODO reinstate --dynamic-space-size and --lose-on-corruption. original was: ${EXECUTABLE_CORE_FILE} --dynamic-space-size ${DYNAMIC_SPACE_SIZE} --lose-on-corruption --end-runtime-options --no-userinit --no-sysinit --end-toplevel-options >>/var/log/${PROJECT_NAME}/standard-output.log 2>&1 $*
+  ${EXECUTABLE_CORE_FILE} >>/var/log/${PROJECT_NAME}/standard-output.log 2>&1 $*
   if [ "$?" -ne "0" ]; then
-    echo `date` - exited abnormally, with exit code $? >>${LOG_DIRECTORY}/start.log
-    # TODO start it from 1 and make it grow with each restart until an upper bound
+    echo `date` - abnormal exit with code $?, restarting >>${LOG_DIRECTORY}/start.log
+    # TODO start sleeping from 1 sec and make it grow with each restart until an upper bound
     sleep 5;
   else
-    echo `date` - exited normally, restarting >>${LOG_DIRECTORY}/start.log
+    echo `date` - normal exit, restarting >>${LOG_DIRECTORY}/start.log
     sleep 1;
   fi
 

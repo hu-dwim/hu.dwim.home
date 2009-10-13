@@ -1,9 +1,14 @@
-#! /bin/sh
+#!/bin/sh
 
-# TODO read through and use if useful: swank-daemon at http://www.students.itu.edu.tr/~yazicivo/
-# maybe http://boinkor.net/archives/2006/02/starting_daemonized_lisp_image_1.html
-
-# TODO probably just use screen...
+### BEGIN INIT INFO
+# Provides:          hu.dwim.home
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start SBCL with hu.dwim.home at boot time
+# Description:       Start the hu.dwim.home services.
+### END INIT INFO
 
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
@@ -11,19 +16,17 @@
 
 export LANG=en_US.UTF-8
 
-. /opt/hu.dwim.home/workspace/ebr42/bin/env.sh
-USER_NAME="dwim"
+. /opt/hu.dwim.home/workspace/hu.dwim.home/bin/env.sh
+DAEMON_USER="dwim"
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 DESC="${PROJECT_NAME} server"
 NAME="${PROJECT_NAME}"
 DAEMON=/bin/sh
-# it's a KLUDGE but /tmp is more fragile
+PIDFILE="/var/run/${PROJECT_NAME}/server-loop.pid"
 SBCL_PIDFILE="/var/run/${PROJECT_NAME}/sbcl.pid"
-DAEMON_ARGS="${WORKSPACE}/${PROJECT_NAME}/bin/server-loop --database-host ${DATABASE_HOST} --database-port ${DATABASE_PORT} --database-user-name ${DATABASE_USER_NAME} --database-name ${DATABASE_NAME} --database-password szupertitok --pid-file ${SBCL_PIDFILE}"
-
-PIDFILE=/var/run/$NAME.pid
+DAEMON_ARGS="${WORKSPACE}/${PROJECT_NAME}/bin/server-loop.sh --database-host ${DATABASE_HOST} --database-port ${DATABASE_PORT} --database-user-name ${DATABASE_USER_NAME} --database-name ${DATABASE_NAME} --database-password szupertitok --pid-file ${SBCL_PIDFILE}"
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
@@ -43,14 +46,16 @@ do_start()
         #   0 if daemon has been started
         #   1 if daemon was already running
         #   2 if daemon could not be started
-        start-stop-daemon --start --pidfile $PIDFILE --exec $DAEMON --test --verbose > /dev/null \
+        start-stop-daemon --start --pidfile ${PIDFILE} --exec ${DAEMON} --test > /dev/null \
                 || return 1
-        start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --chuid ${USER_NAME} --chdir /opt/${PROJECT_NAME} --exec $DAEMON \
-                --verbose --background -- $DAEMON_ARGS \
+        start-stop-daemon --start --pidfile ${PIDFILE} --make-pidfile --chuid ${DAEMON_USER} --chdir /opt/${PROJECT_NAME} --exec ${DAEMON} \
+                --background --verbose -- ${DAEMON_ARGS} \
                 || return 2
         # Add code here, if necessary, that waits for the process to be ready
         # to handle requests from services started subsequently which depend
         # on this one.  As a last resort, sleep for some time.
+
+        # echo "${NAME} started; logs are available in /var/log/${PROJECT_NAME}/"
 }
 
 #
@@ -63,7 +68,7 @@ do_stop()
         #   1 if daemon was already stopped
         #   2 if daemon could not be stopped
         #   other if a failure occurred
-        start-stop-daemon --stop --verbose --pidfile $PIDFILE --retry=TERM/10/KILL/3
+        start-stop-daemon --stop --verbose --pidfile ${PIDFILE} --retry=TERM/10/KILL/3
         RETVAL="$?"
         [ "$RETVAL" = 2 ] && return 2
         # Wait for children to finish too if this is a daemon that forks
@@ -75,31 +80,29 @@ do_stop()
         # start-stop-daemon --stop --oknodo --retry=0/30/KILL/5 --exec $DAEMON
         # [ "$?" = 2 ] && return 2
         # Many daemons don't delete their pidfiles when they exit.
-        rm -f $PIDFILE
-
-        # Kill the sbcl started most recently
-        start-stop-daemon --stop --verbose --pidfile $SBCL_PIDFILE --retry=TERM/30/KILL/3
-        rm -f "$SBCL_PIDFILE"
+        rm -f "${PIDFILE}"
+        start-stop-daemon --stop --verbose --pidfile ${SBCL_PIDFILE} --retry=TERM/30/KILL/3
+        # rm -f "${SBCL_PIDFILE}"
 
         return "$RETVAL"
 }
 
 case "$1" in
   start)
-        log_daemon_msg "Starting $DESC" "$NAME"
+        log_daemon_msg "Starting $DESC"
         do_start
         case "$?" in
-                0) echo "Server started: sbcl pid: ${SBCL_PIDFILE}, shell pid: ${PIDFILE}:" `cat ${PIDFILE}` ; log_end_msg 0;;
-                1) echo "Server already running. sbcl pid: ${SBCL_PIDFILE}, shell pid: ${PIDFILE}:" ; log_end_msg 0;;
+                0) log_end_msg 0 ;;
+                1) log_end_msg 0 ;;
                 2) log_end_msg 1 ;;
         esac
         ;;
   stop)
-        log_daemon_msg "Stopping $DESC" "$NAME"
+        log_daemon_msg "Stopping $DESC"
         do_stop
         case "$?" in
                 0|1) log_end_msg 0 ;;
-                2) log_end_msg 1 ;;
+                2)   log_end_msg 1 ;;
         esac
         ;;
   restart|force-reload)
@@ -107,14 +110,14 @@ case "$1" in
         # If the "reload" option is implemented then remove the
         # 'force-reload' alias
         #
-        log_daemon_msg "Restarting $DESC" "$NAME"
+        log_daemon_msg "Restarting $DESC"
         do_stop
         case "$?" in
           0|1)
                 do_start
                 case "$?" in
-                        0) echo "Server started. Log directory: /var/log/${PROJECT_NAME}" ; log_end_msg 0 ;;
-                        1) echo "Server still running. Log directory: /var/log/${PROJECT_NAME}" ; log_end_msg 1 ;; # Old process is still running
+                        0) log_end_msg 0 ;;
+                        1) log_end_msg 1 ;; # Old process is still running
                         *) log_end_msg 1 ;; # Failed to start
                 esac
                 ;;
@@ -129,4 +132,3 @@ case "$1" in
         exit 3
         ;;
 esac
-
