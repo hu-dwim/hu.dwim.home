@@ -188,7 +188,7 @@ to install the HEAD revisions of all required repositories. This allows you to h
       "sudo apt-get install libz-dev"
       "sh ~/workspace/cl-l10n/bin/update-cldr.sh"
       "sh ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.wui/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
-      "sh ~/workspace/hu.dwim.environment/bin/build.sh -e -p -s hu.dwim.home"))
+      "sh ~/workspace/hu.dwim.environment/bin/build.sh -p -l -e -w hu.dwim.home"))
   (chapter (:title "Startup Server")
     (paragraph ()
       "The Server startup should not take more than a few seconds.")
