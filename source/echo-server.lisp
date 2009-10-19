@@ -6,17 +6,29 @@
 
 (in-package :hu.dwim.home)
 
+;;;;;;
+;;; Echo server
+
 (def constant +default-echo-server-port+ (+ 1 +default-home-server-port+))
 
 (def special-variable *echo-server* (make-instance 'server
                                                    :host +any-host+
                                                    :port +default-echo-server-port+
                                                    :handler (lambda ()
-                                                              (send-response (make-request-echo-response)))))
+                                                              (hu.dwim.wui::send-response (make-request-echo-response))))
+  "The echo server echoes back various parts of the received HTTP request, such as request path, HTTP headers, request parameters, etc.")
+
+(def function startup-echo-server ()
+  "Starts up the echo server"
+  (startup-server *echo-server*))
+
+(def function shutdown-echo-server ()
+  "Shuts down the echo server"
+  (shutdown-server *echo-server*))
 
 ;;;;;;
-;;; Instead of starting the server make an entry point in the application.
-;;; The server would need other ports to be open.
+;;; Instead of starting up the echo server, we make an entry point in the home application.
+;;; The echo server would need another ports to be open, and we don't want to do that for a simple example.
 
 (def entry-point (*home-application* :path-prefix "echo" :with-session-logic #f) ()
   (make-request-echo-response))

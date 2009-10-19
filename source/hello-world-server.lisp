@@ -6,13 +6,17 @@
 
 (in-package :hu.dwim.home)
 
+;;;;;;
+;;; Hello world server
+
 (def constant +default-hello-world-server-port+ (+ 2 +default-home-server-port+))
 
 (def special-variable *hello-world-server* (make-instance 'server
                                                           :host +any-host+
                                                           :port +default-hello-world-server-port+
                                                           :handler (lambda ()
-                                                                     (send-response (make-hello-world-response)))))
+                                                                     (hu.dwim.wui::send-response (make-hello-world-response))))
+  "The hello world server unconditionally sends back a simple HTML page with the usual content.")
 
 (def function make-hello-world-response ()
   (make-functional-html-response ()
@@ -23,9 +27,17 @@
         <h1 (:style "font-style: italic;")
           "hello world">>>))
 
+(def function startup-hello-world-server ()
+  "Starts up the hello world server"
+  (startup-server *hello-world-server*))
+
+(def function shutdown-hello-world-server ()
+  "Shuts down the hello world server"
+  (shutdown-server *hello-world-server*))
+
 ;;;;;;
-;;; Instead of starting the server make an entry point in the application.
-;;; The server would need other ports to be open.
+;;; Instead of starting the hello world server, we make an entry point in the home application.
+;;; The hello world server would need another ports to be open, and we don't want to do that for a simple example.
 
 (def entry-point (*home-application* :path-prefix "hello-world" :with-session-logic #f) ()
   (make-hello-world-response))
