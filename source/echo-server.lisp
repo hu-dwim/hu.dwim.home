@@ -28,7 +28,7 @@
 
 ;;;;;;
 ;;; Instead of starting up the echo server, we make an entry point in the home application.
-;;; The echo server would need another ports to be open, and we don't want to do that for a simple example.
+;;; The echo server would need another port to be open, and we don't want to do that for a simple example.
 
 (def entry-point (*home-application* :path-prefix "echo" :with-session-logic #f) ()
   (make-request-echo-response))

@@ -37,7 +37,7 @@
 
 ;;;;;;
 ;;; Instead of starting the hello world server, we make an entry point in the home application.
-;;; The hello world server would need another ports to be open, and we don't want to do that for a simple example.
+;;; The hello world server would need another port to be open, and we don't want to do that for a simple example.
 
 (def entry-point (*home-application* :path-prefix "hello-world" :with-session-logic #f) ()
   (make-hello-world-response))
