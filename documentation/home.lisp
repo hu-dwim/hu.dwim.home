@@ -6,6 +6,21 @@
 
 (in-package :hu.dwim.home.documentation)
 
+(def project :hu.dwim.home :path (system-pathname :hu.dwim.home))
+
+(def book user-guide (:title "User guide")
+  (chapter (:title "Introduction")
+    "TODO")
+  (chapter (:title "Supported Common Lisp Implementations")
+    (paragraph ()
+      "SBCL"))
+  (chapter (:title "Supported Operating Systems")
+    (paragraph ()
+      "Linux"))
+  (chapter (:title "Tutorial")
+    (paragraph ()
+      "TODO")))
+
 #|
 asdf system definitions should be idiomatic if possible, that is:
 
