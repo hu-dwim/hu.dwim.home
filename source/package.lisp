@@ -9,7 +9,7 @@
 (defpackage :hu.dwim.home
   (:use :command-line-arguments
         :hu.dwim.asdf
-        :hu.dwim.common-lisp
+        :hu.dwim.common
         :hu.dwim.def
         :hu.dwim.defclass-star
         :hu.dwim.logger
