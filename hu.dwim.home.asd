@@ -17,6 +17,7 @@
   :licence "BSD / Public domain"
   :depends-on (:hu.dwim.asdf.documentation
                :hu.dwim.blog.documentation
+               :hu.dwim.common.documentation
                :hu.dwim.common-lisp.documentation
                :hu.dwim.computed-class.documentation
                :hu.dwim.debug.documentation
