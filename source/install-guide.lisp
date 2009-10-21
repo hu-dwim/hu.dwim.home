@@ -177,14 +177,22 @@ to install the HEAD revisions of all required repositories. This allows you to h
       "Install the HEAD revisions of the required repositories."
       (make-instance 'shell-script :contents (list* "cd ~/workspace"
                                                     (collect-install-project-shell-script-commands #f)))))
-  (chapter (:title "Configure wwwroot")
+  (chapter (:title "Configure www")
     (shell-script ()
-      "sudo mkdir /var/log/hu.dwim.home"
-      ;; TODO: this is clearly not what we want
-      "sudo chmod o+w /var/log/hu.dwim.home"
-      ;; TODO: merge this into create-links
-      "cd ~/workspace/hu.dwim.home/www"
-      "sh ~/workspace/hu.dwim.home/etc/create-links.sh"))
+      ;; TODO: this has to come after building dojo, but I think this build has to be rethought
+      ;; TODO this should not be needed...
+      "sh ~/workspace/hu.dwim.home/etc/create-www-links.sh"))
+  (chapter (:title "Configure the Server as a unix service run from /opt/hu.dwim.home/ (optional)")
+    (shell-script ()
+      ;; TODO workspace path should be coming from a variable
+      "sudo mkdir /var/log/hu.dwim.home /var/run/hu.dwim.home"
+      "sudo chown dwim:admin /var/log/hu.dwim.home /var/run/hu.dwim.home"
+      "sudo chmod ug=rwxs,o= /var/log/hu.dwim.home /var/run/hu.dwim.home"
+      "sudo ln -sf /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /etc/init.d/hu.dwim.home"
+      "sudo update-rc.d hu.dwim.home defaults"
+      "sudo chgrp root /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script"
+      "sudo chmod u=rwx,g=rwx,o=r /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /opt/hu.dwim.home/workspace/hu.dwim.home/bin/"
+      "sudo chmod u+x,g+x,o-x /opt/hu.dwim.home/workspace/hu.dwim.home/bin/*.sh"))
   (chapter (:title "Build Server")
     (shell-script ()
       "sudo apt-get install libz-dev"
