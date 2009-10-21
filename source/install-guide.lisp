@@ -7,7 +7,9 @@
 (in-package :hu.dwim.home)
 
 (def function collect-install-project-shell-script-commands (live?)
-  (sort (iter (for pathname :in (collect-live-project-pathnames))
+  (sort (iter (with darcs-get = "darcs get ") ;; TODO: add --lazy after it is proved to be worth
+              (with git-clone = "git clone ") ;; TODO: add --depth 1 after it is proved to be worth
+              (for pathname :in (collect-live-project-pathnames))
               (for pathname-string = (namestring pathname))
               (for name = (last-elt (pathname-directory pathname)))
               (format *debug-io* "Getting project information for ~A (~A) ~%"
@@ -15,14 +17,14 @@
                                           "live"
                                           "head"))
               (collect (cond ((search "hu.dwim" name)
-                              (string+ "darcs get http://dwim.hu/"
+                              (string+ darcs-get "http://dwim.hu/"
                                        (if live?
                                            "live/"
                                            "darcs/")
                                        name))
                              ((probe-file (merge-pathnames "_darcs" pathname))
                               (if live?
-                                  (string+ "darcs get http://dwim.hu/live/" name)
+                                  (string+ darcs-get "http://dwim.hu/live/" name)
                                   (bind ((darcs-info (with-output-to-string (output)
                                                        (sb-ext:run-program "/usr/bin/darcs"
                                                                            `("show" "repo" "--repodir" ,pathname-string)
@@ -30,8 +32,8 @@
                                          ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
                                          (project (first-elt groups)))
                                     (if (search "/var/opt/darcs" project)
-                                        (string+ "darcs get http://dwim.hu/darcs/" name)
-                                        (string+ "darcs get " project)))))
+                                        (string+ darcs-get "http://dwim.hu/darcs/" name)
+                                        (string+ darcs-get project)))))
                              ((probe-file (merge-pathnames ".git" pathname))
                               (bind ((git-info (with-output-to-string (output)
                                                  (sb-ext:run-program "/usr/bin/git"
@@ -39,7 +41,7 @@
                                                                      :output output)))
                                      ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
                                      (project (first-elt groups)))
-                                (string+ "git clone " project
+                                (string+ git-clone project
                                          (when live?
                                            (bind ((git-info (with-output-to-string (output)
                                                               (sb-ext:run-program "/usr/bin/git"
@@ -177,19 +179,12 @@ to install the HEAD revisions of all required repositories. This allows you to h
                                                     (collect-install-project-shell-script-commands #f)))))
   (chapter (:title "Configure wwwroot")
     (shell-script ()
-      ;; TODO this should not be needed...
-      "sh ~/workspace/hu.dwim.home/etc/create-www-links.sh"))
-  (chapter (:title "Configure the Server as a unix service run from /opt/hu.dwim.home/ (optional)")
-    (shell-script ()
-      ;; TODO workspace path should be coming from a variable
-      "sudo mkdir /var/log/hu.dwim.home /var/run/hu.dwim.home"
-      "sudo chown dwim:admin /var/log/hu.dwim.home /var/run/hu.dwim.home"
-      "sudo chmod ug=rwxs,o= /var/log/hu.dwim.home /var/run/hu.dwim.home"
-      "sudo ln -sf /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /etc/init.d/hu.dwim.home"
-      "sudo update-rc.d hu.dwim.home defaults"
-      "sudo chgrp root /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script"
-      "sudo chmod u=rwx,g=rwx,o=r /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /opt/hu.dwim.home/workspace/hu.dwim.home/bin/"
-      "sudo chmod u+x,g+x,o-x /opt/hu.dwim.home/workspace/hu.dwim.home/bin/*.sh"))
+      "sudo mkdir /var/log/hu.dwim.home"
+      ;; TODO: this is clearly not what we want
+      "sudo chmod o+w /var/log/hu.dwim.home"
+      ;; TODO: merge this into create-links
+      "cd ~/workspace/hu.dwim.home/www"
+      "sh ~/workspace/hu.dwim.home/etc/create-links.sh"))
   (chapter (:title "Build Server")
     (shell-script ()
       "sudo apt-get install libz-dev"
