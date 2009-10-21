@@ -345,16 +345,16 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Class Browser"
-        (make-value-inspector (find-class 'hu.dwim.perec::persistent-class) :initial-alternative-type 't/lisp-form/inspector))))
+        (make-filter 'class :initial-alternative-type 't/detail/presentation))))
 
 (def function make-function-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Function Browser"
-        (make-value-inspector (fdefinition 'make-instance) :initial-alternative-type 't/lisp-form/inspector))))
+        (make-filter 'function :initial-alternative-type 't/detail/presentation))))
 
 (def function make-file-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "File Browser"
-        (make-value-inspector (system-relative-pathname :hu.dwim.home "source/server.lisp") :initial-alternative-type 'pathname/lisp-file/inspector))))
+        (make-filter 'asdf:source-file :initial-alternative-type 't/detail/presentation))))
