@@ -21,3 +21,12 @@
                 :components ((:file "package")
                              (:file "suite" :depends-on ("package"))
                              (:file "home" :depends-on ("suite"))))))
+
+(defmethod perform :after ((op develop-op) (system (eql (find-system :hu.dwim.home))))
+  (let ((*package* (find-package :hu.dwim.home)))
+    (eval
+     (read-from-string
+      "(progn
+         (setf (log-level 'hu.dwim.wui::wui) +debug+)
+         (setf *debug-on-error* t))")))
+  (warn "Set WUI log level to +debug+; enabled server-side debugging"))
