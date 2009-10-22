@@ -337,9 +337,16 @@
 (def function make-source-menu ()
   (menu-item/widget ()
       "Source"
+    (make-definition-browser-menu-item)
     (make-class-browser-menu-item)
     (make-function-browser-menu-item)
     (make-file-browser-menu-item)))
+
+(def function make-definition-browser-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Definition Browser"
+        (make-filter 'definition :initial-alternative-type 't/detail/presentation))))
 
 (def function make-class-browser-menu-item ()
   (menu-item/widget ()
