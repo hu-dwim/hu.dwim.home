@@ -159,6 +159,7 @@
     (make-server-status-menu-item)
     (make-echo-server-demo-menu-item)
     (make-hello-world-server-demo-menu-item)
+    (make-home-server-demo-menu-item)
     (make-wui-demo-menu-item)
     (make-perec-demo-menu-item)))
 
@@ -231,6 +232,23 @@
                (inline-render-xhtml/widget ()
                  <iframe (:width "100%" :height "100px" :style "border: none;" :src ,uri)>)))
            :initial-alternative-type 't/text/inspector)))))
+
+(def function make-home-server-demo-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Home Server"
+        (make-value-inspector
+         (book (:title "Home Server")
+           (chapter (:title "Introduction")
+             "This example demonstrates how the dwim Home Server is defined that is running at:" (parse-uri "http://dwim.hu/"))
+           (chapter (:title "Source")
+             (paragraph ()
+               "The following source file defines the server, the application and the toplevel function used to execute the server:")
+             (make-value-inspector (system-relative-pathname :hu.dwim.home "source/server.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+             (paragraph ()
+               "The demo menu item is created by the following code:")
+             (make-value-inspector (fdefinition 'make-home-server-demo-menu-item) :initial-alternative-type 'function/lisp-form/inspector)))
+         :initial-alternative-type 't/text/inspector))))
 
 (def function make-wui-demo-menu-item ()
   (menu-item/widget ()
