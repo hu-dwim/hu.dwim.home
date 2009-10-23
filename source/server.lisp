@@ -46,6 +46,7 @@
           http-port)))
 
 (def function executable-toplevel ()
+  "The toplevel function that is called when the dwim Server is started."
   (bind ((options (append (list +help-command-line-option+)
                           (list +http-port-command-line-option+)
                           (list +quiet-command-line-option+)

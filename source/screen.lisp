@@ -41,9 +41,8 @@
                      (make-debug-menu))))
     (frame/widget (:title "dwim.hu" :page-icon +page-icon+ :script-uris +script-uris+ :stylesheet-uris +stylesheet-uris+)
       (top/widget (:menu-bar menu-bar)
-        (content/widget ()
-          (or content
-              initial-content))))))
+        (or content
+            initial-content)))))
 
 ;;;;;;
 ;;; Home
@@ -69,27 +68,27 @@
   (bind ((content (vertical-list/layout ()
                     (image/widget :id "dwim-logo" :location (make-uri-for-current-application "static/wui/image/about/dwim-logo.png"))
                     (make-value-inspector
-                     (book (:title "dwim.hu")
+                     (book (:title "dwim.hu" :authors '("Levente Mészáros"))
                        (paragraph ()
                          "The acronym dwim stands for the well known phrase: do what I mean. It is a humorous way of describing a user's feeling that a computer function should work the way the user wants, instead of the actual result that the user did not want. This term has been in use for decades. The acronym hu refers to Hungary, our home country.")
                        (chapter (:title "Introduction")
                          (paragraph ()
-                           "This website is a live demostration and a reflexive documentation for our Common Lisp projects. The dwim Server allows browsing our project test suites and the latest test results. To aid development the site also provides Darcs based distributed version control repositories for all hu.dwim projects."))
+                           "This website is a live demostration and a reflexive documentation for the dwim Common Lisp projects. The dwim Server allows browsing the project test suites and the latest test results. To aid development the site also provides Darcs based distributed version control repositories for all hu.dwim projects."))
                        (chapter (:title "Platform")
                          (paragraph ()
-                           "This dwim Server installation runs under Ubuntu Linux x86-64 Server Edition and Steel Banks Common Lisp (SBCL) x86-64. In principle, other operating systems and other Common Lisp implementations may also be used, but we are not testing the dwim Server and the related software components with them. Some of our libraries use non standard Common Lisp code, so porting to another implementation might require deep understanding of the related issues. If you are interested in doing or having this, please contact us."))
+                           "This dwim Server installation runs under Ubuntu Linux x86-64 Server Edition and Steel Banks Common Lisp (SBCL) x86-64. In principle, other operating systems and other Common Lisp implementations may also be used, but we are not testing the dwim Server and the related software components with them. Some of the dwim libraries use non standard Common Lisp code, so porting to another implementation might require deep understanding of the related issues. If you are interested in doing or having this, please contact us."))
                        (chapter (:title "Hardware")
                          (paragraph ()
                            "The dwim Server runs on a multicore - " (machine-version) " - computer with a couple of gigabytes memory. To decrease costs the operating system runs using virtualization. Unfortunately the dwim Server is connected to the Internet with a quite slow network at the moment. For these reasons perfromance may suffer, but there is no inherent problem there."))
                        (chapter (:title "Software")
                          (paragraph ()
-                           "The dwim Server runs on our scalable iolib based pure lisp-from-the-socket web server called hu.dwim.wui. It stores persistent data in our Common Lisp Object System (CLOS) based Object Relational Mapping (ORM) called hu.dwim.perec. The persistence layer is backed up with PostgreSQL, but other relational databases such as Sqlite, and Oracle are also partially supported. The Common Lisp code fragments that are presented throughout this site are shown by introspection. In other words they are part of the live system, this serves well our goal of providing reflexive documentation."))
+                           "The dwim Server runs on the scalable iolib based pure lisp-from-the-socket web server called hu.dwim.wui. It stores persistent data in the Common Lisp Object System (CLOS) based Object Relational Mapping (ORM) called hu.dwim.perec. The persistence layer is backed up with PostgreSQL, but other relational databases such as Sqlite, and Oracle are also partially supported. The Common Lisp code fragments that are presented throughout this site are shown by introspection. In other words they are part of the live system, and this serves well our goal of providing reflexive documentation."))
                        (chapter (:title "Licence")
                          (paragraph ()
-                           "The dwim Server is built using only Open Source software. The Ubuntu Linux operating system, the SBCL Common Lisp implementation, the PostgreSQL relational database, and our Common Lisp libraries are all Open Source Software. We try to avoid using software components that have restrictive licences. For commercial purposes GPL is restrictive, so we try to avoid that. The only notable exception at the moment is the Common Lisp code syntax highlighter. For more details on the individual licences (BSD, MIT, LGPL, GPL, etc.) please check the Licence menu item."))
+                           "The dwim Server is built using only Open Source software. The Ubuntu Linux operating system, the SBCL Common Lisp implementation, the PostgreSQL relational database, and the dwim Common Lisp libraries are all Open Source Software. We try to avoid using software components that have restrictive licences. For commercial purposes GPL is restrictive, so we try to avoid that. The only notable exception at the moment is the Common Lisp code syntax highlighter. For more details on the individual licences (BSD, MIT, LGPL, GPL, etc.) please check the Licence menu item."))
                        (chapter (:title "Installation")
                          (paragraph ()
-                           "The dwim Server and our Common Lisp projects can be installed for free for any puprpose. The Install Guide is found under the Documentation menu item. It provides separate installation instructions for all of our Common Lisp projects including all dependencies, and assuming as little as possible of your system."))
+                           "The dwim Server and the dwim Common Lisp projects can be installed for free for any puprpose including commercial purposes. The Install Guide is found under the Documentation menu item. It provides separate installation instructions for all dwim Common Lisp projects including all dependencies, and assuming as little as possible of your system."))
                        (chapter (:title "Contact")
                          (paragraph ()
                            "The company behind dwim.hu is called M. Wallen Software Ltd.")
@@ -143,12 +142,12 @@
         (make-instance 'usage-help/widget))))
 
 (def function make-live-project-licences-inspector ()
-  (make-instance 'vertical-list/layout
-                 :contents (mapcar (lambda (pathname)
-                                     (make-value-inspector (hu.dwim.wui::project-licence-pathname (or (find-project-by-path pathname)
-                                                                                                      (make-instance 'project :path pathname)))
-                                                           :default-alternative-type 'pathname/text-file/inspector))
-                                   (collect-live-project-pathnames))))
+  (make-instance 'sequence/inspector
+                 :component-value (mapcar (lambda (pathname)
+                                            (hu.dwim.wui::project-licence-pathname (or (find-project-by-path pathname)
+                                                                                       (make-instance 'project :path pathname))))
+                                          (collect-live-project-pathnames))
+                 :initial-alternative-type 'sequence/list/inspector))
 
 ;;;;;;
 ;;; Demo
@@ -169,7 +168,7 @@
           "Server Status"
         (bind ((uri "http://dwim.hu/status"))
           (make-value-inspector
-           (book (:title "Server Status")
+           (book (:title "Server Status" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
                "This example demonstrates how to define a simple entry point that shows some server status information. The live entry point is at: "
                (parse-uri uri))
@@ -195,7 +194,7 @@
           "Echo Server"
         (bind ((uri "http://dwim.hu/echo"))
           (make-value-inspector
-           (book (:title "Echo Server")
+           (book (:title "Echo Server" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
                "This example demonstrates how to define a simple request echo server. The live entry point is at: "
                (parse-uri uri))
@@ -217,7 +216,7 @@
           "Hello World Server"
         (bind ((uri "http://dwim.hu/hello-world"))
           (make-value-inspector
-           (book (:title "Hello World Server")
+           (book (:title "Hello World Server" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
                "This example demonstrates how to define a simple hello world server. The live entry point is at: "
                (parse-uri uri))
@@ -238,7 +237,7 @@
       (replace-target-place/widget ()
           "Home Server"
         (make-value-inspector
-         (book (:title "Home Server")
+         (book (:title "Home Server" :authors '("Levente Mészáros"))
            (chapter (:title "Introduction")
              "This example demonstrates how the dwim Home Server is defined that is running at:" (parse-uri "http://dwim.hu/"))
            (chapter (:title "Source")

@@ -73,7 +73,7 @@
                               (string+ "# TODO: Don't know how to install project " name)))))
         #'string<))
 
-(def book install-guide (:title "Install Guide")
+(def book install-guide (:title "Install Guide" :authors '("Levente Mészáros"))
   (chapter (:title "Introduction")
     (paragraph ()
       "The Install Guide describes how to install and configure the same web service that is running at "
