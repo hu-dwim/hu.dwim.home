@@ -13,18 +13,19 @@
 
 (def constant +script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
 
-(def constant +stylesheet-uris+ (append (flet ((entry (path)
-                                                 (list (string+ "static/" path)
-                                                       (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
-                                               (dojo-relative-path (path)
-                                                 (string+ *dojo-directory-name* path)))
-                                          (list (entry "home/css/home.css")
-                                                (entry "wui/css/wui.css")
-                                                (entry "wui/css/icon.css")
-                                                (entry "wui/css/widget.css")
-                                                (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
-                                                (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
-
+(def constant +stylesheet-uris+ (flet ((entry (path)
+                                         (list (string+ "static/" path)
+                                               (system-relative-pathname :hu.dwim.home (string+ "www/" path)))))
+                                  (list (entry "wui/css/wui.css")
+                                        (entry "wui/css/icon.css")
+                                        (entry "wui/css/border.css")
+                                        (entry "wui/css/layout.css")
+                                        (entry "wui/css/widget.css")
+                                        (entry "wui/css/text.css")
+                                        (entry "wui/css/lisp-form.css")
+                                        (entry "wui/css/shell-script.css")
+                                        (entry "wui/css/presentation.css")
+                                        (entry "home/css/home.css"))))
 
 ;;;;;;
 ;;; Frame
@@ -48,8 +49,8 @@
                                                            (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
                                                    (dojo-relative-path (path)
                                                      (string+ *dojo-directory-name* path)))
-                                              (list (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
-                                                    (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
+                                              (list (entry (dojo-relative-path "dojo/resources/dojo.css"))
+                                                    (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))))))
       (top/widget (:menu-bar menu-bar)
         (or content
             initial-content)))))
