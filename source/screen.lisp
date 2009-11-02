@@ -13,17 +13,13 @@
 
 (def constant +script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
 
-(def constant +stylesheet-uris+ (append (flet ((entry (path)
-                                                 (list (string+ "static/" path)
-                                                       (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
-                                               (dojo-relative-path (path)
-                                                 (string+ *dojo-directory-name* path)))
-                                          (list (entry "home/css/home.css")
-                                                (entry "wui/css/wui.css")
-                                                (entry "wui/css/icon.css")
-                                                (entry "wui/css/widget.css")
-                                                (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
-                                                (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
+(def constant +stylesheet-uris+ (flet ((entry (path)
+                                         (list (string+ "static/" path)
+                                               (system-relative-pathname :hu.dwim.home (string+ "www/" path)))))
+                                  (list (entry "home/css/home.css")
+                                        (entry "wui/css/wui.css")
+                                        (entry "wui/css/icon.css")
+                                        (entry "wui/css/widget.css"))))
 
 
 ;;;;;;
@@ -39,7 +35,17 @@
                      (make-repository-menu)
                      (make-source-menu)
                      (make-debug-menu))))
-    (frame/widget (:title "dwim.hu" :page-icon +page-icon+ :script-uris +script-uris+ :stylesheet-uris +stylesheet-uris+)
+    (frame/widget (:title "dwim.hu"
+                   :page-icon +page-icon+
+                   :script-uris +script-uris+
+                   :stylesheet-uris (append +stylesheet-uris+
+                                            (flet ((entry (path)
+                                                     (list (string+ "static/" path)
+                                                           (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
+                                                   (dojo-relative-path (path)
+                                                     (string+ *dojo-directory-name* path)))
+                                              (list (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
+                                                    (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
       (top/widget (:menu-bar menu-bar)
         (or content
             initial-content)))))
