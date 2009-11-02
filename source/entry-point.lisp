@@ -58,6 +58,16 @@
                 (make-frame-component (make-value-inspector pathname :initial-alternative-type 'pathname/lisp-file/inspector)))
           (make-redirect-response-for-current-application (string+ "file/" *entry-point-relative-path*))))))
 
+(def entry-point (*home-application* :path-prefix "definition/" :ensure-session #t :ensure-frame #t) ()
+  (if (root-component-of *frame*)
+      (make-root-component-rendering-response *frame*)
+      (progn
+        (setf (root-component-of *frame*)
+              (make-frame-component (make-value-inspector (hu.dwim.wui::make-definitions (bind ((*read-eval* #f))
+                                                                                           (read-from-string *entry-point-relative-path*)))
+                                                          :initial-alternative-type 't/detail/presentation)))
+        (make-redirect-response-for-current-application (string+ "definition/" *entry-point-relative-path*)))))
+
 (def entry-point (*home-application* :path-prefix "function/" :ensure-session #t :ensure-frame #t) ()
   (if (root-component-of *frame*)
       (make-root-component-rendering-response *frame*)
