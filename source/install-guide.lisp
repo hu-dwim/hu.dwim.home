@@ -102,14 +102,30 @@ described here. Other operating systems such as Windows, Mac OS X, etc. are not 
     (paragraph ()
       "The Server runs under Steel Bank Common Lisp (x86-64) that is a free Common Lisp implementation for a number of platforms and hardware architectures."
       (parse-uri "http://www.sbcl.org/"))
+    (paragraph ()
+      "One way to install SBCL is to download the exact same version that dwim.hu is using. Our git repository usually has a few extra patches, but they are usually not crucial to have.")
     (shell-script ()
-      "sudo apt-get install cvs clisp"
       "cd ~/workspace"
-      "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl"
-      "cd sbcl"
+      "sudo apt-get install git git-core"
+      "git clone http://dwim.hu/sbcl"
+      "cd ~/workspace/sbcl"
+      "git checkout hu.dwim")
+    (paragraph ()
+      "Another way is to download the current SBCL head source tree to get the latest features and bugs.")
+    (shell-script ()
+      "sudo apt-get install cvs"
+      "cd ~/workspace"
+      "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl")
+    (paragraph ()
+      "Bootstrap SBCL using CLISP.")
+    (shell-script ()
+      "sudo apt-get install clisp"
+      "cd ~/workspace/sbcl"
       "wget http://dwim.hu/install/customize-target-features.lisp"
       "sh ~/workspace/sbcl/make.sh \"clisp -ansi -on-error abort\""
-      "sudo sh ~/workspace/sbcl/install.sh"))
+      "sudo sh ~/workspace/sbcl/install.sh")
+    (paragraph ()
+      "SBCL can also be installed from a binary distribution, see its website for details."))
   (chapter (:title "Install PostgreSQL")
     (paragraph ()
       "The Server uses the " #+nil(find-project :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database.
@@ -222,7 +238,9 @@ to install the HEAD revisions of all required repositories. This allows you to h
       "wget http://dwim.hu/install/.emacs"))
   (chapter (:title "Install Slime")
     (paragraph ()
-      (parse-uri "http://common-lisp.net/project/slime/"))
+      "The recommended way is to install the SLIME branch hu.dwim.slime.")
+    (paragraph ()
+      "The official SLIME can be found under" (parse-uri "http://common-lisp.net/project/slime/"))
     (shell-script ()
       "cd ~/workspace"
       "cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot checkout slime"))
