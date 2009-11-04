@@ -1,5 +1,4 @@
 #!/bin/sh
-# run this script from the www directory of you hu.dwim.home system
 
 cd `dirname "$0"`/../www/
 

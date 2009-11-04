@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Echo server
 
-(def constant +default-echo-server-port+ (+ 1 +default-home-server-port+))
+(def constant +default-echo-server-port+ (+ 1 +default-http-server-port+))
 
 (def special-variable *echo-server* (make-instance 'server
                                                    :host +any-host+

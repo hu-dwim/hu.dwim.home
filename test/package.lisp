@@ -11,6 +11,7 @@
         :hu.dwim.def
         :hu.dwim.defclass-star
         :hu.dwim.home
+        :hu.dwim.perec
         :hu.dwim.stefil
         :hu.dwim.syntax-sugar
         :hu.dwim.util

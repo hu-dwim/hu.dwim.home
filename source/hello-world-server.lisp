@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Hello world server
 
-(def constant +default-hello-world-server-port+ (+ 2 +default-home-server-port+))
+(def constant +default-hello-world-server-port+ (+ 2 +default-http-server-port+))
 
 (def special-variable *hello-world-server* (make-instance 'server
                                                           :host +any-host+

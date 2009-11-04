@@ -43,14 +43,14 @@
     (frame/widget (:title "dwim.hu"
                    :page-icon +page-icon+
                    :script-uris +script-uris+
-                   :stylesheet-uris (append +stylesheet-uris+
-                                            (flet ((entry (path)
+                   :stylesheet-uris (append (flet ((entry (path)
                                                      (list (string+ "static/" path)
                                                            (system-relative-pathname :hu.dwim.home (string+ "www/" path))))
                                                    (dojo-relative-path (path)
                                                      (string+ *dojo-directory-name* path)))
                                               (list (entry (dojo-relative-path "dojo/resources/dojo.css"))
-                                                    (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))))))
+                                                    (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))))
+                                            +stylesheet-uris+))
       (top/widget (:menu-bar menu-bar)
         (or content
             initial-content)))))
@@ -65,7 +65,6 @@
               home-menu-item
               #+nil
               (make-news-menu-item)
-              #+nil
               (make-blog-menu-item)
               #+nil
               (make-forum-menu-item)
@@ -104,8 +103,7 @@
                          (paragraph ()
                            "The company behind dwim.hu is called M. Wallen Software Ltd.")
                          (paragraph ()
-                           "The people involved are Levente Mészáros, Attila Lendvai, Tamás Borbély and Bálint Mészáros. Send emails to either Attila or Levente or both to gmail.com.")))
-                     :initial-alternative-type 't/text/inspector))))
+                           "The people involved are Levente Mészáros, Attila Lendvai, Tamás Borbély and Bálint Mészáros. Send emails to either Attila or Levente or both to gmail.com.")))))))
     (values (menu-item/widget ()
                 (replace-target-place/widget ()
                     "Home"
@@ -123,8 +121,7 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Blog"
-        (inline-render-xhtml/widget ()
-          "Soon"))))
+        (make-filter 'hu.dwim.perec.test::persistence-test))))
 
 (def function make-forum-menu-item ()
   (menu-item/widget ()
@@ -157,8 +154,7 @@
                  :component-value (mapcar (lambda (pathname)
                                             (hu.dwim.wui::project-licence-pathname (or (find-project-by-path pathname)
                                                                                        (make-instance 'project :path pathname))))
-                                          (collect-live-project-pathnames))
-                 :initial-alternative-type 'sequence/list/inspector))
+                                          (collect-live-project-pathnames))))
 
 ;;;;;;
 ;;; Demo
@@ -186,18 +182,17 @@
              (chapter (:title "Source")
                (paragraph ()
                  "The status is rendered by the following code:")
-               (make-value-inspector (fdefinition 'write-server-status) :initial-alternative-type 'function/lisp-form/inspector)
+               (fdefinition 'write-server-status)
                (paragraph ()
                  "The entry point is defined in the following code, look at the entry-point 'status':")
                ;; TODO: get the entry-point's code only
-               (make-value-inspector (system-relative-pathname :hu.dwim.home "source/entry-point.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+               (system-relative-pathname :hu.dwim.home "source/entry-point.lisp")
                (paragraph ()
                  "The demo menu item is created by the following code:")
-               (make-value-inspector (fdefinition 'make-server-status-menu-item) :initial-alternative-type 'function/lisp-form/inspector))
+               (fdefinition 'make-server-status-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>)))
-           :initial-alternative-type 't/text/inspector)))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>))))))))
 
 (def function make-echo-server-demo-menu-item ()
   (menu-item/widget ()
@@ -212,14 +207,13 @@
              (chapter (:title "Source")
                (paragraph ()
                  "The echo server source is the following:")
-               (make-value-inspector (system-relative-pathname :hu.dwim.home "source/echo-server.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+               (system-relative-pathname :hu.dwim.home "source/echo-server.lisp")
                (paragraph ()
                  "The demo menu item is created by the following code:")
-               (make-value-inspector (fdefinition 'make-echo-server-demo-menu-item) :initial-alternative-type 'function/lisp-form/inspector))
+               (fdefinition 'make-echo-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>)))
-           :initial-alternative-type 't/text/inspector)))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>))))))))
 
 (def function make-hello-world-server-demo-menu-item ()
   (menu-item/widget ()
@@ -234,14 +228,13 @@
              (chapter (:title "Source")
                (paragraph ()
                  "The hello world server source is the following:")
-               (make-value-inspector (system-relative-pathname :hu.dwim.home "source/hello-world-server.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+               (system-relative-pathname :hu.dwim.home "source/hello-world-server.lisp")
                (paragraph ()
                  "The demo menu item is created by the following code:")
-               (make-value-inspector (fdefinition 'make-hello-world-server-demo-menu-item) :initial-alternative-type 'function/lisp-form/inspector))
+               (fdefinition 'make-hello-world-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,uri)>)))
-           :initial-alternative-type 't/text/inspector)))))
+                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,uri)>))))))))
 
 (def function make-home-server-demo-menu-item ()
   (menu-item/widget ()
@@ -254,11 +247,10 @@
            (chapter (:title "Source")
              (paragraph ()
                "The following source file defines the server, the application and the toplevel function used to execute the server:")
-             (make-value-inspector (system-relative-pathname :hu.dwim.home "source/server.lisp") :initial-alternative-type 'pathname/lisp-file/inspector)
+             (system-relative-pathname :hu.dwim.home "source/server.lisp")
              (paragraph ()
                "The demo menu item is created by the following code:")
-             (make-value-inspector (fdefinition 'make-home-server-demo-menu-item) :initial-alternative-type 'function/lisp-form/inspector)))
-         :initial-alternative-type 't/text/inspector))))
+             (fdefinition 'make-home-server-demo-menu-item)))))))
 
 (def function make-wui-demo-menu-item ()
   (menu-item/widget ()
@@ -292,7 +284,7 @@
     (menu-item/widget ()
         (replace-target-place/widget ()
             (hu.dwim.wui::name-of project)
-          (make-value-inspector project :initial-alternative-type 't/detail/presentation)))))
+          (make-value-inspector project)))))
 
 ;;;;;;
 ;;; Documentation
@@ -309,25 +301,25 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Install Guide"
-        (make-value-inspector (find-book 'install-guide) :initial-alternative-type 'book/text/inspector))))
+        (make-value-inspector (find-book 'install-guide)))))
 
 (def function make-tutorial-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Tutorial"
-        (make-value-inspector (find-book 'tutorial) :initial-alternative-type 'book/text/inspector))))
+        (make-value-inspector (find-book 'tutorial)))))
 
 (def function make-wui-documentation-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "User Interface"
-        (make-value-inspector (find-book 'hu.dwim.wui.documentation::user-guide) :initial-alternative-type 'book/text/inspector))))
+        (make-value-inspector (find-book 'hu.dwim.wui.documentation::user-guide)))))
 
 (def function make-perec-documentation-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Persistent Data"
-        (make-value-inspector (find-book 'hu.dwim.perec.documentation::user-guide) :initial-alternative-type 'book/text/inspector))))
+        (make-value-inspector (find-book 'hu.dwim.perec.documentation::user-guide)))))
 
 (def function collect-live-project-pathnames ()
   (iter (for pathname :in (directory (merge-pathnames *workspace-directory* "/*.*")))
@@ -374,22 +366,22 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Definition Browser"
-        (make-filter 'definition :initial-alternative-type 't/detail/presentation))))
+        (make-filter 'definition))))
 
 (def function make-class-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Class Browser"
-        (make-filter 'class :initial-alternative-type 't/detail/presentation))))
+        (make-filter 'class))))
 
 (def function make-function-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Function Browser"
-        (make-filter 'function :initial-alternative-type 't/detail/presentation))))
+        (make-filter 'function))))
 
 (def function make-file-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "File Browser"
-        (make-filter 'asdf:source-file :initial-alternative-type 't/detail/presentation))))
+        (make-filter 'asdf:source-file))))

@@ -7,7 +7,7 @@
 (in-package :hu.dwim.home)
 
 ;;;;;;
-;;; Entry points
+;;; Serving entry points
 
 (def file-serving-entry-point *home-application* "/static/" (system-relative-pathname :hu.dwim.home "www/"))
 
@@ -32,6 +32,8 @@
 (def js-component-hierarchy-serving-entry-point *home-application* "wui/js/component-hierarchy.js")
 
 ;;;;;;
+;;; Permanent entry points
+;;;
 ;;; TODO: these entry points should not require session/frame if possible
 ;;; TODO: this repeated code is quite boring
 
@@ -45,8 +47,7 @@
       (progn
         (setf (root-component-of *frame*)
               ;; FIXME: leaking symbols
-              (make-frame-component (make-value-inspector (find-project (intern (string-upcase *entry-point-relative-path*) :keyword))
-                                                          :initial-alternative-type 'inspector/abstract)))
+              (make-frame-component (make-value-inspector (find-project (intern (string-upcase *entry-point-relative-path*) :keyword)))))
         (make-redirect-response-for-current-application (string+ "project/" *entry-point-relative-path*)))))
 
 (def entry-point (*home-application* :path-prefix "file/" :ensure-session #t :ensure-frame #t) ()
@@ -55,7 +56,7 @@
       (bind ((pathname (merge-pathnames *entry-point-relative-path* *workspace-directory*)))
         (when (starts-with-subseq (namestring (truename *workspace-directory*)) (namestring pathname))
           (setf (root-component-of *frame*)
-                (make-frame-component (make-value-inspector pathname :initial-alternative-type 'pathname/lisp-file/inspector)))
+                (make-frame-component (make-value-inspector pathname)))
           (make-redirect-response-for-current-application (string+ "file/" *entry-point-relative-path*))))))
 
 (def entry-point (*home-application* :path-prefix "definition/" :ensure-session #t :ensure-frame #t) ()
@@ -64,8 +65,7 @@
       (progn
         (setf (root-component-of *frame*)
               (make-frame-component (make-value-inspector (hu.dwim.wui::make-definitions (bind ((*read-eval* #f))
-                                                                                           (read-from-string *entry-point-relative-path*)))
-                                                          :initial-alternative-type 't/detail/presentation)))
+                                                                                           (read-from-string *entry-point-relative-path*))))))
         (make-redirect-response-for-current-application (string+ "definition/" *entry-point-relative-path*)))))
 
 (def entry-point (*home-application* :path-prefix "function/" :ensure-session #t :ensure-frame #t) ()
@@ -74,8 +74,7 @@
       (progn
         (setf (root-component-of *frame*)
               (make-frame-component (make-value-inspector (fdefinition (bind ((*read-eval* #f))
-                                                                         (read-from-string *entry-point-relative-path*)))
-                                                          :initial-alternative-type 't/lisp-form/inspector)))
+                                                                         (read-from-string *entry-point-relative-path*))))))
         (make-redirect-response-for-current-application (string+ "function/" *entry-point-relative-path*)))))
 
 (def entry-point (*home-application* :path-prefix "class/" :ensure-session #t :ensure-frame #t) ()
@@ -84,8 +83,7 @@
       (progn
         (setf (root-component-of *frame*)
               (make-frame-component (make-value-inspector (find-class (bind ((*read-eval* #f))
-                                                                        (read-from-string *entry-point-relative-path*)))
-                                                          :initial-alternative-type 't/lisp-form/inspector)))
+                                                                        (read-from-string *entry-point-relative-path*))))))
         (make-redirect-response-for-current-application (string+ "class/" *entry-point-relative-path*)))))
 
 (def entry-point (*home-application* :path-prefix "status" :with-session-logic #f) ()
