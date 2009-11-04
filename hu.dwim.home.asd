@@ -68,7 +68,7 @@
               (when (and (not *load-as-production?*)
                          ;; TODO: couldn't we find a better way than this
                          #+nil(developer-machine?))
-                (setf *compiled-query-cache* (make-compiled-query-cache))
+                (setf hu.dwim.perec::*compiled-query-cache* (make-compiled-query-cache))
                 (setf *debug-on-error* t)
                 (setf (current-locale) (list \"en\"))
                 (setf (running-in-test-mode? *home-application*) t)
