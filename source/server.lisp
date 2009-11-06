@@ -40,6 +40,6 @@
                           +generic-command-line-options+))
          (arguments (process-command-line-options options (get-command-line-arguments))))
     (process-help-command-line-argument options arguments)
-    (process-http-server-port-command-line-argument arguments)
+    (process-http-server-port-command-line-argument arguments *home-server*)
     (process-quiet-command-line-argument arguments)
     (startup-dwim-server arguments :hu.dwim.home *home-server* *home-application*)))
