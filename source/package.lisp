@@ -7,7 +7,8 @@
 (in-package :common-lisp-user)
 
 (defpackage :hu.dwim.home
-  (:use :command-line-arguments
+  (:use :cl-l10n
+        :command-line-arguments
         :hu.dwim.asdf
         :hu.dwim.common
         :hu.dwim.def
@@ -19,7 +20,8 @@
         :hu.dwim.syntax-sugar
         :hu.dwim.util
         :hu.dwim.wui
-        :iolib)
+        :iolib
+        :local-time)
 
   (:shadowing-import-from :hu.dwim.perec
                           #:ip-address))

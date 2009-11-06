@@ -17,6 +17,7 @@
   :licence "BSD / Public domain"
   :depends-on (:hu.dwim.asdf.documentation
                :hu.dwim.blog.documentation
+               :hu.dwim.build.documentation
                :hu.dwim.common.documentation
                :hu.dwim.common-lisp.documentation
                :hu.dwim.computed-class.documentation
@@ -62,15 +63,11 @@
            "(progn
               (unless (connection-specification-of *model*)
                 (setf (connection-specification-of *model*)
-                      `(:host \"localhost\" :port 5432
-                        :database \"hu.dwim.home\" :user-name \"hu.dwim.home\" :password \"engedjbe\")))
+                      `(:host \"localhost\" :port 5432 :database \"hu.dwim.home\" :user-name \"hu.dwim.home\" :password \"engedjbe\")))
               (setf *database* (database-of *model*))
-              (when (and (not *load-as-production?*)
-                         ;; TODO: couldn't we find a better way than this
-                         #+nil(developer-machine?))
-                (setf hu.dwim.perec::*compiled-query-cache* (make-compiled-query-cache))
-                (setf *debug-on-error* t)
-                (setf (current-locale) (list \"en\"))
-                (setf (running-in-test-mode? *home-application*) t)
-                (startup-server *home-server*)))")))
+              (setf hu.dwim.perec::*compiled-query-cache* (make-compiled-query-cache))
+              (setf *debug-on-error* t)
+              (setf (current-locale) (list \"en\"))
+              (setf (running-in-test-mode? *home-application*) t)
+              (startup-server *home-server*))")))
   (warn "Made sideffects on the following global variables: *database*, *compiled-query-cache*, *debug-on-error*, *locale*."))

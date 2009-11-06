@@ -293,7 +293,6 @@
   (menu-item/widget ()
       "Documentation"
     (make-install-guide-menu-item)
-    (make-tutorial-menu-item)
     (make-wui-documentation-item)
     (make-perec-documentation-item)))
 
