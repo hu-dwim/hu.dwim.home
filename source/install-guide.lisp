@@ -6,72 +6,74 @@
 
 (in-package :hu.dwim.home)
 
-(def function collect-install-project-shell-script-commands (live?)
-  (sort (iter (with darcs-get = "darcs get ") ;; TODO: add --lazy after it is proved to be worth
-              (with git-clone = "git clone ") ;; TODO: add --depth 1 after it is proved to be worth
-              (for pathname :in (collect-live-project-pathnames))
-              (for pathname-string = (namestring pathname))
-              (for name = (last-elt (pathname-directory pathname)))
-              (format *debug-io* "Getting project information for ~A (~A) ~%"
-                      pathname-string (if live?
-                                          "live"
-                                          "head"))
-              (collect (cond ((search "hu.dwim" name)
-                              (string+ darcs-get "http://dwim.hu/"
-                                       (if live?
-                                           "live/"
-                                           "darcs/")
-                                       name))
-                             ((probe-file (merge-pathnames "_darcs" pathname))
-                              (if live?
-                                  (string+ darcs-get "http://dwim.hu/live/" name)
-                                  (bind ((darcs-info (with-output-to-string (output)
-                                                       (sb-ext:run-program "/usr/bin/darcs"
-                                                                           `("show" "repo" "--repodir" ,pathname-string)
-                                                                           :output output)))
-                                         ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
+(def function collect-project-installing-shell-commands (live?)
+  (with-simple-restart (skip-all "Return NIL from COLLECT-PROJECT-INSTALLING-SHELL-COMMANDS")
+    (sort (iter (with darcs-get = "darcs get ") ;; TODO: add --lazy after it is proved to be worth
+                (with git-clone = "git clone ") ;; TODO: add --depth 1 after it is proved to be worth
+                (for pathname :in (collect-live-project-pathnames))
+                (for pathname-string = (namestring pathname))
+                (for name = (last-elt (pathname-directory pathname)))
+                (format *debug-io* "Getting project information for ~A (~A) ~%"
+                        pathname-string (if live?
+                                            "live"
+                                            "head"))
+                (with-simple-restart (skip "Skip project ~A" pathname)
+                  (collect (cond ((search "hu.dwim" name)
+                                  (string+ darcs-get "http://dwim.hu/"
+                                           (if live?
+                                               "live/"
+                                               "darcs/")
+                                           name))
+                                 ((probe-file (merge-pathnames "_darcs" pathname))
+                                  (if live?
+                                      (string+ darcs-get "http://dwim.hu/live/" name)
+                                      (bind ((darcs-info (with-output-to-string (output)
+                                                           (sb-ext:run-program "/usr/bin/darcs"
+                                                                               `("show" "repo" "--repodir" ,pathname-string)
+                                                                               :output output)))
+                                             ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
+                                             (project (first-elt groups)))
+                                        (if (search "/var/opt/darcs" project)
+                                            (string+ darcs-get "http://dwim.hu/darcs/" name)
+                                            (string+ darcs-get project)))))
+                                 ((probe-file (merge-pathnames ".git" pathname))
+                                  (bind ((git-info (with-output-to-string (output)
+                                                     (sb-ext:run-program "/usr/bin/git"
+                                                                         `("--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
+                                                                         :output output)))
+                                         ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
                                          (project (first-elt groups)))
-                                    (if (search "/var/opt/darcs" project)
-                                        (string+ darcs-get "http://dwim.hu/darcs/" name)
-                                        (string+ darcs-get project)))))
-                             ((probe-file (merge-pathnames ".git" pathname))
-                              (bind ((git-info (with-output-to-string (output)
-                                                 (sb-ext:run-program "/usr/bin/git"
-                                                                     `("--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
-                                                                     :output output)))
-                                     ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
-                                     (project (first-elt groups)))
-                                (string+ git-clone project
-                                         (when live?
-                                           (bind ((git-info (with-output-to-string (output)
-                                                              (sb-ext:run-program "/usr/bin/git"
-                                                                                  `("--git-dir" ,(string+ pathname-string "/.git") "rev-list" "--max-count=1" "HEAD")
-                                                                                  :output output)))
-                                                  (hash (string-trim-whitespace git-info)))
-                                             (string+ " ; git --git-dir " ;
-                                                      name
-                                                      "/.git checkout -q " hash))))))
-                             ((probe-file (merge-pathnames ".svn" pathname))
-                              (bind ((svn-info (with-output-to-string (output)
-                                                 (sb-ext:run-program "/usr/bin/svn"
-                                                                     `("info" ,pathname-string)
-                                                                     :output output)))
-                                     ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
-                                     (project (first-elt groups))
-                                     ((:values nil groups) (cl-ppcre:scan-to-strings ".*Revision: (.*?)\\n.*" svn-info))
-                                     (revision (first-elt groups)))
-                                (string+ "svn checkout " project
-                                         (when live?
-                                           (string+ " -r " revision))
-                                         " " name)))
-                             ((probe-file (merge-pathnames "CVS" pathname))
-                              (bind ((root (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Root" pathname))))
-                                     (project (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Repository" pathname)))))
-                                (string+ "cvs -z3 -d " root " checkout -d " name " " project)))
-                             (t
-                              (warn "Don't know how to install project ~A" name)
-                              (string+ "# TODO: Don't know how to install project " name)))))
-        #'string<))
+                                    (string+ git-clone project
+                                             (when live?
+                                               (bind ((git-info (with-output-to-string (output)
+                                                                  (sb-ext:run-program "/usr/bin/git"
+                                                                                      `("--git-dir" ,(string+ pathname-string "/.git") "rev-list" "--max-count=1" "HEAD")
+                                                                                      :output output)))
+                                                      (hash (string-trim-whitespace git-info)))
+                                                 (string+ " ; git --git-dir " ;
+                                                          name
+                                                          "/.git checkout -q " hash))))))
+                                 ((probe-file (merge-pathnames ".svn" pathname))
+                                  (bind ((svn-info (with-output-to-string (output)
+                                                     (sb-ext:run-program "/usr/bin/svn"
+                                                                         `("info" ,pathname-string)
+                                                                         :output output)))
+                                         ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
+                                         (project (first-elt groups))
+                                         ((:values nil groups) (cl-ppcre:scan-to-strings ".*Revision: (.*?)\\n.*" svn-info))
+                                         (revision (first-elt groups)))
+                                    (string+ "svn checkout " project
+                                             (when live?
+                                               (string+ " -r " revision))
+                                             " " name)))
+                                 ((probe-file (merge-pathnames "CVS" pathname))
+                                  (bind ((root (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Root" pathname))))
+                                         (project (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Repository" pathname)))))
+                                    (string+ "cvs -z3 -d " root " checkout -d " name " " project)))
+                                 (t
+                                  (warn "Don't know how to install project ~A" name)
+                                  (string+ "# TODO: Don't know how to install project " name))))))
+          #'string<)))
 
 (def book install-guide (:title "Install Guide" :authors '("Levente Mészáros"))
   (chapter (:title "Introduction")
@@ -188,11 +190,11 @@ to install the HEAD revisions of all required repositories. This allows you to h
     (chapter (:title "Live")
       "Install the Live revisions of the required repositories."
       (make-instance 'shell-script :contents (list* "cd ~/workspace"
-                                                    (collect-install-project-shell-script-commands #t))))
+                                                    (collect-project-installing-shell-commands #t))))
     (chapter (:title "Head")
       "Install the HEAD revisions of the required repositories."
       (make-instance 'shell-script :contents (list* "cd ~/workspace"
-                                                    (collect-install-project-shell-script-commands #f)))))
+                                                    (collect-project-installing-shell-commands #f)))))
   (chapter (:title "Configure www")
     (shell-script ()
       ;; TODO: this has to come after building dojo, but I think this build has to be rethought
