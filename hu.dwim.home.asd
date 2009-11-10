@@ -35,6 +35,7 @@
                :hu.dwim.new-project.documentation
                :hu.dwim.partial-eval.documentation
                :hu.dwim.perec.documentation
+               :hu.dwim.perec+iolib
                :hu.dwim.quasi-quote.documentation
                :hu.dwim.rdbms.documentation
                :hu.dwim.reader.documentation
