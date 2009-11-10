@@ -1,2 +1,2 @@
 # Boring file regexps:
-^www/.*\.wui-cache
+^www/dojo.*
