@@ -26,7 +26,7 @@ NAME="${PROJECT_NAME}"
 DAEMON=/bin/sh
 PIDFILE="/var/run/${PROJECT_NAME}/server-loop.pid"
 SBCL_PIDFILE="/var/run/${PROJECT_NAME}/sbcl.pid"
-DAEMON_ARGS="${WORKSPACE}/${PROJECT_NAME}/bin/server-loop.sh --database-host ${DATABASE_HOST} --database-port ${DATABASE_PORT} --database-user-name ${DATABASE_USER_NAME} --database-name ${DATABASE_NAME} --database-password szupertitok --pid-file ${SBCL_PIDFILE}"
+DAEMON_ARGS="${WORKSPACE}/${PROJECT_NAME}/bin/server-loop.sh --database-host ${DATABASE_HOST} --database-port ${DATABASE_PORT} --database-user-name ${DATABASE_USER_NAME} --database-name ${DATABASE_NAME} --database-password engedjbe --pid-file ${SBCL_PIDFILE}"
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0

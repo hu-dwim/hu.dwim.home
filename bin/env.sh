@@ -3,9 +3,9 @@
 # this file should be included by the start script(s) of the project
 
 export PROJECT_NAME="hu.dwim.home"
-export DATABASE_NAME=""
-export DATABASE_USER_NAME=""
-export DATABASE_HOST=""
+export DATABASE_NAME="hu.dwim.home"
+export DATABASE_USER_NAME="hu.dwim.home"
+export DATABASE_HOST="localhost"
 export DATABASE_PORT="5432"
 export DYNAMIC_SPACE_SIZE="500"
 
