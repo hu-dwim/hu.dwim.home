@@ -37,13 +37,16 @@
 
 (def function executable-toplevel ()
   "The toplevel function that is called when the dwim Server is started."
-  (bind ((options (append (list +help-command-line-option+)
-                          (list +http-server-port-command-line-option+)
-                          (list +quiet-command-line-option+)
-                          +database-command-line-options+
-                          +generic-command-line-options+))
-         (arguments (process-command-line-options options (get-command-line-arguments))))
-    (process-help-command-line-argument options arguments)
-    (process-http-server-port-command-line-argument arguments *home-server*)
-    (process-quiet-command-line-argument arguments)
-    (startup-dwim-server arguments :hu.dwim.home *home-server* *home-application*)))
+  (with-standard-toplevel-restarts
+    (bind ((options (append (list +help-command-line-option+)
+                            (list +http-server-port-command-line-option+)
+                            (list +quiet-command-line-option+)
+                            +database-command-line-options+
+                            +generic-command-line-options+))
+           (arguments (process-command-line-options options (get-command-line-arguments))))
+          (process-help-command-line-argument options arguments)
+          (process-http-server-port-command-line-argument arguments *home-server*)
+          (process-quiet-command-line-argument arguments)
+          (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
+    ;; process exit code
+    0))

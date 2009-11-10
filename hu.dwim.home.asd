@@ -29,6 +29,7 @@
                :hu.dwim.graphviz.documentation
                :hu.dwim.lazy-eval.documentation
                :hu.dwim.logger.documentation
+               :hu.dwim.logger+threads
                :hu.dwim.meta-model.documentation
                :hu.dwim.model.documentation
                :hu.dwim.new-project.documentation
