@@ -49,11 +49,12 @@
                :hu.dwim.wui+hu.dwim.reader+hu.dwim.syntax-sugar
                :hu.dwim.wui+stefil)
   :components ((:module "source"
-                :components ((:file "configuration" :depends-on ("package"))
+                :components ((:file "configuration" :depends-on ("package" "logger"))
                              (:file "echo-server" :depends-on ("server"))
                              (:file "entry-point" :depends-on ("server"))
                              (:file "hello-world-server" :depends-on ("server"))
                              (:file "install-guide" :depends-on ("screen"))
+                             (:file "logger" :depends-on ("package"))
                              (:file "package")
                              (:file "screen" :depends-on ("configuration"))
                              (:file "server" :depends-on ("screen"))
