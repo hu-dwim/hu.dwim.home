@@ -43,12 +43,16 @@
     (bind ((options (append (list +help-command-line-option+)
                             (list +http-server-port-command-line-option+)
                             (list +quiet-command-line-option+)
-                            +database-command-line-options+
+                            (copy-command-line-options +database-command-line-options+
+                                                       :database-name "hu.dwim.home"
+                                                       :database-user-name "hu.dwim.home"
+                                                       :database-password "engedjbe")
                             +generic-command-line-options+))
            (arguments (process-command-line-options options (get-command-line-arguments))))
-          (process-help-command-line-argument options arguments)
-          (process-http-server-port-command-line-argument arguments *home-server*)
-          (process-quiet-command-line-argument arguments)
-          (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
+      (process-help-command-line-argument options arguments)
+      (process-http-server-port-command-line-argument arguments *home-server*)
+      (process-quiet-command-line-argument arguments)
+      (home.debug "Parsed command line arguments are: ~S" arguments)
+      (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
     ;; process exit code
     0))
