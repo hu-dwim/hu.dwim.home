@@ -45,6 +45,7 @@
                :hu.dwim.syntax-sugar.documentation
                :hu.dwim.util.documentation
                :hu.dwim.walker.documentation
+               :hu.dwim.wiki.documentation
                :hu.dwim.wui.documentation
                :hu.dwim.wui+hu.dwim.reader+hu.dwim.syntax-sugar
                :hu.dwim.wui+stefil)
