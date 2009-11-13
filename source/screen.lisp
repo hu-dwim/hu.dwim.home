@@ -24,11 +24,10 @@
                    :script-uris (make-default-script-uris :hu.dwim.home)
                    :stylesheet-uris (make-default-stylesheet-uris :hu.dwim.wiki "home/css/home.css"))
       (top/widget (:menu-bar menu-bar)
-        (or content
-            initial-content)))))
+        (or content initial-content)))))
 
 ;;;;;;
-;;; Home
+;;; Home menu
 
 (def function make-home-menu ()
   (bind (((:values home-menu-item home-content) (make-home-menu-item)))
@@ -129,7 +128,7 @@
                                           (collect-live-project-pathnames))))
 
 ;;;;;;
-;;; Demo
+;;; Demo menu
 
 (def function make-demo-menu ()
   (menu-item/widget ()
@@ -238,7 +237,7 @@
           "Soon"))))
 
 ;;;;;;
-;;; Project
+;;; Project menu
 
 (def function make-project-menu ()
   (bind (((dwim-projects other-projects) (hu.dwim.wui::partition (collect-live-project-pathnames)
@@ -259,7 +258,7 @@
           (make-value-inspector project)))))
 
 ;;;;;;
-;;; Documentation
+;;; Documentation menu
 
 (def function make-documentation-menu ()
   (menu-item/widget ()
@@ -300,7 +299,7 @@
           (collect pathname))))
 
 ;;;;;;
-;;; Repository
+;;; Repository menu
 
 (def function make-repository-menu ()
   (menu-item/widget ()
@@ -323,7 +322,7 @@
           <iframe (:width "100%" :height "1000px" :style "border: none; overflow: hidden" :src "/gitweb/gitweb.cgi")>))))
 
 ;;;;;;
-;;; Source
+;;; Source menu
 
 (def function make-source-menu ()
   (menu-item/widget ()

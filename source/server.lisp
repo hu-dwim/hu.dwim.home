@@ -38,7 +38,7 @@
 ;;; Production
 
 (def function executable-toplevel ()
-  "The toplevel function that is called when the dwim Server is started."
+  "The toplevel function that is called when the dwim Server is started from the command line. For development use (asdf:develop-system :hu.dwim.home) instead."
   (with-standard-toplevel-restarts
     (bind ((options (append (list +help-command-line-option+)
                             (list +http-server-port-command-line-option+)
@@ -54,5 +54,4 @@
       (process-quiet-command-line-argument arguments)
       (home.debug "Parsed command line arguments are: ~S" arguments)
       (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
-    ;; process exit code
-    0))
+    +no-error-status-code+))
