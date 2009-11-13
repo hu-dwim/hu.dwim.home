@@ -22,7 +22,7 @@
     (frame/widget (:title "dwim.hu"
                    :page-icon (make-default-page-icon)
                    :script-uris (make-default-script-uris :hu.dwim.home)
-                   :stylesheet-uris (make-default-stylesheet-uris :hu.dwim.wiki "home/css/home.css"))
+                   :stylesheet-uris (make-default-stylesheet-uris :hu.dwim.home "home/css/home.css"))
       (top/widget (:menu-bar menu-bar)
         (or content initial-content)))))
 
