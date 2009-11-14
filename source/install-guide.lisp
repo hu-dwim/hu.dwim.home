@@ -140,11 +140,10 @@ The default backend is the well known PostgreSQL open source relational database
       "The Server needs a database and a database user in PostgreSQL to store its persistent data."
       (parse-uri "http://www.postgresql.org/"))
     (shell-script ()
-      "sudo su - postgres"
-      "createdb hu.dwim.home"
-      "createuser -P hu.dwim.home --no-superuser --no-createdb --no-createrole"
-      "exit")
-    "When prompted for the password type in 'engedjbe'")
+      "sudo -u postgres createdb hu.dwim.home"
+      "sudo -u postgres createuser --pwprompt --no-superuser --no-createdb --no-createrole hu.dwim.home")
+    (paragraph ()
+      "When prompted for the password type in 'engedjbe', which is the default password for hu.dwim.home."))
   (chapter (:title "Install Sqlite")
     (paragraph ()
       "This installation step is optional. The Sqlite relational database should be installed only if you want to run the corresponding test suites."
@@ -195,23 +194,30 @@ to install the HEAD revisions of all required repositories. This allows you to h
       "Install the HEAD revisions of the required repositories."
       (make-instance 'shell-script :contents (list* "cd ~/workspace"
                                                     (collect-project-installing-shell-commands #f)))))
-  (chapter (:title "Configure www")
+  (chapter (:title "Configure www/ directory served at the url static/")
     (shell-script ()
       ;; TODO: this has to come after building dojo, but I think this build has to be rethought
       ;; TODO this should not be needed...
       "sh ~/workspace/hu.dwim.home/etc/create-www-links.sh"))
-  (chapter (:title "Configure the Server as a unix service run from /opt/hu.dwim.home/ (optional)")
-    (shell-script ()
-      ;; TODO workspace path should be coming from a variable
-      "sudo mkdir /var/log/hu.dwim.home /var/run/hu.dwim.home"
-      "sudo chown dwim:admin /var/log/hu.dwim.home /var/run/hu.dwim.home"
-      "sudo chmod ug=rwxs,o= /var/log/hu.dwim.home /var/run/hu.dwim.home"
-      "sudo ln -sf /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /etc/init.d/hu.dwim.home"
-      "sudo update-rc.d hu.dwim.home defaults"
-      "sudo chgrp root /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script"
-      "sudo chmod u=rwx,g=rwx,o=r /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /opt/hu.dwim.home/workspace/hu.dwim.home/bin/"
-      "sudo chmod u+x,g+x,o-x /opt/hu.dwim.home/workspace/hu.dwim.home/bin/*.sh"))
-  (chapter (:title "Build Server")
+  (chapter (:title "Configure the Server as a unix service to run from /opt/hu.dwim.home/ (optional)")
+    ;; TODO workspace path should be coming from a variable
+    (chapter (:title "Add a user that will be used to run the server process")
+      (shell-script ()
+        "sudo adduser --disabled-login --disabled-password --no-create-home dwim"))
+    (chapter (:title "Set up logging")
+      (shell-script ()
+        "sudo mkdir --parents /var/log/hu.dwim.home/archive /var/run/hu.dwim.home"
+        "sudo chown -R dwim:admin /var/log/hu.dwim.home /var/run/hu.dwim.home"
+        "sudo chmod ug=rwxs,o= /var/log/hu.dwim.home /var/log/hu.dwim.home/archive /var/run/hu.dwim.home"
+        "sudo ln -s /opt/hu.dwim.home/workspace/hu.dwim.home/etc/logrotate.conf /etc/logrotate.d/hu.dwim.home.conf"))
+    (chapter (:title "Set up rc.d scripts to automatically start the server")
+      (shell-script ()
+        "sudo ln -sf /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /etc/init.d/hu.dwim.home"
+        "sudo chgrp root /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script"
+        "sudo chmod u=rwx,g=rwx,o=r /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /opt/hu.dwim.home/workspace/hu.dwim.home/bin/"
+        "sudo chmod u+x,g+x,o-x /opt/hu.dwim.home/workspace/hu.dwim.home/bin/*.sh"
+        "sudo update-rc.d hu.dwim.home defaults")))
+  (chapter (:title "Build the server executable")
     (shell-script ()
       "sudo apt-get install libz-dev"
       "sh ~/workspace/cl-l10n/bin/update-cldr.sh"
