@@ -36,6 +36,7 @@
               home-menu-item
               #+nil
               (make-news-menu-item)
+              #+nil
               (make-blog-menu-item)
               #+nil
               (make-forum-menu-item)
