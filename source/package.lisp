@@ -4,9 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(in-package :common-lisp-user)
+(in-package :hu.dwim.util)
 
-(defpackage :hu.dwim.home
+(def package :hu.dwim.home
   (:use :cl-l10n
         :command-line-arguments
         :hu.dwim.asdf
@@ -22,6 +22,6 @@
         :hu.dwim.wui
         :iolib
         :local-time)
-
   (:shadowing-import-from :hu.dwim.perec
-                          #:ip-address))
+                          #:ip-address)
+  (:readtable-setup (setup-readtable/same-as-package :hu.dwim.wui)))

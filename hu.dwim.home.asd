@@ -10,11 +10,7 @@
 
 (defsystem :hu.dwim.home
   :class hu.dwim.system
-  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-           "Levente Mészáros <levente.meszaros@gmail.com>"
-           "Tamás Borbély <tomi.borbely@gmail.com>")
   :description "hu.dwim.home"
-  :licence "BSD / Public domain"
   :depends-on (:hu.dwim.asdf.documentation
                :hu.dwim.blog.documentation
                :hu.dwim.build.documentation
