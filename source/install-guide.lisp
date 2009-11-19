@@ -78,26 +78,21 @@
 (def book install-guide (:title "Install Guide" :authors '("Levente Mészáros"))
   (chapter (:title "Introduction")
     (paragraph ()
-      "The Install Guide describes how to install and configure the same web service that is running at "
-      (parse-uri "http://dwim.hu/") " on your local computer. The Install Guide is written to be as complete as possible in terms of listing all needed
-software components. While this is helpful for newcomers, it also means that some components may be already present in your system. You can safely ignore installing
-those parts that you have already installed.")
+      "This guide describes how to install and configure the web service running at " (parse-uri "http://dwim.hu/") ". It is meant to be as complete and independent as possible, including the installation of all the required libraries into a standalone directory. The shell script below will use version control tools (for the projects using one) to replicate the exact same revision used by the live site. Therefore it's a good idea to use the version of the dependencies this script installs, and later to update using the default remote repository locations. This way the updates of the dependencies arrive to your local checkout in chunks that integrate well, or at least well enough to run our website.")
     (paragraph ()
       "You can see the source of this install guide at " (parse-uri "http://dwim.hu/file/hu.dwim.home/source/install-guide.lisp")))
   (chapter (:title "Platform")
     (paragraph ()
-      "The Install Guide is tested under Virtual Box to ensure all dependencies are properly listed. First the operating system is installed and then all 
-shell scripts are executed from the following chapters."
+      "This guide is tested using VirtualBox to ensure that it sets up everything properly. First the operating system is installed, then the shell scripts in the upcoming chapters are run."
+      ;; TODO install this url on the VirtualBox above. same applies for many other occasions below...
       (parse-uri "http://www.virtualbox.org/")))
   (chapter (:title "Install Ubuntu")
     (paragraph ()
-      "The Server runs under the Ubuntu Linux Server Edition (x86-64) operating system. Installing the Server under other versions of Ubuntu Linux (such as the
-Desktop Edition) should not be a problem. Installing the Server under other Linux distributions may be different and may need more hand tuning than what is 
-described here. Other operating systems such as Windows, Mac OS X, etc. are not tested and most likely will not work out of the box."
+      "Our server runs on Ubuntu Linux (Server Edition, x86-64). Setting up the server on other Debian based Linux distributions is likely to work without any issues. Other operating systems, such as Windows or Mac OS X, are not tested and will most probably not work out of the box. Patches are welcome!"
       (parse-uri "http://www.ubuntu.com/")))
-  (chapter (:title "Create the Workspace")
+  (chapter (:title "Set up a directory for the installed components")
     (paragraph ()
-      "The Workspace directory will contain all version controlled source code. The directory is assumed to be created in your home directory.")
+      "All the required source code will be in the workspace directory. TODO: set up an input field to let the reader configure the install path of the scripts, defaulting to /opt/hu.dwim.home/workspace and suggesting ~/workspace as an alternative.")
     (shell-script ()
       "mkdir ~/workspace"))
   (chapter (:title "Install SBCL")
@@ -187,11 +182,11 @@ these repositories you should first install the corresponding version control sy
 at " (parse-uri "http://dwim.hu/")". This allows you to have a stable version of all required repositories. The more advanced but also more fragile way is
 to install the HEAD revisions of all required repositories. This allows you to have the newest fetaures and the newest bugs as well.")
     (chapter (:title "Live")
-      "Install the Live revisions of the required repositories."
+      "Install the live revisions of the required dependencies. Usually the live system lags behind the latest revisions by a week or two, but in return it integrates well enough to run this site."
       (make-instance 'shell-script :contents (list* "cd ~/workspace"
                                                     (collect-project-installing-shell-commands #t))))
     (chapter (:title "Head")
-      "Install the HEAD revisions of the required repositories."
+      "Install the HEAD revisions of the required dependencies. WARNING: This is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the live repositories (see above)."
       (make-instance 'shell-script :contents (list* "cd ~/workspace"
                                                     (collect-project-installing-shell-commands #f)))))
   (chapter (:title "Configure www/ directory served at the url static/")
