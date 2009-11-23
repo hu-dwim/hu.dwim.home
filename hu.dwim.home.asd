@@ -46,16 +46,15 @@
                :hu.dwim.wui+hu.dwim.reader+hu.dwim.syntax-sugar
                :hu.dwim.wui+stefil)
   :components ((:module "source"
-                :components ((:file "configuration" :depends-on ("package" "logger"))
-                             (:file "echo-server" :depends-on ("server"))
+                :components ((:file "echo-server" :depends-on ("server"))
                              (:file "entry-point" :depends-on ("server"))
                              (:file "hello-world-server" :depends-on ("server"))
                              (:file "install-guide" :depends-on ("screen"))
                              (:file "logger" :depends-on ("package"))
                              (:file "package")
-                             (:file "screen" :depends-on ("configuration"))
+                             (:file "screen" :depends-on ("logger"))
                              (:file "server" :depends-on ("screen"))
-                             (:file "tutorial" :depends-on ("configuration"))))))
+                             (:file "tutorial" :depends-on ("logger"))))))
 
 (defmethod perform :after ((o develop-op) (c (eql (find-system :hu.dwim.home))))
   (eval (let ((*package* (find-package :hu.dwim.home)))
