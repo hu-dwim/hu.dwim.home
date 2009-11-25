@@ -43,7 +43,7 @@
                :hu.dwim.walker.documentation
                :hu.dwim.wiki.documentation
                :hu.dwim.wui.documentation
-               :hu.dwim.wui+hu.dwim.reader+hu.dwim.syntax-sugar
+               :hu.dwim.wui+hu.dwim.reader
                :hu.dwim.wui+stefil)
   :components ((:module "source"
                 :components ((:file "echo-server" :depends-on ("server"))
