@@ -9,9 +9,10 @@
 ;;;;;;
 ;;; Application
 
-(def (class* e) home-application (application-with-perec-support application-with-home-package application-with-dojo-support)
-  ()
-  (:metaclass funcallable-standard-class))
+(def (class* e) home-application (application-with-perec-support
+                                  application-with-home-package
+                                  application-with-dojo-support)
+  ())
 
 ;; to build dojo:
 ;; $ svn up --revision 20743     # in each of the first descendant dirs of the dojo checkout
