@@ -11,7 +11,19 @@
 (defsystem :hu.dwim.home
   :class hu.dwim.system
   :description "hu.dwim.home"
-  :depends-on (:hu.dwim.asdf.documentation
+  :depends-on (:hu.dwim.logger+threads
+               :hu.dwim.perec.documentation
+               :hu.dwim.perec+iolib
+               :hu.dwim.wui.documentation
+               :hu.dwim.wui+hu.dwim.perec
+               :hu.dwim.wui+hu.dwim.reader
+               :hu.dwim.wui+stefil
+               :hu.dwim.meta-model
+               :hu.dwim.model
+
+               ;; TODO this should be (an optional) part of the build process
+               ;; keep it separate for now, so that it's easy to comment them out when not building the final product
+               :hu.dwim.asdf.documentation
                :hu.dwim.blog.documentation
                :hu.dwim.build.documentation
                :hu.dwim.common.documentation
@@ -25,13 +37,10 @@
                :hu.dwim.graphviz.documentation
                :hu.dwim.lazy-eval.documentation
                :hu.dwim.logger.documentation
-               :hu.dwim.logger+threads
                :hu.dwim.meta-model.documentation
                :hu.dwim.model.documentation
                :hu.dwim.new-project.documentation
                :hu.dwim.partial-eval.documentation
-               :hu.dwim.perec.documentation
-               :hu.dwim.perec+iolib
                :hu.dwim.quasi-quote.documentation
                :hu.dwim.rdbms.documentation
                :hu.dwim.reader.documentation
@@ -43,8 +52,7 @@
                :hu.dwim.walker.documentation
                :hu.dwim.wiki.documentation
                :hu.dwim.wui.documentation
-               :hu.dwim.wui+hu.dwim.reader
-               :hu.dwim.wui+stefil)
+               )
   :components ((:module "source"
                 :components ((:file "echo-server" :depends-on ("server"))
                              (:file "entry-point" :depends-on ("server"))
