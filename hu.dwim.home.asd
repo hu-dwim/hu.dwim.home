@@ -11,7 +11,7 @@
 (defsystem :hu.dwim.home
   :class hu.dwim.system
   :description "hu.dwim.home"
-  :depends-on (:hu.dwim.logger+threads
+  :depends-on (:hu.dwim.logger
                :hu.dwim.perec.documentation
                :hu.dwim.perec+iolib
                :hu.dwim.wui.documentation
