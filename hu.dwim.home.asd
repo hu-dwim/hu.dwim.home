@@ -10,7 +10,7 @@
 
 (defsystem :hu.dwim.home
   :class hu.dwim.system
-  :description "hu.dwim.home"
+  :description "A web application for all hu.dwim systems including their test suite and documentation."
   :depends-on (:hu.dwim.logger
                :hu.dwim.perec.documentation
                :hu.dwim.perec+iolib
