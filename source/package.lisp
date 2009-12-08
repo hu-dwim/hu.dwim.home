@@ -15,6 +15,7 @@
         :hu.dwim.defclass-star
         :hu.dwim.logger
         :hu.dwim.meta-model
+        :hu.dwim.model
         :hu.dwim.perec
         :hu.dwim.rdbms
         :hu.dwim.syntax-sugar
