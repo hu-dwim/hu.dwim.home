@@ -54,7 +54,8 @@
                :hu.dwim.wui.documentation
                )
   :components ((:module "source"
-                :components ((:file "echo-server" :depends-on ("server"))
+                :components ((:file "authentication" :depends-on ("server"))
+                             (:file "echo-server" :depends-on ("server"))
                              (:file "entry-point" :depends-on ("server"))
                              (:file "hello-world-server" :depends-on ("server"))
                              (:file "install-guide" :depends-on ("screen"))

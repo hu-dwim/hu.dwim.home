@@ -32,6 +32,24 @@
 (def js-component-hierarchy-serving-entry-point *home-application* "wui/js/component-hierarchy.js")
 
 ;;;;;;
+;;; Login entry point
+
+(def identifier-and-password-login-entry-point *home-application*
+  :with-session-logic #t :ensure-session #t :ensure-frame #t
+  :frame-component-factory 'make-frame-component
+  :authentication-instrument-iterator 'iterate-possible-authentication-instruments-based-on-login-identifier)
+
+;;;;;;
+;;; Main entry point
+
+(def entry-point (*home-application* :path "" :ensure-session #t :ensure-frame #t) ()
+  (if (root-component-of *frame*)
+      (make-root-component-rendering-response *frame*)
+      (progn
+        (setf (root-component-of *frame*) (make-frame-component))
+        (make-redirect-response-for-current-application))))
+
+;;;;;;
 ;;; Permanent entry points
 ;;;
 ;;; TODO: these entry points should not require session/frame if possible
@@ -97,12 +115,3 @@
 (def entry-point (*home-application* :path-prefix "status" :with-session-logic #f) ()
   (make-server-status-response))
 
-;;;;;;
-;;; Main entry point
-
-(def entry-point (*home-application* :path "" :ensure-session #t :ensure-frame #t) ()
-  (if (root-component-of *frame*)
-      (make-root-component-rendering-response *frame*)
-      (progn
-        (setf (root-component-of *frame*) (make-frame-component))
-        (make-redirect-response-for-current-application))))

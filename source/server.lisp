@@ -9,7 +9,8 @@
 ;;;;;;
 ;;; Application
 
-(def (class* e) home-application (application-with-perec-support
+(def (class* e) home-application (application-with-authentication-support
+                                  application-with-perec-support
                                   application-with-home-package
                                   application-with-dojo-support)
   ())
