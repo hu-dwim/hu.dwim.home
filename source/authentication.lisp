@@ -6,7 +6,7 @@
 
 (in-package :hu.dwim.home)
 
-(def layered-method iterate-possible-authentication-instruments ((application home-application) (identifier string) visitor)
+(def method iterate-possible-authentication-instruments ((application home-application) (identifier string) visitor)
   (bind ((identifier-as-string (string-trim " " identifier)))
     (flet ((try (thing)
              (iter (for instrument :in-sequence (etypecase thing
@@ -14,5 +14,9 @@
                                                   (list thing)))
                    (authentication.debug "Trying subject ~A" (subject-of instrument))
                    (funcall visitor instrument))))
-      (try *import-technical-subject*) ; TODO delme, only some test code...
+      ;; TODO delme, only some test code...
+      (update-authentication-instrument-password
+       (ensure-encrypted-password-authentication-instrument *import-technical-subject*)
+       "engedjbe")
+      (try *import-technical-subject*)
       (values #f nil))))
