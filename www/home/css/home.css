@@ -21,3 +21,11 @@ body.tundra
   margin-top: 0px;
   margin-left: 12px;
 }
+
+.test-result-pass.icon {
+  background-image: url("/static/wui/icon/24x24/apply.png");
+}
+
+.test-result-fail.icon {
+  background-image: url("/static/wui/icon/24x24/delete.png");
+}
