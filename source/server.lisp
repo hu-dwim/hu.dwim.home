@@ -31,7 +31,7 @@
 ;; $ sh /opt/hu.dwim.home/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo /opt/hu.dwim.home/workspace/dojo/ --dojo-release-dir /opt/hu.dwim.home/workspace/hu.dwim.home/www/ --profile /opt/hu.dwim.home/workspace/hu.dwim.wui/etc/wui.profile.js --locales "en-us,hu"
 (def (special-variable e) *home-application* (make-instance 'home-application
                                                             :path-prefix "/"
-                                                            :dojo-directory-name "dojo-20964/" ; keep track of the exact dojo version which is tested
+                                                            :dojo-directory-name "dojo/"
                                                             :ajax-enabled #t))
 
 (def layered-method make-frame-component-with-content ((application home-application) session frame content)
