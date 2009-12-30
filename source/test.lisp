@@ -97,7 +97,9 @@
                                             :lisp-implementation-version (lisp-implementation-version)
                                             :test-name root-test-name
                                             :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of (gethash (hu.dwim.stefil:find-test root-test-name) (hu.dwim.stefil::run-tests-of result)))
-                                            :test-result (zerop (length failures))
+                                            :test-result (if (zerop (length failures))
+                                                             :pass
+                                                             :fail)
                                             :assertion-count (hu.dwim.stefil::assertion-count-of result)
                                             :success-count -1
                                             :expected-failure-count -1
@@ -108,7 +110,9 @@
           (for test-result = (make-instance 'test-result
                                             :test-name (hu.dwim.stefil::name-of test)
                                             :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of test-run)
-                                            :test-result (zerop (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run))
+                                            :test-result (if (zerop (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run))
+                                                             :pass
+                                                             :fail)
                                             ;; TODO: we don't have that information in the test-run do we?
                                             :assertion-count -1
                                             :success-count -1
@@ -119,8 +123,9 @@
     system-test-result))
 
 (def (function e) standalone-test-system (system-name)
-  (home.info "Running standalone test for system ~A started" system-name)
+  (home.info "Standalone test for system ~A started" system-name)
   (bind ((setup-environment-program `(load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp"))))
+         ;; TODO: a fresh build with rmfasl is needed
          (test-system-program `(test-system ,system-name))
          (load-home-program '(load-system :hu.dwim.home))
          (store-system-test-result-program `(hu.dwim.home::store-system-test-result ,system-name ',(hu.dwim.meta-model::connection-specification-of *model*)))
@@ -132,14 +137,14 @@
                                "--eval" ,(format nil "~S" test-system-program)
                                "--eval" ,(format nil "~S" load-home-program)
                                "--eval" ,(format nil "~S" store-system-test-result-program)))))
-    (with-output-to-file (s "/tmp/run.sh" :if-exists :supersede)
-      (format s "sh ~{~S ~}" shell-arguments))
+    ;; NOTE: ~S allows copying the forms into a shell
+    (format *debug-io* "; Running test with: ~{~S ~}~%" shell-arguments)
     (sb-ext:run-program "/bin/sh" shell-arguments
                         :environment (remove nil (list* (when sbcl-home
                                                           (concatenate 'string "SBCL_HOME=" sbcl-home))
                                                         (sb-ext:posix-environ)))
                         :wait #t))
-  (home.info "Running standalone test for system ~A finished" system-name))
+  (home.info "Standalone test for system ~A finished" system-name))
 
 (def (function e) standalone-test-hu.dwim-systems ()
   (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
