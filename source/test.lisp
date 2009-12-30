@@ -68,9 +68,12 @@
   ((:type (or null system-test-result))
    (:type (set test-result))))
 
-(def icon test-result/pass)
+(def icon test-result-pass)
 
-(def icon test-result/fail)
+(def icon test-result-fail)
+
+;;;;;;
+;;; Standalone testing
 
 (def (function e) store-system-test-result (system-name &optional (connection-specification (connection-specification-of *model*)))
   (setf (connection-specification-of *model*) connection-specification)
