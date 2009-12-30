@@ -25,7 +25,7 @@
   ())
 
 ;; to build dojo:
-;; $ svn up --revision 20964     # in each of the first descendant dirs of the dojo checkout
+;; $ svn up --revision REV     # in each of the first descendant dirs of the dojo checkout
 ;; $ sh ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.home/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales "en-us,hu"
 ;; or when installed to /opt/hu.dwim.home/:
 ;; $ sh /opt/hu.dwim.home/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo /opt/hu.dwim.home/workspace/dojo/ --dojo-release-dir /opt/hu.dwim.home/workspace/hu.dwim.home/www/ --profile /opt/hu.dwim.home/workspace/hu.dwim.wui/etc/wui.profile.js --locales "en-us,hu"
