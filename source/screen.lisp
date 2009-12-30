@@ -18,6 +18,7 @@
                      (make-project-menu)
                      (make-repository-menu)
                      (make-source-menu)
+                     (make-test-menu)
                      (make-debug-menu))))
     (frame/widget (:title "dwim.hu"
                    :page-icon (make-default-page-icon)
@@ -356,3 +357,24 @@
       (replace-target-place/widget ()
           "File Browser"
         (make-filter 'asdf:source-file))))
+
+;;;;;;
+;;; Test menu
+
+(def function make-test-menu ()
+  (menu-item/widget ()
+      "Test"
+    (make-test-browser-menu-item)
+    (make-test-result-browser-menu-item)))
+
+(def function make-test-browser-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Test browser"
+        (make-filter 'hu.dwim.stefil::test))))
+
+(def function make-test-result-browser-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "Result browser"
+        (make-filter 'system-test-result))))
