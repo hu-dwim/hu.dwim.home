@@ -94,7 +94,7 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Blog"
-        (make-filter 'hu.dwim.perec.test::persistence-test))))
+        "Soon")))
 
 (def function make-forum-menu-item ()
   (menu-item/widget ()
@@ -229,7 +229,8 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "User Interface"
-        (hu.dwim.wui.test:make-component-demo-content))))
+        ;; NOTE: due to loading issues related to hu.dwim.home not being dependent on hu.dwim.wui.test
+        (funcall (find-symbol "MAKE-COMPONENT-DEMO-CONTENT" :hu.dwim.wui.test)))))
 
 (def function make-perec-demo-menu-item ()
   (menu-item/widget ()
@@ -285,13 +286,13 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "User Interface"
-        (make-value-inspector (find-book 'hu.dwim.wui.documentation::user-guide)))))
+        (make-value-inspector (find-user-guide :hu.dwim.wui)))))
 
 (def function make-perec-documentation-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Persistent Data"
-        (make-value-inspector (find-book 'hu.dwim.perec.documentation::user-guide)))))
+        (make-value-inspector (find-user-guide :hu.dwim.perec)))))
 
 (def function collect-live-project-pathnames ()
   (iter (for pathname :in (directory (merge-pathnames *workspace-directory* "/*.*")))
