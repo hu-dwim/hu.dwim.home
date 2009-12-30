@@ -105,7 +105,7 @@
     (shell-script ()
       "cd ~/workspace"
       "sudo apt-get install git git-core"
-      "git clone http://dwim.hu/sbcl"
+      "git clone http://dwim.hu/git/sbcl"
       "cd ~/workspace/sbcl"
       "git checkout hu.dwim")
     (paragraph ()
@@ -126,8 +126,7 @@
       "SBCL can also be installed from a binary distribution, see its website for details."))
   (chapter (:title "Install PostgreSQL")
     (paragraph ()
-      "The Server uses the " #+nil(find-project :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database.
-The default backend is the well known PostgreSQL open source relational database server."
+      "The Server uses the " #+nil(find-project :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database. The default backend is the well known PostgreSQL open source relational database server."
       (parse-uri "http://www.postgresql.org/"))
     (shell-script ()
       "sudo apt-get install postgresql"))
@@ -174,14 +173,11 @@ The default backend is the well known PostgreSQL open source relational database
       "sudo apt-get install libgraphviz4"))
   (chapter (:title "Install Darcs Repositories")
     (paragraph ()
-      "The Server source code is located in multiple software components. Unfortunately they are using different version control systems. So to be able to install
-these repositories you should first install the corresponding version control systems.")
+      "The Server source code is located in multiple software components. Unfortunately they are using different version control systems. So to be able to install these repositories you should first install the corresponding version control systems.")
     (shell-script ()
       "sudo apt-get install cvs darcs git git-core subversion")
     (paragraph ()
-      "The install guide provides two very different ways to install the repositories. The suggested way is to install the exact same copy that is currently running
-at " (parse-uri "http://dwim.hu/")". This allows you to have a stable version of all required repositories. The more advanced but also more fragile way is
-to install the HEAD revisions of all required repositories. This allows you to have the newest fetaures and the newest bugs as well.")
+      "The install guide provides two very different ways to install the repositories. The suggested way is to install the exact same copy that is currently running at " (parse-uri "http://dwim.hu/")". This allows you to have a stable version of all required repositories. The more advanced but also more fragile way is to install the HEAD revisions of all required repositories. This allows you to have the newest fetaures and the newest bugs as well.")
     (chapter (:title "Live")
       "Install the live revisions of the required dependencies. Usually the live system lags behind the latest revisions by a week or two, but in return it integrates well enough to run this site."
       (make-instance 'shell-script :contents (list* "cd ~/workspace"
@@ -218,7 +214,7 @@ to install the HEAD revisions of all required repositories. This allows you to h
       "sudo apt-get install libz-dev"
       "sh ~/workspace/cl-l10n/bin/update-cldr.sh"
       "sh ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.home/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
-      "sh ~/workspace/hu.dwim.build/bin/build.sh --load-swank --production-build --overwrite-output-file --executable-output --output-filename ~/hu.dwim.home hu.dwim.home"))
+      "sh ~/workspace/hu.dwim.build/bin/build.sh --load-swank --production-build --overwrite-output-file --executable-output --output-filename ~/hu.dwim.home hu.dwim.home.all"))
   (chapter (:title "Startup Server")
     (paragraph ()
       "The Server startup should not take more than a few seconds.")
@@ -232,7 +228,10 @@ to install the HEAD revisions of all required repositories. This allows you to h
       (parse-uri "http://localhost.localdomain:8080/")))
   (chapter (:title "Run Test Suite")
     (paragraph ()
-      (parse-uri "http://localhost.localdomain:8080/test/")))
+      "TODO"))
+  (chapter (:title "Browse Test Suite")
+    (paragraph ()
+      "TODO"))
   (chapter (:title "Install Emacs")
     (paragraph ()
       (parse-uri "http://www.gnu.org/software/emacs/"))
