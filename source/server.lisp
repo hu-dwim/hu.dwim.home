@@ -7,6 +7,15 @@
 (in-package :hu.dwim.home)
 
 ;;;;;;
+;;; Constants
+
+(def (constant e) +default-database-name+ "hu.dwim.home")
+
+(def (constant e) +default-database-user-name+ "hu.dwim.home")
+
+(def (constant e) +default-database-password+ "engedjbe")
+
+;;;;;;
 ;;; Application
 
 (def (class* e) home-application (application-with-persistent-login-support
@@ -46,9 +55,10 @@
                             (list +http-server-port-command-line-option+)
                             (list +quiet-command-line-option+)
                             (copy-command-line-options +database-command-line-options+
-                                                       :database-name "hu.dwim.home"
-                                                       :database-user-name "hu.dwim.home"
-                                                       :database-password "engedjbe")
+                                                       :database-port hu.dwim.rdbms.postgresql::+default-postgresql-database-server-port+
+                                                       :database-name +default-database-name+
+                                                       :database-user-name +default-database-user-name+
+                                                       :database-password +default-database-password+)
                             +generic-command-line-options+))
            (arguments (process-command-line-options options (get-command-line-arguments))))
       (process-help-command-line-argument options arguments)
