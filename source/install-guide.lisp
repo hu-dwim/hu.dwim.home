@@ -214,7 +214,7 @@
       "sudo apt-get install libz-dev"
       "sh ~/workspace/cl-l10n/bin/update-cldr.sh"
       "sh ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.home/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
-      "sh ~/workspace/hu.dwim.build/bin/build.sh --load-swank --production-build --overwrite-output-file --executable-output --output-filename ~/hu.dwim.home hu.dwim.home.all"))
+      "sh ~/workspace/hu.dwim.build/bin/build.sh --load-swank --production-build --overwrite-output-file --executable-output --toplevel-function hu.dwim.home::executable-toplevel --output-filename ~/hu.dwim.home hu.dwim.home.all"))
   (chapter (:title "Startup Server")
     (paragraph ()
       "The Server startup should not take more than a few seconds.")
