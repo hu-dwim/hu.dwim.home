@@ -11,15 +11,20 @@
 
 (def (entity e) test-environment ()
   ((machine-instance
+    (machine-instance)
     :type (text 32))
    (machine-type
+    (machine-type)
     :type (text 32))
    (machine-version
+    (machine-version)
     :type (text 128))
    (lisp-implementation-type
+    (lisp-implementation-type)
     :type (text 32)
     :primary #t)
    (lisp-implementation-version
+    (lisp-implementation-version)
     :type (text 32)
     :primary #t)))
 
@@ -27,24 +32,24 @@
   ((test-name
     :type (symbol* 128))
    (test-duration
-    :type duration
+    :type (or null duration)
     :primary #t)
    (test-result
     :type (member :pass :fail)
     :reference #t
     :primary #t)
    (assertion-count
-    :type integer-64
+    :type (or null integer-64)
     :primary #t)
    (success-count
-    :type integer-64)
+    :type (or null integer-64))
    (expected-failure-count
-    :type integer-64)
+    :type (or null integer-64))
    (failure-count
-    :type integer-64
+    :type (or null integer-64)
     :primary #t)
    (error-count
-    :type integer-64
+    :type (or null integer-64)
     :primary #t))
   (:abstract #t))
 
@@ -58,11 +63,18 @@
     :type (text 128)
     :reference #t
     :primary #t)
+   (system-version
+    :type (text 128)
+    :primary #t)
    (run-at
     :type timestamp
     :primary #t)
-   (output
-    :type text)))
+   (compile-output
+    :type (or null text))
+   (load-output
+    :type (or null text))
+   (test-output
+    :type (or null text))))
 
 (def association
   ((:type (or null system-test-result))
@@ -75,15 +87,13 @@
 ;;;;;;
 ;;; Standalone testing
 
-(def (function e) store-system-test-result (system-name &optional (connection-specification (connection-specification-of *model*)))
-  (setf (connection-specification-of *model*) connection-specification)
+(def (function e) store-system-test-result (system-name system-version run-at)
   (with-model-database
     (with-new-compiled-query-cache
       (with-transaction
-        (%store-system-test-result system-name))))
-  (quit 0))
+        (%store-system-test-result system-name system-version run-at)))))
 
-(def function %store-system-test-result (system-name)
+(def function %store-system-test-result (system-name system-version run-at)
   (bind ((system-name (asdf::coerce-name system-name))
          (system (find-system system-name))
          (test-system (find-system (system-test-system-name system)))
@@ -92,71 +102,91 @@
          (failures (hu.dwim.stefil::failure-descriptions-of result))
          (system-test-result (make-instance 'system-test-result
                                             :system-name system-name
-                                            :run-at (now)
-                                            :machine-instance (machine-instance)
-                                            :machine-type (machine-type)
-                                            :machine-version (machine-version)
-                                            :lisp-implementation-type (lisp-implementation-type)
-                                            :lisp-implementation-version (lisp-implementation-version)
+                                            :system-version system-version
+                                            :run-at run-at
+                                            :compile-output (system-compile-output system)
+                                            :load-output (system-load-output system)
+                                            :test-output (system-test-output test-system)
                                             :test-name root-test-name
                                             :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of (gethash (hu.dwim.stefil:find-test root-test-name) (hu.dwim.stefil::run-tests-of result)))
                                             :test-result (if (zerop (length failures))
                                                              :pass
                                                              :fail)
+                                            ;; TODO: we don't have that information in the test results, do we?
                                             :assertion-count (hu.dwim.stefil::assertion-count-of result)
-                                            :success-count -1
-                                            :expected-failure-count -1
+                                            :success-count nil
+                                            :expected-failure-count nil
                                             :failure-count (length failures)
-                                            :error-count -1
-                                            :output (system-test-output test-system))))
+                                            :error-count nil)))
     (iter (for (test test-run) :in-hashtable (hu.dwim.stefil::run-tests-of result))
           (for test-result = (make-instance 'test-result
+                                            :system-test-result system-test-result
                                             :test-name (hu.dwim.stefil::name-of test)
                                             :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of test-run)
                                             :test-result (if (zerop (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run))
                                                              :pass
                                                              :fail)
-                                            ;; TODO: we don't have that information in the test-run do we?
-                                            :assertion-count -1
-                                            :success-count -1
-                                            :expected-failure-count -1
+                                            ;; TODO: we don't have that information in the test-run, do we?
+                                            :assertion-count nil
+                                            :success-count nil
+                                            :expected-failure-count nil
                                             :failure-count (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run)
-                                            :error-count -1
-                                            :system-test-result system-test-result)))
+                                            :error-count nil)))
     system-test-result))
 
-(def (function e) standalone-test-system (system-name)
+(def (function e) standalone-test-system (system-name system-version)
   (home.info "Standalone test for system ~A started" system-name)
-  (bind ((setup-environment-program `(load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp"))))
-         ;; TODO: a fresh build with rmfasl is needed
-         (test-system-program `(test-system ,system-name))
-         (load-home-program '(load-system :hu.dwim.home))
-         (store-system-test-result-program `(hu.dwim.home::store-system-test-result ,system-name ',(hu.dwim.meta-model::connection-specification-of *model*)))
+  ;; TODO: system-version should be either Live or Head, set up asdf central registry accordingly
+  (bind ((run-at (local-time:now))
+         (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
+         (test-program `(progn ; NOTE: forms will be read and evaluated one after the other
+                          (load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp")))
+                          (setf asdf:*default-toplevel-directory* ,output-path)
+                          (test-system ,system-name)
+                          (load-system :hu.dwim.home)
+                          (in-package :hu.dwim.home)
+                          (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
+                          (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
+                          (quit 0)))
          (sbcl-home (sb-posix:getenv "SBCL_HOME"))
-         (shell-arguments (bind ((*package* (find-package :keyword)))
-                            `(,(namestring (truename (merge-pathnames "run-sbcl.sh" (pathname sbcl-home))))
-                               "--no-sysinit" "--no-userinit"
-                               "--eval" ,(format nil "~S" setup-environment-program)
-                               "--eval" ,(format nil "~S" test-system-program)
-                               "--eval" ,(format nil "~S" load-home-program)
-                               "--eval" ,(format nil "~S" store-system-test-result-program)))))
-    ;; NOTE: ~S allows copying the forms into a shell
-    (format *debug-io* "; Running test with: ~{~S ~}~%" shell-arguments)
-    (sb-ext:run-program "/bin/sh" shell-arguments
-                        :environment (remove nil (list* (when sbcl-home
-                                                          (concatenate 'string "SBCL_HOME=" sbcl-home))
-                                                        (sb-ext:posix-environ)))
-                        :wait #t))
-  (home.info "Standalone test for system ~A finished" system-name))
+         (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" (pathname sbcl-home))))
+                             "--no-sysinit" "--no-userinit"
+                             "--eval" ,(let ((*package* (find-package :common-lisp)))
+                                            (format nil "~S" `(progn
+                                                                ,@(iter (for form :in (cdr test-program))
+                                                                        (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
+    (format *debug-io* "; Running standalone test for system ~A with the following arguments (copy to try):~%~{~S ~}~%" system-name shell-arguments)
+    (bind ((process (sb-ext:run-program "/bin/sh" shell-arguments
+                                        :environment (remove nil (list* (when sbcl-home
+                                                                          (concatenate 'string "SBCL_HOME=" sbcl-home))
+                                                                        (sb-ext:posix-environ)))
+                                        :wait #t)))
+      (if (zerop (sb-ext::process-exit-code process))
+          (home.info "Standalone test for system ~A finished" system-name)
+          (progn
+            (with-transaction
+              (make-instance 'system-test-result
+                             :system-name system-name
+                             :system-version system-version
+                             :run-at run-at
+                             :test-name nil
+                             :test-result :fail
+                             :compile-output "Failed"
+                             :load-output "Failed"
+                             :test-output "Failed"))
+            (home.warn "Standalone test for system ~A failed" system-name))))))
 
 (def (function e) standalone-test-hu.dwim-systems ()
   (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
         (for system = (cdr specification))
+        (for system-name = (asdf::component-name system))
         (when (and (typep system 'hu.dwim.asdf:hu.dwim.system)
                    (find-system (system-test-system-name system) nil))
-          (standalone-test-system (asdf::component-name system)))))
+          (iter (for system-version :in '("Live" "Head"))
+                (standalone-test-system system-name system-version)))))
 
-(def (function e) select-latest-system-test-result (system-name)
+(def (function e) select-latest-system-test-result (system-name system-version)
   (select-instance (instance system-test-result)
-    (where (eq (system-name-of instance) system-name))
+    (where (and (equal (system-name-of instance) system-name)
+                (equal (system-version-of instance) system-version)))
     (order-by :descending (run-at-of instance))))

@@ -179,13 +179,11 @@
     (paragraph ()
       "The install guide provides two very different ways to install the repositories. The suggested way is to install the exact same copy that is currently running at " (parse-uri "http://dwim.hu/")". This allows you to have a stable version of all required repositories. The more advanced but also more fragile way is to install the HEAD revisions of all required repositories. This allows you to have the newest fetaures and the newest bugs as well.")
     (chapter (:title "Live")
-      "Install the live revisions of the required dependencies. Usually the live system lags behind the latest revisions by a week or two, but in return it integrates well enough to run this site."
-      (make-instance 'shell-script :contents (list* "cd ~/workspace"
-                                                    (collect-project-installing-shell-commands #t))))
+      "Install the LIVE revisions of the required dependencies. Usually the LIVE system lags behind the latest revisions by a week or two, but in return it integrates well enough to run this site."
+      (make-instance 'shell-script :contents (list* "cd ~/workspace" (collect-project-installing-shell-commands #t))))
     (chapter (:title "Head")
-      "Install the HEAD revisions of the required dependencies. WARNING: This is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the live repositories (see above)."
-      (make-instance 'shell-script :contents (list* "cd ~/workspace"
-                                                    (collect-project-installing-shell-commands #f)))))
+      "Install the HEAD revisions of the required dependencies. WARNING: This is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the LIVE repositories (see above)."
+      (make-instance 'shell-script :contents (list* "cd ~/workspace" (collect-project-installing-shell-commands #f)))))
   (chapter (:title "Configure www/ directory served at the url static/")
     (shell-script ()
       ;; TODO: this has to come after building dojo, but I think this build has to be rethought
