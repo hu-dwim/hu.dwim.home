@@ -28,8 +28,11 @@
   (slot-name.failure-count "failure count")
   (slot-name.error-count "error count")
   (slot-name.system-name "system name")
+  (slot-name.system-version "system version")
   (slot-name.run-at "run at")
-  (slot-name.output "output")
+  (slot-name.compile-output "compile output")
+  (slot-name.load-output "load output")
+  (slot-name.test-output "test output")
 
   (test-result.pass "pass")
   (test-result.fail "fail"))
