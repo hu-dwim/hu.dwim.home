@@ -77,8 +77,8 @@
     :type (or null text))))
 
 (def association
-  ((:type (or null system-test-result))
-   (:type (set test-result))))
+  ((:slot system-test-result :type (or null system-test-result))
+   (:slot test-results :type (set test-result))))
 
 (def icon test-result-pass)
 
