@@ -40,9 +40,7 @@
                                                        :port +default-http-server-port+
                                                        :brokers (list *home-application*)))
 
-(def localization-loader-callback home-resource-loader :hu.dwim.home "localization/" :log-discriminator "HOME")
-
-(register-locale-loaded-listener 'home-resource-loader)
+(def localization-loader-callback home-localization-loader :hu.dwim.home "localization/")
 
 ;;;;;;
 ;;; Production
