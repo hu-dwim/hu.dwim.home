@@ -140,6 +140,7 @@
   (bind ((run-at (local-time:now))
          (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
          (test-program `(progn ; NOTE: forms will be read and evaluated one after the other
+                          (sb-ext::disable-debugger)
                           (load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp")))
                           (setf asdf:*default-toplevel-directory* ,output-path)
                           (test-system ,system-name)
@@ -176,7 +177,7 @@
                              :test-output "Failed"))
             (home.warn "Standalone test for system ~A failed" system-name))))))
 
-(def (function e) standalone-test-hu.dwim-systems ()
+(def (function e) standalone-test-all-hu.dwim-systems ()
   (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
         (for system = (cdr specification))
         (for system-name = (asdf::component-name system))
