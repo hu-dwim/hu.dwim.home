@@ -35,12 +35,18 @@
 ;;;;;;
 ;;; Server
 
-(def (special-variable e) *home-server* (make-instance 'broker-based-server
+(def (class* e) home-server (broker-based-server)
+  ())
+
+(def (special-variable e) *home-server* (make-instance 'home-server
                                                        :host +any-host+
                                                        :port +default-http-server-port+
                                                        :brokers (list *home-application*)))
 
 (def localization-loader-callback home-localization-loader :hu.dwim.home "localization/")
+
+(def method startup-server :after ((server home-server) &key &allow-other-keys)
+  (register-timer-entry/periodic-standalone-test (hu.dwim.wui::timer-of server)))
 
 ;;;;;;
 ;;; Production
@@ -62,6 +68,5 @@
       (process-http-server-port-command-line-argument arguments *home-server*)
       (process-quiet-command-line-argument arguments)
       (home.debug "Parsed command line arguments are: ~S" arguments)
-      (register-timer-entry/periodic-standalone-test (hu.dwim.wui::timer-of *home-server*))
       (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
     +no-error-status-code+))
