@@ -62,5 +62,6 @@
       (process-http-server-port-command-line-argument arguments *home-server*)
       (process-quiet-command-line-argument arguments)
       (home.debug "Parsed command line arguments are: ~S" arguments)
+      (register-timer-entry/periodic-standalone-test (hu.dwim.wui::timer-of *home-server*))
       (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
     +no-error-status-code+))

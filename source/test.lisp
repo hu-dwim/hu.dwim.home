@@ -102,7 +102,7 @@
          (failures (hu.dwim.stefil::failure-descriptions-of result))
          (system-test-result (make-instance 'system-test-result
                                             :system-name system-name
-                                            :system-version system-version
+                                            :system-version (string-downcase system-version)
                                             :run-at run-at
                                             :compile-output (system-compile-output system)
                                             :load-output (system-load-output system)
@@ -134,60 +134,105 @@
                                             :error-count nil)))
     system-test-result))
 
-(def (function e) standalone-test-system (system-name system-version)
-  (home.info "Standalone test for system ~A started" system-name)
-  ;; TODO: system-version should be either Live or Head, set up asdf central registry accordingly
-  (bind ((run-at (local-time:now))
-         (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
-         (test-program `(progn ; NOTE: forms will be read and evaluated one after the other
-                          (sb-ext::disable-debugger)
-                          (load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp")))
-                          (setf asdf:*default-toplevel-directory* ,output-path)
-                          (test-system ,system-name)
-                          (load-system :hu.dwim.home)
-                          (in-package :hu.dwim.home)
-                          (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
-                          (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
-                          (quit 0)))
-         (sbcl-home (sb-posix:getenv "SBCL_HOME"))
-         (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" (pathname sbcl-home))))
-                             "--no-sysinit" "--no-userinit"
-                             "--eval" ,(let ((*package* (find-package :common-lisp)))
-                                            (format nil "~S" `(progn
-                                                                ,@(iter (for form :in (cdr test-program))
-                                                                        (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
-    (format *debug-io* "; Running standalone test for system ~A with the following arguments (copy to try):~%~{~S ~}~%" system-name shell-arguments)
-    (bind ((process (sb-ext:run-program "/bin/sh" shell-arguments
-                                        :environment (remove nil (list* (when sbcl-home
-                                                                          (concatenate 'string "SBCL_HOME=" sbcl-home))
-                                                                        (sb-ext:posix-environ)))
-                                        :wait #t)))
-      (if (zerop (sb-ext::process-exit-code process))
-          (home.info "Standalone test for system ~A finished" system-name)
-          (progn
-            (with-transaction
-              (make-instance 'system-test-result
-                             :system-name system-name
-                             :system-version system-version
-                             :run-at run-at
-                             :test-name nil
-                             :test-result :fail
-                             :compile-output "Failed"
-                             :load-output "Failed"
-                             :test-output "Failed"))
-            (home.warn "Standalone test for system ~A failed" system-name))))))
+(def (function e) standalone-test-system (system-name system-version &key force)
+  ;; TODO: support :head
+  (assert (eq system-version :live))
+  (home.info "Standalone test for ~A started" system-name)
+  (bind ((last-test (with-transaction
+                      (awhen (select-last-system-test-result system-name system-version)
+                        (run-at-of it))))
+         (last-write (system-write-timestamp system-name system-version)))
+    (if (or force
+            (not last-test)
+            (local-time:timestamp< last-test last-write))
+        ;; TODO: system-version should be either Live or Head, set up asdf central registry accordingly
+        (bind ((run-at (local-time:now))
+               (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
+               (test-program `(progn ; NOTE: forms will be read and evaluated one after the other
+                                (sb-ext::disable-debugger)
+                                (load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp")))
+                                (setf asdf:*default-toplevel-directory* ,output-path)
+                                (test-system ,system-name)
+                                (load-system :hu.dwim.home)
+                                (in-package :hu.dwim.home)
+                                (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
+                                (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
+                                (quit 0)))
+               (sbcl-home (sb-posix:getenv "SBCL_HOME"))
+               (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" (pathname sbcl-home))))
+                                   "--no-sysinit" "--no-userinit"
+                                   "--eval" ,(let ((*package* (find-package :common-lisp)))
+                                                  (format nil "~S" `(progn
+                                                                      ,@(iter (for form :in (cdr test-program))
+                                                                              (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
+          (format *debug-io* "; Running standalone test for ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name shell-arguments)
+          (bind ((process (sb-ext:run-program "/bin/sh" shell-arguments
+                                              :environment (remove nil (list* (when sbcl-home
+                                                                                (concatenate 'string "SBCL_HOME=" sbcl-home))
+                                                                              (sb-ext:posix-environ)))
+                                              :wait #t)))
+            (if (zerop (sb-ext::process-exit-code process))
+                (home.info "Standalone test for ~A finished" system-name)
+                (with-transaction
+                  (make-instance 'system-test-result
+                                 :system-name system-name
+                                 :system-version system-version
+                                 :run-at run-at
+                                 :test-name nil
+                                 :test-result :fail
+                                 :compile-output "Failed"
+                                 :load-output "Failed"
+                                 :test-output "Failed")
+                  (home.warn "Standalone test for ~A failed" system-name)))
+            (iolib.os:delete-files output-path :recursive t)))
+        (home.info "Standalone test result for ~A is up to date" system-name))))
 
-(def (function e) standalone-test-all-hu.dwim-systems ()
+(def (function e) standalone-test-all-hu.dwim-systems (&key force)
   (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
         (for system = (cdr specification))
         (for system-name = (asdf::component-name system))
         (when (and (typep system 'hu.dwim.asdf:hu.dwim.system)
                    (find-system (system-test-system-name system) nil))
-          (iter (for system-version :in '("Live" "Head"))
-                (standalone-test-system system-name system-version)))))
+          (iter (for system-version :in '(:live)) ; TODO: '(:live :head)
+                (standalone-test-system system-name system-version :force force)))))
 
-(def (function e) select-latest-system-test-result (system-name system-version)
-  (select-instance (instance system-test-result)
-    (where (and (equal (system-name-of instance) system-name)
-                (equal (system-version-of instance) system-version)))
+(def (function e) select-last-system-test-result (system-name system-version)
+  (select-first-matching-instance (instance system-test-result)
+    (where (and (equal (system-name-of instance) (string-downcase system-name))
+                (equal (system-version-of instance) (string-downcase system-version))))
     (order-by :descending (run-at-of instance))))
+
+(def function map-pathnames-recursively (pathname function)
+  (labels ((recurse (pathname)
+             (when (funcall function pathname)
+               (unless (pathname-name pathname)
+                 (foreach #'recurse (directory (merge-pathnames pathname "*.*")))))))
+    (recurse pathname)))
+
+(def function system-write-timestamp (system-name system-version)
+  (declare (ignore system-version))
+  (bind ((universal nil))
+    (map-pathnames-recursively (system-pathname system-name)
+                               (lambda (pathname)
+                                 (if (pathname-name pathname)
+                                     (setf universal (max (or universal 0) (file-write-date pathname)))
+                                     (not (member (last-elt (pathname-directory pathname)) '("_darcs" ".git") :test #'equal)))))
+    (local-time:universal-to-timestamp universal)))
+
+(def function register-timer-entry/periodic-standalone-test (timer)
+  (bind ((name "Standalone test")
+         (first-time (local-time:adjust-timestamp (local-time:now)
+                       (offset :day 1)
+                       (set :hour 0)
+                       (set :minute 0)
+                       (set :sec 0)
+                       (set :nsec 0))))
+    (register-timer-entry timer
+                          (named-lambda standalone-test ()
+                            (bordeaux-threads::make-thread (lambda ()
+                                                             (with-model-database
+                                                               (standalone-test-all-hu.dwim-systems)))
+                                                           :name name))
+                          :first-time first-time
+                          :time-interval +seconds-per-day+
+                          :name name)))
