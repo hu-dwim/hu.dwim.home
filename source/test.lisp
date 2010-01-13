@@ -187,14 +187,18 @@
             (iolib.os:delete-files output-path :recursive t)))
         (home.info "Standalone test result for ~A is up to date" system-name))))
 
-(def (function e) standalone-test-all-hu.dwim-systems (&key force)
+(def (function e) map-hu.dwim-systems (function)
   (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
         (for system = (cdr specification))
         (for system-name = (asdf::component-name system))
         (when (and (typep system 'hu.dwim.asdf:hu.dwim.system)
                    (find-system (system-test-system-name system) nil))
-          (iter (for system-version :in '(:live)) ; TODO: '(:live :head)
-                (standalone-test-system system-name system-version :force force)))))
+          (collect (funcall function system-name)))))
+
+(def (function e) standalone-test-hu.dwim-systems (&key force)
+  (map-hu.dwim-systems (lambda (system-name)
+                         (iter (for system-version :in '(:live)) ; TODO: '(:live :head)
+                               (standalone-test-system system-name system-version :force force)))))
 
 (def (function e) select-last-system-test-result (system-name system-version)
   (select-first-matching-instance (instance system-test-result)
@@ -231,7 +235,7 @@
                           (named-lambda standalone-test ()
                             (bordeaux-threads::make-thread (lambda ()
                                                              (with-model-database
-                                                               (standalone-test-all-hu.dwim-systems)))
+                                                               (standalone-test-hu.dwim-systems)))
                                                            :name name))
                           :first-time first-time
                           :time-interval +seconds-per-day+

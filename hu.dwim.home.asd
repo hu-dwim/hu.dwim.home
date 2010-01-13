@@ -26,7 +26,7 @@
                              (:file "install-guide" :depends-on ("screen"))
                              (:file "logger" :depends-on ("package"))
                              (:file "package")
-                             (:file "screen" :depends-on ("logger"))
+                             (:file "screen" :depends-on ("test"))
                              (:file "server" :depends-on ("screen" "test"))
                              (:file "test" :depends-on ("logger"))
                              (:file "tutorial" :depends-on ("logger"))))))

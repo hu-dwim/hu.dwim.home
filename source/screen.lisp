@@ -366,7 +366,8 @@
   (menu-item/widget ()
       "Test"
     (make-test-browser-menu-item)
-    (make-test-result-browser-menu-item)))
+    (make-test-result-browser-menu-item)
+    (make-last-test-results-menu-item)))
 
 (def function make-test-browser-menu-item ()
   (menu-item/widget ()
@@ -379,3 +380,19 @@
       (replace-target-place/widget ()
           "Result browser"
         (make-filter 'system-test-result))))
+
+(def function make-last-results-inspector (system-version)
+  (make-value-inspector (remove nil (map-hu.dwim-systems (lambda (system-name)
+                                                           (select-last-system-test-result system-name system-version))))))
+
+(def function make-last-test-results-menu-item ()
+  (menu-item/widget ()
+      "Last results"
+    (menu-item/widget ()
+        (replace-target-place/widget ()
+            "Live"
+          (make-last-results-inspector :live)))
+    (menu-item/widget ()
+        (replace-target-place/widget ()
+            "Head"
+          (make-last-results-inspector :head)))))
