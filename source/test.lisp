@@ -94,14 +94,13 @@
         (%store-system-test-result system-name system-version run-at)))))
 
 (def function %store-system-test-result (system-name system-version run-at)
-  (bind ((system-name (asdf::coerce-name system-name))
-         (system (find-system system-name))
+  (bind ((system (find-system system-name))
          (test-system (find-system (system-test-system-name system)))
          (root-test-name (find-symbol "TEST" (system-package-name test-system)))
          (result (system-test-result test-system))
          (failures (hu.dwim.stefil::failure-descriptions-of result))
          (system-test-result (make-instance 'system-test-result
-                                            :system-name system-name
+                                            :system-name (string-downcase system-name)
                                             :system-version (string-downcase system-version)
                                             :run-at run-at
                                             :compile-output (system-compile-output system)
@@ -175,8 +174,8 @@
                 (home.info "Standalone test for ~A finished" system-name)
                 (with-transaction
                   (make-instance 'system-test-result
-                                 :system-name system-name
-                                 :system-version system-version
+                                 :system-name (string-downcase system-name)
+                                 :system-version (string-downcase system-version)
                                  :run-at run-at
                                  :test-name nil
                                  :test-result :fail
