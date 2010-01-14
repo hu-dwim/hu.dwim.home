@@ -186,18 +186,17 @@
             (iolib.os:delete-files output-path :recursive t)))
         (home.info "Standalone test result for ~A is up to date" system-name))))
 
-(def (function e) map-hu.dwim-systems (function)
+(def (function e) collect-hu.dwim-system-names ()
   (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
         (for system = (cdr specification))
         (for system-name = (asdf::component-name system))
         (when (and (typep system 'hu.dwim.asdf:hu.dwim.system)
                    (find-system (system-test-system-name system) nil))
-          (collect (funcall function system-name)))))
+          (collect system-name))))
 
-(def (function e) standalone-test-hu.dwim-systems (&key force)
-  (map-hu.dwim-systems (lambda (system-name)
-                         (iter (for system-version :in '(:live)) ; TODO: '(:live :head)
-                               (standalone-test-system system-name system-version :force force)))))
+(def (function e) standalone-test-hu.dwim-systems (system-version &key force)
+  (dolist (system-name (collect-hu.dwim-system-names))
+    (standalone-test-system system-name system-version :force force)))
 
 (def (function e) select-last-system-test-result (system-name system-version)
   (select-first-matching-instance (instance system-test-result)
@@ -234,7 +233,9 @@
                           (named-lambda standalone-test ()
                             (bordeaux-threads::make-thread (lambda ()
                                                              (with-model-database
-                                                               (standalone-test-hu.dwim-systems)))
+                                                               (standalone-test-hu.dwim-systems :live)
+                                                               #+nil
+                                                               (standalone-test-hu.dwim-systems :head)))
                                                            :name name))
                           :first-time first-time
                           :time-interval +seconds-per-day+
