@@ -237,6 +237,6 @@
                                                                #+nil
                                                                (standalone-test-hu.dwim-systems :head)))
                                                            :name name))
-                          :first-time first-time
-                          :time-interval +seconds-per-day+
+                          :run-at first-time
+                          :interval +seconds-per-day+
                           :name name)))
