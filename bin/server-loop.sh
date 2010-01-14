@@ -6,7 +6,7 @@ umask 0002
 
 if [ ! -e "$EXECUTABLE_CORE_FILE" ]; then
   echo
-  echo "ERROR: '$EXECUTABLE_CORE_FILE' doesn't exist, try bin/build-image!"
+  echo "ERROR: '$EXECUTABLE_CORE_FILE' doesn't exist, try bin/build.sh!"
   exit -1
 fi
 
