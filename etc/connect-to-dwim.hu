@@ -10,7 +10,7 @@ if [ -z $ARGS ]; then
   ARGS="screen -Rd"
 fi
 
-CMD="ssh -t -C -Y -L 8000:localhost:4005 -L 8001:localhost:4006 -o ControlPath=none -o ServerAliveInterval=60 ${REMOTE_USER_NAME}@dwim.hu $ARGS"
+CMD="ssh -t -C -Y -L 8000:localhost:4005 -L 8001:localhost:4006 -L 8002:localhost:4007 -o ControlPath=none -o ServerAliveInterval=60 ${REMOTE_USER_NAME}@dwim.hu $ARGS"
 
 echo Executing $CMD
 
