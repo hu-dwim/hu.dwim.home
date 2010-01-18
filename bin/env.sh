@@ -13,5 +13,5 @@ export WORKSPACE="/opt/${PROJECT_NAME}/workspace"
 export PROJECT_HOME="${WORKSPACE}/${PROJECT_NAME}"
 export LOG_DIRECTORY=/var/log/$PROJECT_NAME
 export EXECUTABLE_CORE_FILE="$WORKSPACE/../$PROJECT_NAME"
-export SBCL_HOME="$WORKSPACE/../sbcl/"
+export SBCL_HOME="$WORKSPACE/sbcl/"
 export BACKUP_DIRECTORY="/opt/${PROJECT_NAME}/backup/"
