@@ -224,13 +224,13 @@
 (def icon comparison-result-unknown)
 
 (def function %compare-system-test-results (base-test-result compared-test-result)
-  (bind ((base-result (test-result-of base-test-result))
-         (compared-result (test-result-of compared-test-result))
-         (base-failure-count (failure-count-of base-test-result))
-         (compared-failure-count (failure-count-of compared-test-result))
-         (base-error-count (error-count-of base-test-result))
-         (compared-error-count (error-count-of compared-test-result)))
-    (if base-test-result
+  (if base-test-result
+      (bind ((base-result (test-result-of base-test-result))
+             (compared-result (test-result-of compared-test-result))
+             (base-failure-count (failure-count-of base-test-result))
+             (compared-failure-count (failure-count-of compared-test-result))
+             (base-error-count (error-count-of base-test-result))
+             (compared-error-count (error-count-of compared-test-result)))
         (cond ((or (and (eq base-result :pass)
                         (eq compared-result :pass))
                    (and (eq base-result :fail)
@@ -251,8 +251,8 @@
                             (> base-error-count compared-error-count))))
                :better)
               (t
-               :unknown))
-        :new)))
+               :unknown)))
+      :new))
 
 (def function compare-system-test-results (base-test-result compared-test-result)
   (make-instance 'system-test-result-comparison
