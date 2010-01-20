@@ -293,8 +293,8 @@
     (register-timer-entry timer
                           (named-lambda standalone-test ()
                             (bordeaux-threads::make-thread 'periodic-standalone-test :name name))
-                          :first-time first-time
-                          :time-interval +seconds-per-day+
+                          :run-at first-time
+                          :interval +seconds-per-day+
                           :name name)))
 
 (def function make-periodic-standalone-test-report (system-version)
@@ -333,24 +333,4 @@
                                  (if (pathname-name pathname)
                                      (setf universal (max (or universal 0) (file-write-date pathname)))
                                      (not (member (last-elt (pathname-directory pathname)) '("_darcs" ".git") :test #'equal)))))
-    (local-time:universal-to-timestamp universal)))
-
-(def function register-timer-entry/periodic-standalone-test (timer)
-  (bind ((name "Standalone test")
-         (first-time (local-time:adjust-timestamp (local-time:now)
-                       (offset :day 1)
-                       (set :hour 0)
-                       (set :minute 0)
-                       (set :sec 0)
-                       (set :nsec 0))))
-    (register-timer-entry timer
-                          (named-lambda standalone-test ()
-                            (bordeaux-threads::make-thread (lambda ()
-                                                             (with-model-database
-                                                               (standalone-test-hu.dwim-systems :live)
-                                                               #+nil
-                                                               (standalone-test-hu.dwim-systems :head)))
-                                                           :name name))
-                          :first-time first-time
-                          :time-interval +seconds-per-day+
-                          :name name)))
+    (universal-to-timestamp universal)))
