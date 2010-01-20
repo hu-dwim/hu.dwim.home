@@ -198,12 +198,13 @@
     (order-by :descending (run-at-of instance))))
 
 (def (function e) collect-hu.dwim-system-names ()
-  (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
-        (for system = (cdr specification))
-        (for system-name = (asdf::component-name system))
-        (when (and (typep system 'hu.dwim.asdf:hu.dwim.system)
-                   (find-system (system-test-system-name system) nil))
-          (collect system-name))))
+  (sort (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
+              (for system = (cdr specification))
+              (for system-name = (asdf::component-name system))
+              (when (and (typep system 'hu.dwim.asdf:hu.dwim.system)
+                         (find-system (system-test-system-name system) nil))
+                (collect system-name)))
+        #'string<))
 
 ;;;;;;
 ;;; System test result comparison
