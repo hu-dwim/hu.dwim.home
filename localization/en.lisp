@@ -21,7 +21,9 @@
   (comparison-result.worse "worse")
 
   (slot-name.assertion-count "assertion count")
+  (slot-name.base-test-result "base test result")
   (slot-name.comparison-result "comparison result")
+  (slot-name.compared-test-result "compared test result")
   (slot-name.compile-output "compile output")
   (slot-name.error-count "error count")
   (slot-name.expected-failure-count "expected failure count")
