@@ -11,7 +11,8 @@
 (defsystem :hu.dwim.home
   :class hu.dwim.system
   :description "A web application for all hu.dwim systems including their test suite and documentation."
-  :depends-on (:hu.dwim.logger
+  :depends-on (:cl-smtp
+               :hu.dwim.logger
                :hu.dwim.meta-model
                :hu.dwim.model
                :hu.dwim.perec+iolib

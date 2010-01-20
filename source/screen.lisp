@@ -381,20 +381,14 @@
           "Result browser"
         (make-filter 'system-test-result))))
 
-(def function make-last-results-inspector (system-version)
-  (make-value-inspector (iter (for system-name :in (collect-hu.dwim-system-names))
-                              (for last-result = (select-last-system-test-result system-name system-version))
-                              (when last-result
-                                (collect last-result)))))
-
 (def function make-last-test-results-menu-item ()
   (menu-item/widget ()
       "Last results"
     (menu-item/widget ()
         (replace-target-place/widget ()
             "Live"
-          (make-last-results-inspector :live)))
+          (make-periodic-standalone-test-report :live)))
     (menu-item/widget ()
         (replace-target-place/widget ()
             "Head"
-          (make-last-results-inspector :head)))))
+          (make-periodic-standalone-test-report :head)))))

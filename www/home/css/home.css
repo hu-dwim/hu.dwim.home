@@ -29,3 +29,23 @@ body.tundra
 .test-result-fail.icon {
   background-image: url("/static/wui/icon/24x24/delete.png");
 }
+
+.comparison-result-new.icon {
+  background-image: url("/static/wui/icon/24x24/new.png");
+}
+
+.comparison-result-same.icon {
+  background-image: url("/static/wui/icon/24x24/same.png");
+}
+
+.comparison-result-better.icon {
+  background-image: url("/static/wui/icon/24x24/apply.png");
+}
+
+.comparison-result-worse.icon {
+  background-image: url("/static/wui/icon/24x24/delete.png");
+}
+
+.comparison-result-unknown.icon {
+  background-image: url("/static/wui/icon/24x24/unknown.png");
+}

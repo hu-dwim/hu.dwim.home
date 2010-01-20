@@ -9,6 +9,7 @@
 (def package :hu.dwim.home
   (:use :cl-l10n
         :command-line-arguments
+        :contextl
         :hu.dwim.asdf
         :hu.dwim.common
         :hu.dwim.def
