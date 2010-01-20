@@ -41,7 +41,8 @@
 (def (special-variable e) *home-server* (make-instance 'home-server
                                                        :host +any-host+
                                                        :port +default-http-server-port+
-                                                       :brokers (list *home-application*)))
+                                                       :brokers (list* *home-application*
+                                                                       (make-default-broker-list))))
 
 (def localization-loader-callback home-localization-loader :hu.dwim.home "localization/")
 
