@@ -76,64 +76,61 @@
                                   (string+ "# TODO: Don't know how to install project " name))))))
           #'string<)))
 
-(def book install-guide (:title "Install Guide" :authors '("Levente Mészáros"))
+;; TODO make head and live italic
+(def book install-guide (:title "Install Guide")
   (chapter (:title "Introduction")
     (paragraph ()
-      "This guide describes how to install and configure the web service running at " (parse-uri "http://dwim.hu/") ". It is meant to be as complete and independent as possible, including the installation of all the required libraries into a standalone directory. The shell script below will use version control tools (for the projects using one) to replicate the exact same revision used by the live site. Therefore it's a good idea to use the version of the dependencies this script installs, and later to update using the default remote repository locations. This way the updates of the dependencies arrive to your local checkout in chunks that integrate well, or at least well enough to run our website.")
+      "This guide describes how to install and configure the web service running at " (hyperlink "http://dwim.hu/") ". It is meant to be as complete and standalone as possible, including the installation of all the required dependencies into a standalone local directory.")
     (paragraph ()
-      "You can see the source of this install guide at " (parse-uri "http://dwim.hu/file/hu.dwim.home/source/install-guide.lisp")))
-  (chapter (:title "Platform")
+      "The shell script below will use version control tools (where available) to install the dependencies. It can replicate the exact same revisions used by the 'live' site (most probably the one you are reading this guide on), or it can clone the bleeding edge versions (called 'head'). You are advised to clone the live repositories, though, and also to update only from them (unless you are planning to work on the framework itself). This way the updates to the numerous integrated libraries arrive to your local checkouts in packages that properly work together -- or at least good enough to run this site.")
     (paragraph ()
-      "This guide is tested using VirtualBox to ensure that it sets up everything properly. First the operating system is installed, then the shell scripts in the upcoming chapters are run."
-      ;; TODO install this url on the VirtualBox above. same applies for many other occasions below...
-      (parse-uri "http://www.virtualbox.org/")))
-  (chapter (:title "Install Ubuntu")
+      "NOTE: the shell script fragments on this page are ready for copy&pasting! Even if the selection is displayed wrong by some browsers, the copied text will be what you expect it to be.")
     (paragraph ()
-      "Our server runs on Ubuntu Linux (Server Edition, x86-64). Setting up the server on other Debian based Linux distributions is likely to work without any issues. Other operating systems, such as Windows or Mac OS X, are not tested and will most probably not work out of the box. Patches are welcome!"
-      (parse-uri "http://www.ubuntu.com/")))
+      "For the curious, " (hyperlink (print-uri-to-string (make-uri-to-workspace-location "hu.dwim.home/source/install-guide.lisp")) "the source code of this guide") " is inspectable online."))
+  (chapter (:title "Required operating system")
+    (paragraph ()
+      "Our site runs on " (hyperlink "http://www.debian.org/" "Debian Linux") ", but setting it up on other Debian based Linux distributions is likely to work without any issues. Other operating systems, such as Windows or Mac OS X, are not tested and will most probably not work out of the box (but it's all " (hyperlink/wikipedia "open source") ", patches are welcome!)."))
+  (chapter (:title "Install some tools first")
+    (shell-script ()
+      "sudo apt-get install cvs darcs git git-core subversion"))
   (chapter (:title "Set up a directory for the installed components")
     (paragraph ()
-      "All the required source code will be in the workspace directory. TODO: set up an input field to let the reader configure the install path of the scripts, defaulting to /opt/hu.dwim.home/workspace and suggesting ~/workspace as an alternative.")
+      "All the dependencies will be installed in a workspace directory.")
     (shell-script ()
-      "mkdir ~/workspace"))
+      "WORKSPACE=/opt/hu.dwim.home/workspace"
+      "mkdir --parents \"${WORKSPACE}\""))
   (chapter (:title "Install SBCL")
     (paragraph ()
-      "The Server runs under Steel Bank Common Lisp (x86-64) that is a free Common Lisp implementation for a number of platforms and hardware architectures."
-      (parse-uri "http://www.sbcl.org/"))
+      "This server runs on " (hyperlink "http://sbcl.org" "Steel Bank Common Lisp (SBCL)") ", an " (hyperlink/wikipedia "open source") (hyperlink/wikipedia "Common Lisp") " implementation.")
     (paragraph ()
-      "One way to install SBCL is to download the exact same version that dwim.hu is using. Our git repository usually has a few extra patches, but they are usually not crucial to have.")
+      "The preferred way to install SBCL is to download the same version dwim.hu is compiled with (at the time of this writing, our git repository contains a few extra patches).")
     (shell-script ()
-      "cd ~/workspace"
-      "sudo apt-get install git git-core"
+      "cd \"${WORKSPACE}\""
       "git clone http://dwim.hu/git/sbcl"
-      "cd ~/workspace/sbcl"
+      "cd \"${WORKSPACE}\"/sbcl"
       "git checkout hu.dwim")
     (paragraph ()
-      "Another way is to download the current SBCL head source tree to get the latest features and bugs.")
+      "Alternatively, you can check out the current SBCL CVS HEAD.")
     (shell-script ()
-      "sudo apt-get install cvs"
-      "cd ~/workspace"
+      "cd \"${WORKSPACE}\""
       "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl")
     (paragraph ()
-      "Bootstrap SBCL using CLISP.")
+      "Bootstrap (build) SBCL using CLISP.")
     (shell-script ()
       "sudo apt-get install clisp"
-      "cd ~/workspace/sbcl"
+      "cd \"${WORKSPACE}\"/sbcl"
       "wget http://dwim.hu/install/customize-target-features.lisp"
-      "sh ~/workspace/sbcl/make.sh \"clisp -ansi -on-error abort\""
-      "sudo sh ~/workspace/sbcl/install.sh")
-    (paragraph ()
-      "SBCL can also be installed from a binary distribution, see its website for details."))
+      "sh \"${WORKSPACE}\"/sbcl/make.sh \"clisp -ansi -on-error abort\""))
   (chapter (:title "Install PostgreSQL")
     (paragraph ()
-      "The Server uses the " #+nil(find-project :hu.dwim.perec) " persistent Common Lisp Object System library to store persistent data in a relational database. The default backend is the well known PostgreSQL open source relational database server."
-      (parse-uri "http://www.postgresql.org/"))
+      ;; TODO
+      "Our site uses hu.dwim.perec " #+nil(find-project :hu.dwim.perec) " to store persistent data in a relational database. The default and most thoroughly tested backend of perec is the one that uses " (hyperlink "http://postgresql.org/" "PostgreSQL") ", an " (hyperlink/wikipedia "open source") " relational database server.")
     (shell-script ()
       "sudo apt-get install postgresql"))
   (chapter (:title "Configure PostgreSQL")
     (paragraph ()
       "The Server needs a database and a database user in PostgreSQL to store its persistent data."
-      (parse-uri "http://www.postgresql.org/"))
+      (hyperlink "http://www.postgresql.org/"))
     (shell-script ()
       "sudo -u postgres createdb hu.dwim.home"
       "sudo -u postgres createuser --pwprompt --no-superuser --no-createdb --no-createrole hu.dwim.home")
@@ -142,88 +139,97 @@
   (chapter (:title "Install Sqlite")
     (paragraph ()
       "This installation step is optional. The Sqlite relational database should be installed only if you want to run the corresponding test suites."
-      (parse-uri "http://www.sqlite.org/"))
+      (hyperlink "http://www.sqlite.org/"))
     (shell-script ()
-      "sudo apt-get install sqlite3"
-      "sudo ln -s /usr/lib/libsqlite3.so.0 /usr/lib/libsqlite3.so"))
+      "sudo apt-get install sqlite3"))
   (chapter (:title "Install Oracle")
     (paragraph ()
       "This installation step is optional. The Oracle relational database should be installed only if you want to run the corresponding test suites."
-      (parse-uri "http://www.oracle.com/")))
+      (hyperlink "http://www.oracle.com/")))
   (chapter (:title "Install Java")
     (paragraph ()
-      (parse-uri "http://java.sun.com/"))
+      "Java is required to build Dojo.")
     (shell-script ()
-      "sudo apt-get install sun-java6-jdk"))
-  (chapter (:title "Install gitweb")
+      ;; TODO alternatively: "sudo apt-get install sun-java6-jdk"
+      "sudo apt-get install default-jre-headless"))
+  (chapter (:title "Install dependencies from source code repositories")
+    (chapter (:title "Live repositories")
+      "The following script installs the live revisions of the dependencies (the ones that were used to compile and run dwim.hu). Usually the live repositories are lagging behind head by a week or two, but in return they are more stable."
+      (make-instance 'shell-script :contents (list* "cd \"${WORKSPACE}\"" (collect-project-installing-shell-commands #t))))
+    (chapter (:title "Head repositories")
+      ;; TODO bold
+      "Alternatively you can install the HEAD revisions of the dependencies, but this is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the LIVE repositories (see above)."
+      (make-instance 'shell-script :contents (list* "cd \"${WORKSPACE}\"" (collect-project-installing-shell-commands #f)))))
+  (chapter (:title "Download the latest CLDR locale repository for cl-l10n")
+    (shell-script ()
+      "sh \"${WORKSPACE}\"/cl-l10n/bin/update-cldr.sh"))
+  (chapter (:title "Set up backups")
+    (shell-script ()
+      "sudo mkdir --parents /var/backups/hu.dwim.home/workspace /var/backups/hu.dwim.home/database"
+      "sudo chown -R home-service:admin /var/backups/hu.dwim.home"
+      "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/hu.dwim.home"))
+  (chapter (:title "Set up darcsweb")
+    (shell-script ()
+      "sudo chmod ug+rx \"${WORKSPACE}\"/darcsweb/darcsweb.cgi"))
+  (chapter (:title "Set up gitweb")
     (paragraph ()
-      "This is needed for gitweb")
+      "The following dependencies are needed for gitweb:")
     (shell-script ()
       "sudo apt-get install curl libcurl4-gnutls-dev"
-      "make GIT_BINDIR=\"/usr/bin\" GITWEB_PROJECTROOT=\"~/workspace\" GITWEB_PROJECT_MAXDEPTH=2 gitweb/gitweb.cgi"))
-  (chapter (:title "Install darcsweb")
-    (paragraph ()
-      "This is needed for gitweb")
-    (shell-script ()
-      "sudo apt-get install curl libcurl4-gnutls-dev"))
+      "make GIT_BINDIR=\"/usr/bin\" GITWEB_PROJECTROOT=\"${WORKSPACE}\" GITWEB_PROJECT_MAXDEPTH=2 gitweb/gitweb.cgi"
+      "sudo chmod ug+rx \"${WORKSPACE}\"/gitweb/gitweb.cgi"))
   (chapter (:title "Install Graphviz")
     (paragraph ()
-      (parse-uri "http://www.graphviz.org/"))
+      (hyperlink "http://www.graphviz.org/"))
     (shell-script ()
       "sudo apt-get install libgraphviz4"))
-  (chapter (:title "Install Darcs Repositories")
-    (paragraph ()
-      "The Server source code is located in multiple software components. Unfortunately they are using different version control systems. So to be able to install these repositories you should first install the corresponding version control systems.")
-    (shell-script ()
-      "sudo apt-get install cvs darcs git git-core subversion")
-    (paragraph ()
-      "The install guide provides two very different ways to install the repositories. The suggested way is to install the exact same copy that is currently running at " (parse-uri "http://dwim.hu/")". This allows you to have a stable version of all required repositories. The more advanced but also more fragile way is to install the HEAD revisions of all required repositories. This allows you to have the newest fetaures and the newest bugs as well.")
-    (chapter (:title "Live")
-      "Install the LIVE revisions of the required dependencies. Usually the LIVE system lags behind the latest revisions by a week or two, but in return it integrates well enough to run this site."
-      (make-instance 'shell-script :contents (list* "cd ~/workspace" (collect-project-installing-shell-commands #t))))
-    (chapter (:title "Head")
-      "Install the HEAD revisions of the required dependencies. WARNING: This is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the LIVE repositories (see above)."
-      (make-instance 'shell-script :contents (list* "cd ~/workspace" (collect-project-installing-shell-commands #f)))))
-  (chapter (:title "Configure www/ directory served at the url static/")
-    (shell-script ()
-      ;; TODO: this has to come after building dojo, but I think this build has to be rethought
-      ;; TODO this should not be needed...
-      "sh ~/workspace/hu.dwim.home/etc/create-www-links.sh"))
   (chapter (:title "Configure the Server as a unix service to run from /opt/hu.dwim.home/ (optional)")
     ;; TODO workspace path should be coming from a variable
     (chapter (:title "Add a user that will be used to run the server process")
       (shell-script ()
-        "sudo adduser --disabled-login --disabled-password --no-create-home dwim"))
+        "sudo adduser --disabled-login --disabled-password --no-create-home home-service"))
     (chapter (:title "Set up logging")
       (shell-script ()
-        "sudo mkdir --parents /var/log/hu.dwim.home/archive /var/run/hu.dwim.home"
-        "sudo chown -R dwim:admin /var/log/hu.dwim.home /var/run/hu.dwim.home"
-        "sudo chmod ug=rwxs,o= /var/log/hu.dwim.home /var/log/hu.dwim.home/archive /var/run/hu.dwim.home"
-        "sudo ln -s /opt/hu.dwim.home/workspace/hu.dwim.home/etc/logrotate.conf /etc/logrotate.d/hu.dwim.home.conf"))
+        "sudo mkdir --parents /opt/hu.dwim.home /var/log/hu.dwim.home/archive /var/run/hu.dwim.home"
+        "sudo chown -R home-service:home-service /opt/hu.dwim.home"
+        "sudo chown -R home-service:admin /var/log/hu.dwim.home /var/run/hu.dwim.home"
+        "sudo chmod ug=rwxs,o-rwx /opt/hu.dwim.home /var/log/hu.dwim.home /var/log/hu.dwim.home/archive /var/run/hu.dwim.home"
+        "sudo ln -s \"${WORKSPACE}\"/hu.dwim.home/etc/logrotate.conf /etc/logrotate.d/hu.dwim.home.conf"))
     (chapter (:title "Set up rc.d scripts to automatically start the server")
       (shell-script ()
-        "sudo ln -sf /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /etc/init.d/hu.dwim.home"
-        "sudo chgrp root /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script"
-        "sudo chmod u=rwx,g=rwx,o=r /opt/hu.dwim.home/workspace/hu.dwim.home/etc/rc.d-script /opt/hu.dwim.home/workspace/hu.dwim.home/bin/"
-        "sudo chmod u+x,g+x,o-x /opt/hu.dwim.home/workspace/hu.dwim.home/bin/*.sh"
+        "sudo ln -sf \"${WORKSPACE}\"/hu.dwim.home/etc/rc.d-script /etc/init.d/hu.dwim.home"
+        "sudo chgrp root \"${WORKSPACE}\"/hu.dwim.home/etc/rc.d-script"
+        "sudo chmod u=rwx,g=rwx,o=r \"${WORKSPACE}\"/hu.dwim.home/etc/rc.d-script \"${WORKSPACE}\"/hu.dwim.home/bin/"
+        "sudo chmod u+x,g+x,o-x \"${WORKSPACE}\"/hu.dwim.home/bin/*.sh"
         "sudo update-rc.d hu.dwim.home defaults")))
+  (chapter (:title "Set up www/ directory which is served at the 'static/' URL")
+    (chapter (:title "Build a dojo checkout")
+      (paragraph ()
+        "You may need to update your dojo checkout to a certain revision. The following does that when invoked in the workspace/dojotoolkit/ directory:")
+      (shell-script ()
+        "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"))
+    (shell-script ()
+      ;; TODO: this has to come after building dojo, but I think this build has to be rethought
+      ;; TODO this should not be needed...
+      "sh \"${WORKSPACE}\"/hu.dwim.home/etc/create-www-links.sh"))
   (chapter (:title "Build the server executable")
+    (paragraph ()
+      "If you changed the installation path, then make sure you update hu.dwim.home/bin/env.sh accordingly.")
     (shell-script ()
       "sudo apt-get install libz-dev"
-      "sh ~/workspace/cl-l10n/bin/update-cldr.sh"
-      "sh ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.home/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
-      "sh ~/workspace/hu.dwim.build/bin/build.sh --load-swank --production-build --overwrite-output-file --executable-output --toplevel-function hu.dwim.home::executable-toplevel --output-filename ~/hu.dwim.home hu.dwim.home.all"))
-  (chapter (:title "Startup Server")
+      "sh \"${WORKSPACE}\"/hu.dwim.wui/etc/build-dojo.sh --dojo \"${WORKSPACE}\"/dojo/ --dojo-release-dir \"${WORKSPACE}\"/hu.dwim.home/www/ --profile \"${WORKSPACE}\"/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
+      "sh \"${WORKSPACE}\"/hu.dwim.wui/etc/build-dojo.sh --dojo \"${WORKSPACE}\"/dojo/ --dojo-release-dir \"${WORKSPACE}\"/hu.dwim.wui/www/ --profile \"${WORKSPACE}\"/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
+      "sh \"${WORKSPACE}\"/hu.dwim.home/bin/build.sh"))
+  (chapter (:title "Running the server")
     (paragraph ()
-      "The Server startup should not take more than a few seconds.")
+      "Starting up the server shouldn't take more than a couple of seconds, most of which is spent with the synchronization of the SQL schema.")
     (shell-script ()
-      "~/hu.dwim.home"))
-  (chapter (:title "Shutdown Server")
+      "/opt/hu.dwim.home/hu.dwim.home --verbose")
     (paragraph ()
-      "Press 'Control-C' when the server window is active and wait until the Server shutdown is completed. The process should not take more than a few seconds."))
+      "Pressing Control-c in the terminal should initiate a few seconds long graceful server shutdown."))
   (chapter (:title "Browse Server")
     (paragraph ()
-      (parse-uri "http://localhost.localdomain:8080/")))
+      (hyperlink "http://localhost.localdomain:8080/")))
   (chapter (:title "Run Test Suite")
     (paragraph ()
       "TODO"))
@@ -232,18 +238,18 @@
       "TODO"))
   (chapter (:title "Install Emacs")
     (paragraph ()
-      (parse-uri "http://www.gnu.org/software/emacs/"))
+      (hyperlink "http://www.gnu.org/software/emacs/"))
     (shell-script ()
       "sudo apt-get install emacs-snapshot"
       "cd ~"
       "wget http://dwim.hu/install/.emacs"))
   (chapter (:title "Install Slime")
     (paragraph ()
-      "The recommended way is to install the SLIME branch hu.dwim.slime.")
+      "It's recommended to install the SLIME branch called 'hu.dwim.slime', but the official checkout should work fine, too.")
     (paragraph ()
-      "The official SLIME can be found under" (parse-uri "http://common-lisp.net/project/slime/"))
+      "The official SLIME can be found at " (hyperlink "http://common-lisp.net/project/slime/") "or a darcs mirror at " (hyperlink "http://common-lisp.net/project/slime/"))
     (shell-script ()
-      "cd ~/workspace"
+      "cd \"${WORKSPACE}\""
       "cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot checkout slime"))
   (chapter (:title "Configure the Development Environment")
     (paragraph ()
@@ -253,6 +259,6 @@
       "wget http://dwim.hu/install/.sbclrc"))
   (chapter (:title "Connect Server with Slime")
     (paragraph ()
-      (parse-uri "http://common-lisp.net/project/slime/"))
+      (hyperlink "http://common-lisp.net/project/slime/"))
     (shell-script ()
       "emacs")))
