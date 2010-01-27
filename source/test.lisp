@@ -285,7 +285,8 @@
     (dolist (system-name (collect-periodic-standalone-test-system-names))
       (standalone-test-system system-name :live))
     (with-readonly-transaction
-      (send-standalone-test-email-report (make-periodic-standalone-test-report :live)))))
+      (send-standalone-test-email-report (with-active-layers (passive-layer)
+                                           (make-periodic-standalone-test-report :live))))))
 
 (def function register-timer-entry/periodic-standalone-test (timer)
   (bind ((name "Standalone test")
@@ -317,7 +318,7 @@
                       "dwim.hu@gmail.com" '("levente.meszaros@gmail.com" "attila.lendvai@gmail.com" "tomi.borbely@gmail.com" "darabi@web.de")
                       "[dwim.hu] Standalone test results" ""
                       :authentication '("dwim.hu@gmail.com" "engedjbe") :ssl :tls
-                      :html-message (with-active-layers (passive-xhtml-layer)
+                      :html-message (with-active-layers (passive-layer)
                                       (render-to-xhtml-string component))))
 
 ;;;;;;
