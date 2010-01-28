@@ -33,14 +33,6 @@
                            :priority 1)))
 
 ;;;;;;
-;;; Login entry point
-
-(def identifier-and-password-login-entry-point *home-application*
-  :with-session-logic #t :ensure-session #t :ensure-frame #t
-  :frame-component-factory 'make-frame-component
-  :authentication-instrument-iterator 'iterate-possible-authentication-instruments-based-on-login-identifier)
-
-;;;;;;
 ;;; Main entry point
 
 (def entry-point (*home-application* :path "")
