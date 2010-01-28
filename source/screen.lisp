@@ -367,28 +367,35 @@
       "Test"
     (make-test-browser-menu-item)
     (make-test-result-browser-menu-item)
-    (make-last-test-results-menu-item)))
+    (make-system-test-result-browser-menu-item)
+    (make-last-system-test-results-menu-item)))
 
 (def function make-test-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
-          "Test browser"
+          "Code browser"
         (make-filter 'hu.dwim.stefil::test))))
 
 (def function make-test-result-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Result browser"
+        (make-filter 'test-result))))
+
+(def function make-system-test-result-browser-menu-item ()
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          "System result browser"
         (make-filter 'system-test-result))))
 
-(def function make-last-test-results-menu-item ()
+(def function make-last-system-test-results-menu-item ()
   (menu-item/widget ()
-      "Last results"
+      "Last system results"
     (menu-item/widget ()
         (replace-target-place/widget ()
             "Live"
           (make-periodic-standalone-test-report :live)))
     (menu-item/widget ()
         (replace-target-place/widget ()
-            "Head"
+            "Head "
           (make-periodic-standalone-test-report :head)))))
