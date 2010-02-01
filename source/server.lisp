@@ -24,10 +24,7 @@
                                   application-with-dojo-support)
   ())
 
-(def (special-variable e) *home-application* (make-instance 'home-application
-                                                            :path-prefix "/"
-                                                            :dojo-directory-name (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.home "www/"))
-                                                            :ajax-enabled #t))
+(def (special-variable e) *home-application* (make-instance 'home-application))
 
 (def layered-method make-frame-component-with-content ((application home-application) session frame content)
   (make-frame-component content))
