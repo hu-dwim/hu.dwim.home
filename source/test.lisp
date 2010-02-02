@@ -139,7 +139,7 @@
 (def (function e) standalone-test-system (system-name system-version &key force)
   ;; TODO: support :head
   (assert (eq system-version :live))
-  (home.info "Standalone test for ~A started" system-name)
+  (test.info "Standalone test for ~A started" system-name)
   (bind ((last-test (with-transaction
                       (awhen (select-last-system-test-result system-name system-version)
                         (run-at-of it))))
@@ -154,7 +154,13 @@
                                 (sb-ext::disable-debugger)
                                 (load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp")))
                                 (setf asdf:*default-toplevel-directory* ,output-path)
+                                (map nil 'load-system (collect-system-dependencies ,system-name))
+                                (load-system :sb-cover)
+                                (declaim (optimize sb-cover:store-coverage-data))
+                                (load-system ,system-name)
+                                (declaim (optimize (sb-cover:store-coverage-data 0)))
                                 (test-system ,system-name)
+                                (sb-cover:report ,(system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase system-name))))
                                 (load-system :hu.dwim.home)
                                 (in-package :hu.dwim.home)
                                 (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
@@ -174,7 +180,7 @@
                                                                               (sb-ext:posix-environ)))
                                               :wait #t)))
             (if (zerop (sb-ext::process-exit-code process))
-                (home.info "Standalone test for ~A finished" system-name)
+                (test.info "Standalone test for ~A finished" system-name)
                 (with-transaction
                   (make-instance 'system-test-result
                                  :system-name (string-downcase system-name)
@@ -185,9 +191,9 @@
                                  :compile-output "Failed"
                                  :load-output "Failed"
                                  :test-output "Failed")
-                  (home.warn "Standalone test for ~A failed" system-name)))
+                  (test.warn "Standalone test for ~A failed" system-name)))
             (iolib.os:delete-files output-path :recursive t)))
-        (home.info "Standalone test result for ~A is up to date" system-name))))
+        (test.info "Standalone test result for ~A is up to date" system-name))))
 
 (def (function e) select-last-system-test-result (system-name system-version &key (run-at-before +end-of-time+))
   ;; TODO: take machine-* and implementation-* into account
@@ -313,6 +319,7 @@
 ;;; Send email report
 
 (def function send-standalone-test-email-report (component)
+  (test.info "Sending standalone test report email")
   ;; TODO: put the mail addresses into the database
   (cl-smtp:send-email "smtp.gmail.com" #+nil (hu.dwim.model::mail-relay-host-name-of (cluster-of (cluster-node-of *cluster-node-session*)))
                       "dwim.hu@gmail.com" '("levente.meszaros@gmail.com" "attila.lendvai@gmail.com" "tomi.borbely@gmail.com" "darabi@web.de")

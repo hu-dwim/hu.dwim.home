@@ -1,2 +1,3 @@
 # Boring file regexps:
 ^www/dojo.*
+^www/test/coverage/*

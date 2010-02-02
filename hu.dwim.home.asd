@@ -18,7 +18,8 @@
                :hu.dwim.perec+iolib
                :hu.dwim.wui+hu.dwim.perec
                :hu.dwim.wui+hu.dwim.reader
-               :hu.dwim.wui+stefil)
+               :hu.dwim.wui+stefil
+               :sb-cover)
   :components ((:module "source"
                 :components ((:file "authentication" :depends-on ("server"))
                              (:file "echo-server" :depends-on ("server"))

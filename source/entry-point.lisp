@@ -17,11 +17,13 @@
 
   (file-serving-entry-point "static/"   (system-relative-pathname :hu.dwim.home "www/"))
   (file-serving-entry-point "install/"  (system-relative-pathname :hu.dwim.home "www/install/"))
+  (file-serving-entry-point "test/coverage/" (system-relative-pathname :hu.dwim.home "www/test/coverage/"))
   (file-serving-entry-point "darcs/"    #P"/opt/darcs/")
   (file-serving-entry-point "git/"      #P"/opt/git/")
   (file-serving-entry-point "live/"     *workspace-directory*)
   (file-serving-entry-point "darcsweb/" (merge-pathnames "darcsweb/" *workspace-directory*))
   (file-serving-entry-point "gitweb/"   (merge-pathnames "gitweb/" *workspace-directory*))
+
 
   (entry-point (cgi-broker :path-prefix "darcsweb/darcsweb.cgi"
                            :cgi-file (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*)

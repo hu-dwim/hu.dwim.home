@@ -6,4 +6,6 @@
 
 (in-package :hu.dwim.home)
 
-(def logger home (model))
+(def logger home ())
+
+(def logger test (home))
