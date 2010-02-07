@@ -11,4 +11,5 @@ export TOPLEVEL_FUNCTION="hu.dwim.home::executable-toplevel"
 export ASDF_SYSTEM_NAME="hu.dwim.home.all"
 
 export INSTALL_PATH="/opt/${PROJECT_NAME}"
+
 . ${INSTALL_PATH}/workspace/hu.dwim.environment/etc/service-scripts/service-environment.sh

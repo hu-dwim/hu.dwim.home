@@ -9,5 +9,5 @@ ln -sf ../../hu.dwim.wui/www/amCharts/ .
 
 cd ../bin/
 
-ln -s ../../hu.dwim.environment/etc/service-scripts/build.sh .
-ln -s ../../hu.dwim.environment/etc/service-scripts/server-loop.sh .
+ln -sf ../../hu.dwim.environment/etc/service-scripts/build.sh .
+ln -sf ../../hu.dwim.environment/etc/service-scripts/server-loop.sh .
