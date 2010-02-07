@@ -1,8 +1,6 @@
 #!/bin/sh
 
-. "`dirname $0`/env.sh"
-
-cd "$PROJECT_HOME"
+. "`dirname $0`/environment.sh"
 
 echo "*** " `date` " Building ${PROJECT_NAME}"
 
