@@ -7,32 +7,29 @@
 (in-package :hu.dwim.home)
 
 ;;;;;;
-;;; Serving entry points
+;;; Static file serving
 
-(def file-serving-entry-point *home-application* "static/" (system-relative-pathname :hu.dwim.home "www/"))
+(def file-serving-entry-points *home-application*
+  ("static/"        (system-relative-pathname :hu.dwim.home "www/"))
+  ("install/"       (system-relative-pathname :hu.dwim.home "www/install/"))
+  ("test/coverage/" (system-relative-pathname :hu.dwim.home "www/test/coverage/"))
+  ("darcs/"         #P"/opt/darcs/")
+  ("git/"           #P"/opt/git/")
+  ("live/"          *workspace-directory*)
+  ("darcsweb/"      (merge-pathnames "darcsweb/" *workspace-directory*))
+  ("gitweb/"        (merge-pathnames "gitweb/" *workspace-directory*)))
 
-(def file-serving-entry-point *home-application* "install/" (system-relative-pathname :hu.dwim.home "www/install/"))
+;;;;;;
+;;; CGI
 
-(def file-serving-entry-point *home-application* "test/coverage/" (system-relative-pathname :hu.dwim.home "www/test/coverage/"))
-
-(def file-serving-entry-point *home-application* "darcs/" #P"/opt/darcs/")
-
-(def file-serving-entry-point *home-application* "git/" #P"/opt/git/")
-
-(def file-serving-entry-point *home-application* "live/" *workspace-directory*)
-
-(def file-serving-entry-point *home-application* "darcsweb/" (merge-pathnames "darcsweb/" *workspace-directory*))
-
-(def file-serving-entry-point *home-application* "gitweb/" (merge-pathnames "gitweb/" *workspace-directory*))
-
-(def entry-point (*home-application* cgi-broker :path-prefix "darcsweb/darcsweb.cgi"
-                                     :cgi-file (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*)
-                                     :environment '(("PATH" . "/usr/bin"))
-                                     :priority 1))
-
-(def entry-point (*home-application* cgi-broker :path-prefix "gitweb/gitweb.cgi"
-                                     :cgi-file (merge-pathnames "gitweb/gitweb.cgi" *workspace-directory*)
-                                     :priority 1))
+(def entry-points *home-application*
+  (cgi-broker :path-prefix "darcsweb/darcsweb.cgi"
+              :cgi-file (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*)
+              :environment '(("PATH" . "/usr/bin"))
+              :priority 1)
+  (cgi-broker :path-prefix "gitweb/gitweb.cgi"
+              :cgi-file (merge-pathnames "gitweb/gitweb.cgi" *workspace-directory*)
+              :priority 1))
 
 ;;;;;;
 ;;; Main entry point
