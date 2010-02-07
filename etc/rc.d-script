@@ -17,12 +17,10 @@
 export LANG=en_US.UTF-8
 
 . /opt/hu.dwim.home/workspace/hu.dwim.home/bin/environment.sh
-DAEMON_USER="home-service"
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
-DESC="${PROJECT_NAME} server"
-NAME="${PROJECT_NAME}"
+DESC="${PROJECT_NAME} service"
 DAEMON=/bin/sh
 PIDFILE="/var/run/${PROJECT_NAME}/server-loop.pid"
 SBCL_PIDFILE="/var/run/${PROJECT_NAME}/sbcl.pid"
@@ -32,7 +30,7 @@ DAEMON_ARGS="${WORKSPACE}/${PROJECT_NAME}/bin/server-loop.sh --database-host ${D
 [ -x "$DAEMON" ] || exit 0
 
 # Read configuration variable file if it is present
-[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+[ -r /etc/default/${PROJECT_NAME} ] && . /etc/default/${PROJECT_NAME}
 
 # Load the VERBOSE setting and other rcS variables
 [ -f /etc/default/rcS ] && . /etc/default/rcS
@@ -55,7 +53,7 @@ do_start()
         # to handle requests from services started subsequently which depend
         # on this one.  As a last resort, sleep for some time.
 
-        # echo "${NAME} started; logs are available in /var/log/${PROJECT_NAME}/"
+        # echo "${PROJECT_NAME} started; logs are available in /var/log/${PROJECT_NAME}/"
 }
 
 #
