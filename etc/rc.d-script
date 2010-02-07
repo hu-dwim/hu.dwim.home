@@ -16,7 +16,7 @@
 
 export LANG=en_US.UTF-8
 
-. /opt/hu.dwim.home/workspace/hu.dwim.home/bin/env.sh
+. /opt/hu.dwim.home/workspace/hu.dwim.home/bin/environment.sh
 DAEMON_USER="home-service"
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
