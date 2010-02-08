@@ -286,13 +286,14 @@
   (collect-hu.dwim-system-names))
 
 (def function periodic-standalone-test ()
-  (with-model-database
-    ;; TODO: test :head systems too
-    (dolist (system-name (collect-periodic-standalone-test-system-names))
-      (standalone-test-system system-name :live))
-    (with-readonly-transaction
-      (send-standalone-test-email-report (with-active-layers (passive-layer)
-                                           (make-periodic-standalone-test-report :live))))))
+  (with-simple-restart (abort "Abort testing")
+    (with-model-database
+      ;; TODO: test :head systems too
+      (dolist (system-name (collect-periodic-standalone-test-system-names))
+        (standalone-test-system system-name :live))
+      (with-readonly-transaction
+        (send-standalone-test-email-report (with-active-layers (passive-layer)
+                                             (make-periodic-standalone-test-report :live)))))))
 
 (def function register-timer-entry/periodic-standalone-test (timer)
   (bind ((name "Standalone test")
