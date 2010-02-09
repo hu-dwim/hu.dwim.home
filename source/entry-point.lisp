@@ -83,9 +83,6 @@
                 (make-redirect-response-for-current-application (string+ "file/" *entry-point-relative-path*)))
               (make-not-found-response))))))
 
-(def function make-uri-to-workspace-location (workspace-relative-path)
-  (make-uri :scheme "http" :host "dwim.hu" :path (string+ "/file/" workspace-relative-path)))
-
 (def entry-point (*home-application* :path-prefix "definition/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
     (if (root-component-of *frame*)

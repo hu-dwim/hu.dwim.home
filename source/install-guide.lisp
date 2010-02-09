@@ -6,6 +6,9 @@
 
 (in-package :hu.dwim.home)
 
+(def function make-uri-to-workspace-location (workspace-relative-path)
+  (make-uri :scheme "http" :host "dwim.hu" :path (string+ "/file/" workspace-relative-path)))
+
 (def function collect-project-installing-shell-commands (live?)
   (with-simple-restart (skip-all "Return NIL from COLLECT-PROJECT-INSTALLING-SHELL-COMMANDS")
     (sort (iter (with darcs-get = "darcs get ") ;; TODO: add --lazy after it is proved to be worth
