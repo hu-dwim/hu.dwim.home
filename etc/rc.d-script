@@ -6,8 +6,8 @@
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start SBCL with hu.dwim.home at boot time
-# Description:       Start the hu.dwim.home services.
+# Short-Description: Start the hu.dwim.home service
+# Description:       Start the hu.dwim.home service
 ### END INIT INFO
 
 . /opt/hu.dwim.home/workspace/hu.dwim.home/bin/environment.sh
