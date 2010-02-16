@@ -21,10 +21,7 @@
                      (make-test-menu)
                      (make-debug-menu))))
     (frame/widget (:title "dwim.hu"
-                   :stylesheet-uris (append
-                                     (make-default-stylesheet-uris)
-                                     (mapcar (make-stylesheet-uri-entry-factory :hu.dwim.home)
-                                             '("home/css/home.css"))))
+                   :stylesheet-uris (make-default-stylesheet-uris :hu.dwim.home "home/css/home.css"))
       (top/widget (:menu-bar menu-bar)
         (or content initial-content)))))
 
