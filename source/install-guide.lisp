@@ -242,8 +242,8 @@
       (hyperlink "http://www.gnu.org/software/emacs/"))
     (shell-script ()
       "sudo apt-get install emacs-snapshot"
-      "cd ~"
-      "wget http://dwim.hu/install/.emacs"))
+      "cd ~/.emacs.d"
+      "wget http://dwim.hu/install/init.el"))
   (chapter (:title "Install Slime")
     (paragraph ()
       "It's recommended to install the SLIME branch called 'hu.dwim.slime', but the official checkout should work fine, too.")

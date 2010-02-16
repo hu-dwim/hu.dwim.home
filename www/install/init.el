@@ -1,0 +1,26 @@
+(add-to-list 'load-path (expand-file-name "~/workspace/hu.dwim.environment/emacs/"))
+
+(require 'dwim-init)
+(require 'sunrise-commander)
+(require 'color-moccur)
+(require 'moccur-edit)
+(require 'pretty-unicode)
+
+(setf undo-high-threshold 100000)
+(setf undo-threshold 2000000)
+(setf slime-default-lisp 'sbcl-development-image)
+(setf slime-highlight-suppressed-forms t)
+
+;; (require 'dwim-key-bindings)
+;; (global-set-key (kbd "\\") 'dwim-switch-between-slime-repl-and-last-buffer)
+;; (global-set-key (kbd "M-\\") 'dwim-switch-between-debug-and-last-source-buffer)
+;; (global-set-key (kbd "C-\\") 'switch-to-other-buffer)
+;; (global-set-key (kbd "M-t") 'toggle-truncate-lines)
+;; (global-set-key (kbd "M-z") 'redo)
+;; (global-set-key (kbd "S-<delete>") 'kill-primary-selection)
+;; (global-set-key (kbd "C-<insert>") 'copy-primary-selection)
+;; (global-set-key (kbd "S-<insert>") 'yank-clipboard-selection)
+;; (global-set-key (kbd "M-c") 'sunrise)
+
+;; (dwim-redefine-ido-key (kbd "C-z") 'undo)
+;; (dwim-redefine-ido-key (kbd "M-z") 'redo)
