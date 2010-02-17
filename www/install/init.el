@@ -1,4 +1,8 @@
-(add-to-list 'load-path (expand-file-name "~/workspace/hu.dwim.environment/emacs/"))
+(setq dwim-workspace (getenv "DWIM_WORKSPACE"))
+(if (not dwim-workspace)
+    (error "You MUST set the environment variable DWIM_WORKSPACE"))
+
+(add-to-list 'load-path (expand-file-name (concat dwim-workspace "/hu.dwim.environment/emacs/")))
 
 (require 'dwim-init)
 (require 'sunrise-commander)
