@@ -10,7 +10,7 @@
 ;;; Static file serving
 
 (def file-serving-entry-points *home-application*
-  ("static/"        (system-relative-pathname :hu.dwim.home "www/"))
+  ("static/home/"   (system-relative-pathname :hu.dwim.home "www/"))
   ("install/"       (system-relative-pathname :hu.dwim.home "www/install/"))
   ("test/coverage/" (system-relative-pathname :hu.dwim.home "www/test/coverage/"))
   ("darcs/"         #P"/opt/darcs/")
