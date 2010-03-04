@@ -22,8 +22,10 @@
                      (make-debug-menu))))
     (frame/widget (:title "dwim.hu"
                    :stylesheet-uris (make-stylesheet-uris :hu.dwim.home "static/home/" "css/home.css"))
-      (top/widget (:menu-bar menu-bar)
-        (or content initial-content)))))
+      (contents/widget ()
+        (top/widget (:menu-bar menu-bar)
+          (or content initial-content))
+        (google-analytics/widget :analytics-account "UA-15042869-1")))))
 
 ;;;;;;
 ;;; Home menu
