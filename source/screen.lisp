@@ -125,8 +125,12 @@
 (def function make-live-project-licences-inspector ()
   (make-instance 'sequence/inspector
                  :component-value (mapcar (lambda (pathname)
-                                            (hu.dwim.wui::project-licence-pathname (or (find-project-by-path pathname)
-                                                                                       (make-instance 'project :path pathname))))
+                                            (hu.dwim.wui::project-licence-pathname
+                                             (bind ((project-name (project-name pathname)))
+                                               (or (find-project project-name :otherwise nil)
+                                                   (make-instance 'project
+                                                                  :name project-name
+                                                                  :path pathname)))))
                                           (collect-live-project-pathnames))))
 
 ;;;;;;
@@ -249,15 +253,18 @@
                                                                  (constantly #t))))
     (menu-item/widget ()
         "Project"
-      (make-menu-item "Dwim" (mapcar #'make-project-menu-item dwim-projects))
-      (make-menu-item "Other" (mapcar #'make-project-menu-item other-projects)))))
+      (make-menu-item "Dwim" (mapcar 'make-project-menu-item dwim-projects))
+      (make-menu-item "Other" (mapcar 'make-project-menu-item other-projects)))))
 
 (def function make-project-menu-item (pathname)
-  (bind ((project (or (find-project-by-path pathname)
-                      (make-instance 'project :path pathname))))
+  (bind ((project-name (project-name pathname))
+         (project (or (find-project project-name :otherwise nil)
+                      (make-instance 'project
+                                     :name project-name
+                                     :path pathname))))
     (menu-item/widget ()
         (replace-target-place/widget ()
-            (hu.dwim.wui::name-of project)
+            (string-downcase (hu.dwim.wui::name-of project))
           (make-value-inspector project)))))
 
 ;;;;;;
