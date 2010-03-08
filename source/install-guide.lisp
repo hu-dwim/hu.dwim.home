@@ -83,7 +83,7 @@
 (def book install-guide (:title "Install Guide")
   (chapter (:title "Introduction")
     (paragraph ()
-      "This guide describes how to install and configure the web service running at " (hyperlink "http://dwim.hu/") ". It is meant to be as complete and standalone as possible, including the installation of all the required dependencies into a standalone local directory.")
+      "This guide describes how to install and configure the web service running at " (hyperlink "http://dwim.hu/") ". It is meant to be as complete and standalone as possible, including the installation of all the required dependencies under a single local directory.")
     (paragraph ()
       "The shell script below will use version control tools (where available) to install the dependencies. It can replicate the exact same revisions used by the 'live' site (most probably the one you are reading this guide on), or it can clone the bleeding edge versions (called 'head'). You are advised to clone the live repositories, though, and also to update only from them (unless you are planning to work on the framework itself). This way the updates to the numerous integrated libraries arrive to your local checkouts in packages that properly work together -- or at least good enough to run this site.")
     (paragraph ()
@@ -149,7 +149,7 @@
       (hyperlink "http://www.oracle.com/")))
   (chapter (:title "Install Java")
     (paragraph ()
-      "Java is required to build Dojo.")
+      "Java is required to build the Dojo Toolkit.")
     (shell-script ()
       ;; TODO alternatively: "sudo apt-get install sun-java6-jdk"
       "sudo apt-get install default-jre-headless"))
@@ -205,21 +205,17 @@
         "sudo chmod u+x,g+x,o-x \"${DWIM_WORKSPACE}\"/hu.dwim.home/bin/*.sh"
         "sudo update-rc.d hu.dwim.home defaults")))
   (chapter (:title "Set up www/ directory which is served at the 'static/' URL")
-    (chapter (:title "Build a dojo checkout")
+    (chapter (:title "Build a Dojo Toolkit checkout")
       (paragraph ()
-        "You may need to update your dojo checkout to a certain revision. The following does that when invoked in the workspace/dojotoolkit/ directory:")
+        "You may need to update your Dojo Toolkit checkout to a certain revision. The following does that when invoked in the workspace/dojo-toolkit/ directory:")
       (shell-script ()
-        "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"))
-    (shell-script ()
-      ;; TODO: this has to come after building dojo, but I think this build has to be rethought
-      ;; TODO this should not be needed...
-      "sh \"${DWIM_WORKSPACE}\"/hu.dwim.home/etc/setup-symlinks.sh"))
+        "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done")))
   (chapter (:title "Build the server executable")
     (paragraph ()
       "If you changed the installation path, then make sure you update hu.dwim.home/bin/env.sh accordingly.")
     (shell-script ()
       "sudo apt-get install libz-dev"
-      "sh \"${DWIM_WORKSPACE}\"/hu.dwim.wui/etc/build-dojo.sh --dojo \"${DWIM_WORKSPACE}\"/dojo/ --dojo-release-dir \"${DWIM_WORKSPACE}\"/hu.dwim.wui/www/dojo/ --profile \"${DWIM_WORKSPACE}\"/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
+      "sh \"${DWIM_WORKSPACE}\"/hu.dwim.wui/etc/build-dojo.sh --dojo \"${DWIM_WORKSPACE}\"/dojo-toolkit/ --dojo-release-dir \"${DWIM_WORKSPACE}\"/hu.dwim.wui/www/dojo/ --profile \"${DWIM_WORKSPACE}\"/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
       "sh \"${DWIM_WORKSPACE}\"/hu.dwim.home/bin/build.sh"))
   (chapter (:title "Running the server")
     (paragraph ()
