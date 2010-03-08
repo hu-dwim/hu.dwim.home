@@ -152,7 +152,7 @@
                (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
                (test-program `(progn ; NOTE: forms will be read and evaluated one after the other
                                 (sb-ext::disable-debugger)
-                                (load ,(truename (system-relative-pathname :hu.dwim.home "../hu.dwim.environment/source/environment.lisp")))
+                                (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
                                 (setf asdf:*default-toplevel-directory* ,output-path)
                                 (map nil 'load-system (collect-system-dependencies ,system-name))
                                 (load-system :sb-cover)
@@ -166,17 +166,16 @@
                                 (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
                                 (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
                                 (quit 0)))
-               (sbcl-home (sb-posix:getenv "SBCL_HOME"))
-               (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" (pathname sbcl-home))))
+               (sbcl-home (merge-pathnames "sbcl/" *workspace-directory*))
+               (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
                                    "--no-sysinit" "--no-userinit"
                                    "--eval" ,(let ((*package* (find-package :common-lisp)))
                                                   (format nil "~S" `(progn
                                                                       ,@(iter (for form :in (cdr test-program))
                                                                               (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
-          (format *debug-io* "; Running standalone test for ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name shell-arguments)
+          (test.debug "; Running standalone test for ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name shell-arguments)
           (bind ((process (sb-ext:run-program "/bin/sh" shell-arguments
-                                              :environment (remove nil (list* (when sbcl-home
-                                                                                (concatenate 'string "SBCL_HOME=" sbcl-home))
+                                              :environment (remove nil (list* (concatenate 'string "SBCL_HOME=" (namestring sbcl-home))
                                                                               (sb-ext:posix-environ)))
                                               :wait #t)))
             (if (zerop (sb-ext::process-exit-code process))
