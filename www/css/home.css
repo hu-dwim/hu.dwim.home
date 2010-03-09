@@ -6,7 +6,7 @@ body.tundra
 
 .title-separator
 {
-  background-image: url('/static/wui/image/header/background-bottom.png');
+  background-image: url('/static/home/image/title-background.png');
   margin-left: 12px;
   margin-right: 12px;
 }
