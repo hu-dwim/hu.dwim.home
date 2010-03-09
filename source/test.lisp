@@ -311,10 +311,18 @@
                           :name name)))
 
 (def function make-periodic-standalone-test-report (system-version)
-  (make-value-inspector (iter (for system-name :in (collect-periodic-standalone-test-system-names))
-                              (for system-test-result = (select-last-system-test-result system-name system-version))
-                              (when system-test-result
-                                (collect (compare-to-previous-system-test-result system-test-result))))))
+  (prog1-bind inspector
+      (make-value-inspector (iter (for system-name :in (collect-periodic-standalone-test-system-names))
+                                  (for system-test-result = (select-last-system-test-result system-name system-version))
+                                  (when system-test-result
+                                    (collect (compare-to-previous-system-test-result system-test-result)))))
+    ;; KLUDGE: of the year! :(
+    (setf (hu.dwim.wui::page-size-of
+           (hu.dwim.wui::page-navigation-bar-of
+            (hu.dwim.wui::ensure-refreshed
+             (find-alternative-component
+              (hu.dwim.wui::ensure-refreshed inspector) 'sequence/table/inspector))))
+          most-positive-fixnum)))
 
 ;;;;;;;
 ;;; Send email report
