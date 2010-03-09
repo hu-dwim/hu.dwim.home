@@ -137,8 +137,6 @@
     system-test-result))
 
 (def (function e) standalone-test-system (system-name system-version &key force)
-  ;; TODO: support :head
-  (assert (eq system-version :live))
   (test.info "Standalone test for ~A started" system-name)
   (bind ((last-test (with-transaction
                       (awhen (select-last-system-test-result system-name system-version)
@@ -147,31 +145,31 @@
     (if (or force
             (not last-test)
             (timestamp< last-test last-write))
-        ;; TODO: system-version should be either :live or :head, set up asdf central registry accordingly
         (bind ((run-at (now))
                (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
-               (test-program `(progn ; NOTE: forms will be read and evaluated one after the other
-                                (sb-ext::disable-debugger)
-                                (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
-                                (setf asdf:*default-toplevel-directory* ,output-path)
-                                (map nil 'load-system (collect-system-dependencies ,system-name))
-                                (load-system :sb-cover)
-                                (declaim (optimize sb-cover:store-coverage-data))
-                                (load-system ,system-name)
-                                (declaim (optimize (sb-cover:store-coverage-data 0)))
-                                (test-system ,system-name)
-                                (sb-cover:report ,(system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase system-name))))
-                                (load-system :hu.dwim.home)
-                                (in-package :hu.dwim.home)
-                                (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
-                                (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
-                                (quit 0)))
+               (test-program `((sb-ext::disable-debugger)
+                               (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
+                               ,@(when (eq system-version :head)
+                                  `((hu.dwim.asdf::%register-directories-into-asdf-registry #P"/opt/darcs/")))
+                               (setf asdf:*default-toplevel-directory* ,output-path)
+                               (map nil 'load-system (collect-system-dependencies ,system-name))
+                               (load-system :sb-cover)
+                               (declaim (optimize sb-cover:store-coverage-data))
+                               (load-system ,system-name)
+                               (declaim (optimize (sb-cover:store-coverage-data 0)))
+                               (test-system ,system-name)
+                               (sb-cover:report ,(system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase system-name))))
+                               (load-system :hu.dwim.home)
+                               (in-package :hu.dwim.home)
+                               (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
+                               (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
+                               (quit 0)))
                (sbcl-home (merge-pathnames "sbcl/" *workspace-directory*))
                (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
                                    "--no-sysinit" "--no-userinit"
                                    "--eval" ,(let ((*package* (find-package :common-lisp)))
                                                   (format nil "~S" `(progn
-                                                                      ,@(iter (for form :in (cdr test-program))
+                                                                      ,@(iter (for form :in test-program)
                                                                               (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
           (test.debug "; Running standalone test for ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name shell-arguments)
           (bind ((process (sb-ext:run-program "/bin/sh" shell-arguments
@@ -289,10 +287,13 @@
     (with-model-database
       ;; TODO: test :head systems too
       (dolist (system-name (collect-periodic-standalone-test-system-names))
+        (standalone-test-system system-name :head)
         (standalone-test-system system-name :live))
       (with-readonly-transaction
         (send-standalone-test-email-report (with-active-layers (passive-layer)
-                                             (make-periodic-standalone-test-report :live)))))))
+                                             (vertical-list/layout ()
+                                               (make-periodic-standalone-test-report :head)
+                                               (make-periodic-standalone-test-report :live))))))))
 
 (def function register-timer-entry/periodic-standalone-test (timer)
   (bind ((name "Standalone test")
