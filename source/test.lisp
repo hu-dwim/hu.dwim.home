@@ -137,7 +137,7 @@
     system-test-result))
 
 (def (function e) standalone-test-system (system-name system-version &key force)
-  (test.info "Standalone test for ~A started" system-name)
+  (test.info "Standalone test for ~A ~A started" system-name system-version)
   (bind ((last-test (with-transaction
                       (awhen (select-last-system-test-result system-name system-version)
                         (run-at-of it))))
@@ -171,13 +171,13 @@
                                                   (format nil "~S" `(progn
                                                                       ,@(iter (for form :in test-program)
                                                                               (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
-          (test.debug "; Running standalone test for ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name shell-arguments)
+          (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name system-version shell-arguments)
           (bind ((process (sb-ext:run-program "/bin/sh" shell-arguments
                                               :environment (remove nil (list* (concatenate 'string "SBCL_HOME=" (namestring sbcl-home))
                                                                               (sb-ext:posix-environ)))
                                               :wait #t)))
             (if (zerop (sb-ext::process-exit-code process))
-                (test.info "Standalone test for ~A finished" system-name)
+                (test.info "Standalone test for ~A ~A finished" system-name system-version)
                 (with-transaction
                   (make-instance 'system-test-result
                                  :system-name (string-downcase system-name)
@@ -188,9 +188,9 @@
                                  :compile-output "Failed"
                                  :load-output "Failed"
                                  :test-output "Failed")
-                  (test.warn "Standalone test for ~A failed" system-name)))
+                  (test.warn "Standalone test for ~A ~A failed" system-name system-version)))
             (iolib.os:delete-files output-path :recursive t)))
-        (test.info "Standalone test result for ~A is up to date" system-name))))
+        (test.info "Standalone test result for ~A ~A is up to date" system-name system-version))))
 
 (def (function e) select-last-system-test-result (system-name system-version &key (run-at-before +end-of-time+))
   ;; TODO: take machine-* and implementation-* into account
@@ -357,6 +357,7 @@
     (recurse pathname)))
 
 (def function system-write-timestamp (system-name system-version)
+  ;; TODO:
   (declare (ignore system-version))
   (bind ((universal nil))
     (map-pathnames-recursively (system-pathname system-name)
