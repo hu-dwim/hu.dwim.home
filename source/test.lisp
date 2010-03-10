@@ -283,17 +283,26 @@
   (collect-hu.dwim-system-names))
 
 (def function periodic-standalone-test ()
-  (with-simple-restart (abort "Abort testing")
-    (with-model-database
-      ;; TODO: test :head systems too
-      (dolist (system-name (collect-periodic-standalone-test-system-names))
-        (standalone-test-system system-name :head)
-        (standalone-test-system system-name :live))
-      (with-readonly-transaction
-        (send-standalone-test-email-report (with-active-layers (passive-layer)
-                                             (vertical-list/layout ()
-                                               (make-periodic-standalone-test-report :head)
-                                               (make-periodic-standalone-test-report :live))))))))
+  (with-layered-error-handlers ((lambda (error)
+                                  (bind ((error-message (build-backtrace-string error
+                                                                                :message "Error reached toplevel in PERIODIC-STANDALONE-TEST"
+                                                                                :timestamp (local-time:now))))
+                                    (test.error error-message)
+                                    (send-standalone-test-email-report error-message)))
+                                (lambda (&rest args)
+                                  (declare (ignore args))
+                                  (return-from periodic-standalone-test)))
+    (with-simple-restart (abort "Abort testing")
+      (with-model-database
+        ;; TODO: test :head systems too
+        (dolist (system-name (collect-periodic-standalone-test-system-names))
+          (standalone-test-system system-name :head)
+          (standalone-test-system system-name :live))
+        (with-readonly-transaction
+          (send-standalone-test-email-report (with-active-layers (passive-layer)
+                                               (vertical-list/layout ()
+                                                 (make-periodic-standalone-test-report :head)
+                                                 (make-periodic-standalone-test-report :live)))))))))
 
 (def function register-timer-entry/periodic-standalone-test (timer)
   (bind ((name "Standalone test")
