@@ -7,7 +7,7 @@
 (in-package :hu.dwim.home)
 
 ;;;;;;;;
-;;;; TODO: use dimensional data when it becomes usable
+;;;; TODO: use dimensional data when it becomes usable in the user interface
 
 ;;;;;;
 ;;; Persistent test results
@@ -274,8 +274,6 @@
                                                                :run-at-before (run-at-of system-test-result))
                                system-test-result))
 
-
-
 ;;;;;;
 ;;; Periodic standalone test
 
@@ -294,7 +292,6 @@
                                   (return-from periodic-standalone-test)))
     (with-simple-restart (abort "Abort testing")
       (with-model-database
-        ;; TODO: test :head systems too
         (dolist (system-name (collect-periodic-standalone-test-system-names))
           (standalone-test-system system-name :head)
           (standalone-test-system system-name :live))
@@ -320,18 +317,15 @@
                           :name name)))
 
 (def function make-periodic-standalone-test-report (system-version)
-  (prog1-bind inspector
-      (make-value-inspector (iter (for system-name :in (collect-periodic-standalone-test-system-names))
-                                  (for system-test-result = (select-last-system-test-result system-name system-version))
-                                  (when system-test-result
-                                    (collect (compare-to-previous-system-test-result system-test-result)))))
-    ;; KLUDGE: of the year! :(
-    (setf (hu.dwim.wui::page-size-of
-           (hu.dwim.wui::page-navigation-bar-of
-            (hu.dwim.wui::ensure-refreshed
-             (find-alternative-component
-              (hu.dwim.wui::ensure-refreshed inspector) 'sequence/table/inspector))))
-          most-positive-fixnum)))
+  (make-value-inspector (iter (for system-name :in (collect-periodic-standalone-test-system-names))
+                              (for system-test-result = (select-last-system-test-result system-name system-version))
+                              (when system-test-result
+                                (collect (compare-to-previous-system-test-result system-test-result))))
+                        :deep-arguments `(:alternatives (sequence/table/inspector (:page-navigation-bar (:page-size ,most-positive-fixnum))))))
+
+(def layered-method make-table-columns ((component sequence/table/inspector) (class standard-class) (prototype system-test-result-comparison) (value system-test-result-comparison))
+  ;; TODO: inline columns from compared-test-result and base-test-result
+  (call-next-method))
 
 ;;;;;;;
 ;;; Send email report
@@ -357,10 +351,10 @@
     (recurse pathname)))
 
 (def function system-write-timestamp (system-name system-version)
-  ;; TODO:
-  (declare (ignore system-version))
   (bind ((universal nil))
-    (map-pathnames-recursively (system-pathname system-name)
+    (map-pathnames-recursively (ecase system-version
+                                 (:live (system-pathname system-name))
+                                 (:head (merge-pathnames (pathname (string+ (string-downcase system-name) "/")) #P"/opt/darcs/")))
                                (lambda (pathname)
                                  (if (pathname-name pathname)
                                      (setf universal (max (or universal 0) (file-write-date pathname)))
