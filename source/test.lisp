@@ -291,7 +291,7 @@
                                                                                 :message "Error reached toplevel in PERIODIC-STANDALONE-TEST"
                                                                                 :timestamp (local-time:now))))
                                     (test.error error-message)
-                                    (send-standalone-test-email-report error-message)))
+                                    (send-standalone-test-email-message error-message)))
                                 (lambda (&rest args)
                                   (declare (ignore args))
                                   (return-from periodic-standalone-test)))
@@ -301,10 +301,7 @@
           (standalone-test-system system-name :head)
           (standalone-test-system system-name :live))
         (with-readonly-transaction
-          (send-standalone-test-email-report (with-active-layers (passive-layer)
-                                               (vertical-list/layout ()
-                                                 (make-periodic-standalone-test-report :head)
-                                                 (make-periodic-standalone-test-report :live)))))))))
+          (send-standalone-test-email-report))))))
 
 (def function register-timer-entry/periodic-standalone-test (timer)
   (bind ((name "Standalone test")
@@ -335,12 +332,20 @@
 ;;;;;;;
 ;;; Send email report
 
-(def function send-standalone-test-email-report (component)
+(def function send-standalone-test-email-report ()
+  (send-standalone-test-email-message (with-active-layers (passive-layer)
+                                        (vertical-list/layout ()
+                                          "HEAD versions at http://dwim.hu/darcs/<repository-name>"
+                                          (make-periodic-standalone-test-report :head)
+                                          "LIVE versions at http://dwim.hu/live/<repository-name>"
+                                          (make-periodic-standalone-test-report :live)))))
+
+(def function send-standalone-test-email-message (component)
   (test.info "Sending standalone test report email")
   ;; TODO: put the mail addresses into the database
   (cl-smtp:send-email "smtp.gmail.com" #+nil (hu.dwim.model::mail-relay-host-name-of (cluster-of (cluster-node-of *cluster-node-session*)))
                       "dwim.hu@gmail.com" '("levente.meszaros@gmail.com" "attila.lendvai@gmail.com" "tomi.borbely@gmail.com" "darabi@web.de")
-                      "[dwim.hu] Standalone test results" ""
+                      "[dwim.hu] Periodic standalone test results" ""
                       :authentication '("dwim.hu@gmail.com" "engedjbe") :ssl :tls
                       :html-message (with-active-layers (passive-layer)
                                       (render-to-xhtml-string component))))
