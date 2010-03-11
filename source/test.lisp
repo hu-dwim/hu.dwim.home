@@ -207,8 +207,7 @@
   (sort (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
               (for system = (cdr specification))
               (for system-name = (asdf::component-name system))
-              (when (and (typep system 'hu.dwim.asdf:hu.dwim.system)
-                         (find-system (system-test-system-name system) nil))
+              (when (typep system 'hu.dwim.asdf:hu.dwim.system)
                 (collect system-name)))
         #'string<))
 
@@ -281,7 +280,10 @@
 ;;; Periodic standalone test
 
 (def function collect-periodic-standalone-test-system-names ()
-  (collect-hu.dwim-system-names))
+  (collect-if (lambda (system)
+                (awhen (find-system (system-test-system-name (find-system system)) nil)
+                  (typep it 'hu.dwim.asdf:hu.dwim.test-system)))
+              (collect-hu.dwim-system-names)))
 
 (def function periodic-standalone-test ()
   (with-layered-error-handlers ((lambda (error)
