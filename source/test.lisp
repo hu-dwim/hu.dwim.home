@@ -172,10 +172,13 @@
                                                                       ,@(iter (for form :in test-program)
                                                                               (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
           (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name system-version shell-arguments)
-          (bind ((process (sb-ext:run-program "/bin/sh" shell-arguments
-                                              :environment (remove nil (list* (concatenate 'string "SBCL_HOME=" (namestring sbcl-home))
-                                                                              (sb-ext:posix-environ)))
-                                              :wait #t)))
+          (bind ((process (with-output-to-file (output (merge-pathnames "standard-output.txt" output-path) :if-existst :supersede)
+                            (sb-ext:run-program "/bin/sh" shell-arguments
+                                                :environment (remove nil (list* (concatenate 'string "SBCL_HOME=" (namestring sbcl-home))
+                                                                                (sb-ext:posix-environ)))
+                                                :output output
+                                                :error output
+                                                :wait #t))))
             (if (zerop (sb-ext::process-exit-code process))
                 (test.info "Standalone test for ~A ~A finished" system-name system-version)
                 (with-transaction
