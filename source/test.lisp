@@ -363,8 +363,11 @@
 (def function system-write-timestamp (system-name system-version)
   (bind ((universal nil))
     (map-pathnames-recursively (ecase system-version
-                                 (:live (system-pathname system-name))
-                                 (:head (merge-pathnames (pathname (string+ (string-downcase system-name) "/")) #P"/opt/darcs/")))
+                                 (:live
+                                  (system-pathname system-name))
+                                 (:head
+                                  (bind ((directory-name (last-elt (pathname-directory (system-pathname system-name)))))
+                                    (merge-pathnames (pathname (string+ directory-name "/")) #P"/opt/darcs/"))))
                                (lambda (pathname)
                                  (if (pathname-name pathname)
                                      (setf universal (max (or universal 0) (file-write-date pathname)))
