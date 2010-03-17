@@ -16,6 +16,7 @@
                :hu.dwim.meta-model
                :hu.dwim.model
                :hu.dwim.perec+iolib
+               :hu.dwim.wui+cl-typesetting
                :hu.dwim.wui+hu.dwim.perec
                :hu.dwim.wui+hu.dwim.reader
                :hu.dwim.wui+stefil
