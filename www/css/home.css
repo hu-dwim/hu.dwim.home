@@ -4,24 +4,6 @@ body.tundra
   background-repeat: no-repeat;
 }
 
-.title-separator
-{
-  background-image: url('/static/home/image/title-background.png');
-  margin-left: 12px;
-  margin-right: 12px;
-}
-
-.chapter.text
-{
-  margin-top: 12px;
-}
-
-.paragraph.text
-{
-  margin-top: 0px;
-  margin-left: 12px;
-}
-
 .test-result-pass.icon {
   background-image: url("/static/wui/icon/24x24/apply.png");
 }
