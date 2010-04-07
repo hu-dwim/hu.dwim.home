@@ -20,8 +20,7 @@
                      (make-source-menu)
                      (make-test-menu)
                      (make-debug-menu))))
-    (frame/widget (:title "dwim.hu"
-                   :stylesheet-uris (make-stylesheet-uris :hu.dwim.home "static/home/" "css/home.css"))
+    (frame/widget (:title "dwim.hu" :stylesheet-uris (make-stylesheet-uris :hu.dwim.home "static/home/" "css/home.css"))
       (contents/widget ()
         (top/widget (:menu-bar menu-bar)
           (or content initial-content))
