@@ -55,16 +55,14 @@
                          (paragraph ()
                            "We are a company specialized on software development.")
                          (paragraph ()
-                           "Our main focus is on Web based business application development, including the expertise needed to evaluate and model complex business processes."
-                           #+nil ; TODO: this sounds weird and funny
-                           "But our backgrounds -- besides computer science of course -- covers other fields like physics, electrical engineering and economics. Because of this we, as a team, approach problems with the unique point of view and flexibility of a polyhistor.")
+                           "Our main focus is on Web based business application development, including the expertise needed to evaluate and model complex business processes.")
                          (paragraph ()
                            "We are dedicated to open source software development. Everything you can see on this site is based on open source software components, many of them written by us."))
                        (chapter (:title "About this site")
                          (paragraph ()
                            "This site is a live demostration and a reflexive documentation for our software libraries.")
                          (paragraph ()
-                           "Unfortunately, or maybe fortunately, we don't have much time to work on this site itself. Therefore the content you can find here is not of the quality we are happy with, but it can give you an idea what is possible using our framework. We provide a complete installation guide, because everything here is based on open source software components. Interested software developers can install a copy of this site on their own computers, and they can use it as a starting point for their own applications."))
+                           "Unfortunately, or maybe fortunately, we don't have much time to work on this site. Because of that, the content you can find here is not of the quality we are happy with, but it can give you an idea what is possible using our framework. In spite of the lacking content, we do provide a complete installation guide that interested software developers can use to install a copy of this site on their own computers."))
                        #+nil
                        (chapter (:title "Platform")
                          (paragraph ()
