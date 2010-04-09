@@ -11,6 +11,7 @@
         :hu.dwim.def
         :hu.dwim.defclass-star
         :hu.dwim.home
+        :hu.dwim.logger
         :hu.dwim.perec
         :hu.dwim.rdbms
         :hu.dwim.stefil
