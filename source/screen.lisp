@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Frame
 
-(def function make-frame-component (&optional content)
+(def method make-frame-root-component-using-application ((application home-application) session frame content)
   (bind (((:values home-menu initial-content) (make-home-menu))
          (menu-bar (menu-bar/widget ()
                      home-menu

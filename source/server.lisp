@@ -26,9 +26,6 @@
 
 (def (special-variable e) *home-application* (make-instance 'home-application))
 
-(def method make-frame-component-with-content ((application home-application) session frame content)
-  (make-frame-component content))
-
 ;;;;;;
 ;;; Server
 

@@ -36,11 +36,7 @@
 
 (def entry-point (*home-application* :path "")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (if (root-component-of *frame*)
-        (make-root-component-rendering-response *frame*)
-        (progn
-          (setf (root-component-of *frame*) (make-frame-component))
-          (make-redirect-response-for-current-application)))))
+    (make-frame-root-component-rendering-response)))
 
 ;;;;;;
 ;;; Permanent entry points
@@ -50,8 +46,7 @@
 
 (def entry-point (*home-application* :path-prefix "help/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (setf (root-component-of *frame*) (make-frame-component (make-instance 'usage-help/widget)))
-    (make-root-component-rendering-response *frame*)))
+    (make-frame-root-component-rendering-response :content-component (make-instance 'usage-help/widget))))
 
 (def macro with-symbol-finding-entry-point-logic ((var-name symbol-name &optional (packages ''(:hu.dwim.home
                                                                                                :hu.dwim.perec
@@ -65,51 +60,36 @@
 
 (def entry-point (*home-application* :path-prefix "project/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (if (root-component-of *frame*)
-        (make-root-component-rendering-response *frame*)
-        (with-symbol-finding-entry-point-logic (project-name (string-upcase *entry-point-relative-path*) :keyword)
-          (awhen (find-project project-name :otherwise nil)
-            (setf (root-component-of *frame*) (make-frame-component (make-value-inspector it)))
-            (make-redirect-response-for-current-application (string+ "project/" *entry-point-relative-path*)))))))
+    (with-symbol-finding-entry-point-logic (project-name (string-upcase *entry-point-relative-path*) :keyword)
+      (awhen (find-project project-name :otherwise #f)
+        (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path-prefix "file/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (if (root-component-of *frame*)
-        (make-root-component-rendering-response *frame*)
-        (bind ((pathname (merge-pathnames *entry-point-relative-path* *workspace-directory*)))
-          (if (starts-with-subseq (namestring (truename *workspace-directory*)) (namestring pathname))
-              (progn
-                (setf (root-component-of *frame*) (make-frame-component (make-value-inspector pathname)))
-                (make-redirect-response-for-current-application (string+ "file/" *entry-point-relative-path*)))
-              (make-not-found-response))))))
+    (bind ((pathname (merge-pathnames *entry-point-relative-path* *workspace-directory*)))
+      (if (and (starts-with-subseq (namestring (truename *workspace-directory*)) (namestring pathname))
+               (iolib.os:file-exists-p pathname))
+          (make-frame-root-component-rendering-response :content-component (make-value-inspector pathname))
+          (make-not-found-response)))))
 
 (def entry-point (*home-application* :path-prefix "definition/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (if (root-component-of *frame*)
-        (make-root-component-rendering-response *frame*)
-        (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
-          (awhen (hu.dwim.wui::make-definitions name)
-            (setf (root-component-of *frame*) (make-frame-component (make-value-inspector it)))
-            (make-redirect-response-for-current-application (string+ "definition/" *entry-point-relative-path*)))))))
+    (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
+      (awhen (hu.dwim.wui::make-definitions name)
+        (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path-prefix "function/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (if (root-component-of *frame*)
-        (make-root-component-rendering-response *frame*)
-        (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
-          (awhen (and (typep name 'function-name)
-                      (fdefinition name))
-            (setf (root-component-of *frame*) (make-frame-component (make-value-inspector it)))
-            (make-redirect-response-for-current-application (string+ "function/" *entry-point-relative-path*)))))))
+    (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
+      (awhen (and (typep name 'function-name)
+                  (fdefinition name))
+        (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path-prefix "class/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (if (root-component-of *frame*)
-        (make-root-component-rendering-response *frame*)
-        (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
-          (awhen (find-class name #f)
-            (setf (root-component-of *frame*) (make-frame-component (make-value-inspector it)))
-            (make-redirect-response-for-current-application (string+ "class/" *entry-point-relative-path*)))))))
+    (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
+      (awhen (find-class name #f)
+        (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path-prefix "status")
   (make-server-status-response))
