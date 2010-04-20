@@ -325,9 +325,9 @@
                                 (collect (compare-to-previous-system-test-result system-test-result))))
                         :deep-arguments `(:alternatives (sequence/table/inspector (:page-navigation-bar (:page-size ,most-positive-fixnum))))))
 
-(def layered-method make-table-columns ((component sequence/table/inspector) (class standard-class) (prototype system-test-result-comparison) (value system-test-result-comparison))
+(def layered-method make-column-presentations ((component sequence/table/inspector) (class standard-class) (prototype system-test-result-comparison) (value system-test-result-comparison))
   ;; TODO: inline columns from compared-test-result and base-test-result
-  (call-next-method))
+  (call-next-layered-method))
 
 ;;;;;;;
 ;;; Send email report
