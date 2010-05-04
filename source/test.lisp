@@ -142,6 +142,7 @@
                       (awhen (select-last-system-test-result system-name system-version)
                         (run-at-of it))))
          (last-write (system-write-timestamp system-name system-version)))
+    (test.debug "System last modified at ~A, last test run was at ~A" last-write last-test)
     (if (or force
             (not last-test)
             (timestamp< last-test last-write))
@@ -372,4 +373,5 @@
                                  (if (pathname-name pathname)
                                      (setf universal (max (or universal 0) (file-write-date pathname)))
                                      (not (member (last-elt (pathname-directory pathname)) '("_darcs" ".git") :test #'equal)))))
+    (assert universal)
     (universal-to-timestamp universal)))
