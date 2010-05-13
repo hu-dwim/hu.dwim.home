@@ -134,7 +134,7 @@
         (make-instance 'usage-help/widget))))
 
 (def function make-live-project-licences-inspector ()
-  (make-instance 'sequence/inspector
+  (make-instance 'sequence/alternator/inspector
                  :component-value (mapcar (lambda (pathname)
                                             (hu.dwim.wui::project-licence-pathname
                                              (bind ((project-name (project-name pathname)))
