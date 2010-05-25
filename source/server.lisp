@@ -64,4 +64,4 @@
       (process-quiet-command-line-argument arguments)
       (home.debug "Parsed command line arguments are: ~S" arguments)
       (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
-    +no-error-status-code+))
+    +process-return-code/no-error+))
