@@ -345,7 +345,7 @@
   (test.info "Sending standalone test report email")
   ;; TODO: put the mail addresses into the database
   (cl-smtp:send-email "smtp.gmail.com" #+nil (hu.dwim.model::mail-relay-host-name-of (cluster-of (cluster-node-of *cluster-node-session*)))
-                      "dwim.hu@gmail.com" '("levente.meszaros@gmail.com" "attila.lendvai@gmail.com" "tomi.borbely@gmail.com" "darabi@web.de")
+                      "dwim.hu@gmail.com" '("levente.meszaros@gmail.com" "attila.lendvai@gmail.com" "tomi.borbely@gmail.com")
                       "[dwim.hu] Periodic standalone test results" ""
                       :authentication '("dwim.hu@gmail.com" "engedjbe") :ssl :tls
                       :html-message (with-active-layers (passive-layer)
