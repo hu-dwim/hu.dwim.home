@@ -152,7 +152,10 @@
                                (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
                                ,@(when (eq system-version :head)
                                   `((hu.dwim.asdf::%register-directories-into-asdf-registry #P"/opt/darcs/")))
-                               (setf asdf:*default-toplevel-directory* ,output-path)
+                               (asdf:initialize-output-translations
+                                '(:output-translations
+                                  (,*workspace-directory* ,output-path)
+                                  :ignore-inherited-configuration))
                                (map nil 'load-system (collect-system-dependencies ,system-name))
                                (load-system :sb-cover)
                                (declaim (optimize sb-cover:store-coverage-data))
