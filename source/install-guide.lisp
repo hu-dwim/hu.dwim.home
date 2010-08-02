@@ -16,7 +16,7 @@
                 (for pathname :in (collect-live-project-pathnames))
                 (for pathname-string = (namestring pathname))
                 (for name = (last-elt (pathname-directory pathname)))
-                (format *debug-io* "Getting project information for ~A (~A) ~%"
+                (format *debug-io* "Getting project information for ~A (~A)~%"
                         pathname-string (if live?
                                             "live"
                                             "head"))

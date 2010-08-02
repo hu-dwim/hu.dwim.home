@@ -22,6 +22,7 @@
                :hu.dwim.defclass-star.documentation
                :hu.dwim.delico.documentation
                :hu.dwim.dises.documentation
+               :hu.dwim.genetic-programming.documentation
                :hu.dwim.graphviz.documentation
                :hu.dwim.home.documentation
                :hu.dwim.lazy-eval.documentation
@@ -34,6 +35,7 @@
                :hu.dwim.quasi-quote.documentation
                :hu.dwim.rdbms.documentation
                :hu.dwim.reader.documentation
+               :hu.dwim.reiterate.documentation
                :hu.dwim.remote-eval.documentation
                :hu.dwim.serializer.documentation
                :hu.dwim.stefil.documentation
