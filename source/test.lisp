@@ -151,7 +151,7 @@
                (test-program `((sb-ext::disable-debugger)
                                (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
                                ,@(when (eq system-version :head)
-                                  `((hu.dwim.asdf::initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? t :insert-at :head)))
+                                  `((initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? t :insert-at :head)))
                                (asdf:initialize-output-translations
                                 '(:output-translations
                                   (,*workspace-directory* ,output-path)
@@ -210,8 +210,8 @@
 (def (function e) collect-hu.dwim-system-names ()
   (sort (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
               (for system = (cdr specification))
-              (for system-name = (asdf::component-name system))
-              (when (typep system 'hu.dwim.asdf:hu.dwim.system)
+              (for system-name = (asdf:component-name system))
+              (when (typep system 'hu.dwim.system)
                 (collect system-name)))
         #'string<))
 
@@ -286,7 +286,7 @@
 (def function collect-periodic-standalone-test-system-names ()
   (collect-if (lambda (system)
                 (awhen (find-system (system-test-system-name (find-system system)) nil)
-                  (typep it 'hu.dwim.asdf:hu.dwim.test-system)))
+                  (typep it 'hu.dwim.test-system)))
               (collect-hu.dwim-system-names)))
 
 (def function periodic-standalone-test ()
