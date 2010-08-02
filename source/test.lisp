@@ -151,7 +151,7 @@
                (test-program `((sb-ext::disable-debugger)
                                (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
                                ,@(when (eq system-version :head)
-                                  `((hu.dwim.asdf::%register-directories-into-asdf-registry #P"/opt/darcs/")))
+                                  `((hu.dwim.asdf::initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? t :insert-at :head)))
                                (asdf:initialize-output-translations
                                 '(:output-translations
                                   (,*workspace-directory* ,output-path)
@@ -368,9 +368,9 @@
   (bind ((universal nil))
     (map-pathnames-recursively (ecase system-version
                                  (:live
-                                  (system-pathname system-name))
+                                  (system-directory system-name))
                                  (:head
-                                  (bind ((directory-name (last-elt (pathname-directory (system-pathname system-name)))))
+                                  (bind ((directory-name (last-elt (pathname-directory (system-directory system-name)))))
                                     (merge-pathnames (pathname (string+ directory-name "/")) #P"/opt/darcs/"))))
                                (lambda (pathname)
                                  (if (pathname-name pathname)
