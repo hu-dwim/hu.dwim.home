@@ -74,6 +74,8 @@
    (run-at
     :type timestamp
     :primary #t)
+   (standard-output
+    :type (or null text))
    (standard-error
     :type (or null text))
    (compile-output
