@@ -4,30 +4,56 @@ body.tundra
   background-repeat: no-repeat;
 }
 
-.test-result-pass.icon {
+.test-result-passed.icon {
   background-image: url("/static/wui/icon/24x24/apply.png");
 }
 
-.test-result-fail.icon {
+.test-result-failed.icon {
   background-image: url("/static/wui/icon/24x24/delete.png");
+}
+
+.test-result-aborted.icon {
+  background-image: url("/static/wui/icon/24x24/delete-disabled.png");
 }
 
 .comparison-result-new.icon {
-  background-image: url("/static/wui/icon/24x24/new.png");
+  background-image: url("/static/wui/icon/16x16/gray-circle.png");
+  padding-left: 18px;
+  padding-top: 2px;
 }
 
 .comparison-result-same.icon {
-  background-image: url("/static/wui/icon/24x24/same.png");
+  background-image: url("/static/wui/icon/16x16/blue-circle.png");
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding-left: 16px;
+  padding-top: 2px;
 }
 
 .comparison-result-better.icon {
-  background-image: url("/static/wui/icon/24x24/apply.png");
+  background-image: url("/static/wui/icon/16x16/green-circle.png");
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding-left: 16px;
+  padding-top: 2px;
 }
 
 .comparison-result-worse.icon {
-  background-image: url("/static/wui/icon/24x24/delete.png");
+  background-image: url("/static/wui/icon/16x16/red-circel.png");
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding-left: 16px;
+  padding-top: 2px;
 }
 
 .comparison-result-unknown.icon {
-  background-image: url("/static/wui/icon/24x24/unknown.png");
+  background-image: url("/static/wui/icon/16x16/yellow-circle.png");
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding-left: 16px;
+  padding-top: 2px;
 }

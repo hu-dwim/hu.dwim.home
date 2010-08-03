@@ -12,6 +12,8 @@
 ;;;;;;
 ;;; Persistent test results
 
+(def persistent-member-type test-result :passed :failed :aborted)
+
 (def (entity e) test-environment ()
   ((machine-instance
     (machine-instance)
@@ -38,13 +40,13 @@
     :type (or null duration)
     :primary #t)
    (test-result
-    :type (member :pass :fail)
+    :type test-result
     :reference #t
     :primary #t)
    (assertion-count
     :type (or null integer-64)
     :primary #t)
-   (success-count
+   (failed-assertion-count
     :type (or null integer-64))
    (expected-failure-count
     :type (or null integer-64))
@@ -56,7 +58,7 @@
     :primary #t))
   (:abstract #t))
 
-(def (entity e) test-result (abstract-test-result)
+(def (entity e) individual-test-result (abstract-test-result)
   ((test-name
     :reference #t
     :primary #t)))
@@ -81,11 +83,13 @@
 
 (def association
   ((:slot system-test-result :type (or null system-test-result))
-   (:slot test-results :type (set test-result))))
+   (:slot individual-test-results :type (set individual-test-result))))
 
-(def icon test-result-pass)
+(def icon test-result-passed)
 
-(def icon test-result-fail)
+(def icon test-result-failed)
+
+(def icon test-result-aborted)
 
 ;;;;;;
 ;;; Standalone test system
@@ -102,6 +106,8 @@
          (root-test-name (find-symbol "TEST" (system-package-name test-system)))
          (result (system-test-result test-system))
          (failures (hu.dwim.stefil::failure-descriptions-of result))
+         ((&key number-of-assertions number-of-failures number-of-expected-failures number-of-failed-assertions number-of-unexpected-errors &allow-other-keys)
+          (hu.dwim.stefil::extract-test-run-statistics result))
          (system-test-result (make-instance 'system-test-result
                                             :system-name (string-downcase system-name)
                                             :system-version (string-downcase system-version)
@@ -112,28 +118,28 @@
                                             :test-name root-test-name
                                             :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of (gethash (hu.dwim.stefil:find-test root-test-name) (hu.dwim.stefil::run-tests-of result)))
                                             :test-result (if (zerop (length failures))
-                                                             :pass
-                                                             :fail)
+                                                             :passed
+                                                             :failed)
                                             ;; TODO: we don't have that information in the test results, do we?
-                                            :assertion-count (hu.dwim.stefil::assertion-count-of result)
-                                            :success-count nil
-                                            :expected-failure-count nil
-                                            :failure-count (length failures)
-                                            :error-count nil)))
+                                            :assertion-count number-of-assertions
+                                            :failed-assertion-count number-of-failed-assertions
+                                            :expected-failure-count number-of-expected-failures
+                                            :failure-count number-of-failures
+                                            :error-count number-of-unexpected-errors)))
     (iter (for (test test-run) :in-hashtable (hu.dwim.stefil::run-tests-of result))
-          (for test-result = (make-instance 'test-result
-                                            :system-test-result system-test-result
-                                            :test-name (hu.dwim.stefil::name-of test)
-                                            :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of test-run)
-                                            :test-result (if (zerop (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run))
-                                                             :pass
-                                                             :fail)
-                                            ;; TODO: we don't have that information in the test-run, do we?
-                                            :assertion-count nil
-                                            :success-count nil
-                                            :expected-failure-count nil
-                                            :failure-count (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run)
-                                            :error-count nil)))
+          (make-instance 'individual-test-result
+                         :system-test-result system-test-result
+                         :test-name (hu.dwim.stefil::name-of test)
+                         :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of test-run)
+                         :test-result (if (zerop (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run))
+                                          :passed
+                                          :failed)
+                         ;; TODO: we don't have that information in the test-run, do we?
+                         :assertion-count nil
+                         :failed-assertion-count nil
+                         :expected-failure-count nil
+                         :failure-count (hu.dwim.stefil::number-of-added-failure-descriptions-of test-run)
+                         :error-count nil))
     system-test-result))
 
 (def (function e) standalone-test-system (system-name system-version &key force)
@@ -191,10 +197,10 @@
                                  :system-version (string-downcase system-version)
                                  :run-at run-at
                                  :test-name nil
-                                 :test-result :fail
-                                 :compile-output "Failed"
-                                 :load-output "Failed"
-                                 :test-output "Failed")
+                                 :test-result :aborted
+                                 :compile-output "Aborted"
+                                 :load-output "Aborted"
+                                 :test-output "Aborted")
                   (test.warn "Standalone test for ~A ~A failed" system-name system-version)))
             (iolib.os:delete-files output-path :recursive t)))
         (test.info "Standalone test result for ~A ~A is up to date" system-name system-version))))
@@ -218,10 +224,13 @@
 ;;;;;;
 ;;; System test result comparison
 
+(def member-type comparison-result :new :same :better :worse :unknown)
+
 (def class* system-test-result-comparison ()
-  ((comparison-result :type (member :new :same :better :worse :unknown))
-   (compared-test-result :type system-test-result)
-   (base-test-result :type system-test-result)))
+  ((system :type asdf:system)
+   (comparison-result :type comparison-result)
+   (new-test-result :type system-test-result)
+   (old-test-result :type system-test-result)))
 
 (def icon comparison-result-new)
 
@@ -233,33 +242,34 @@
 
 (def icon comparison-result-unknown)
 
-(def function %compare-system-test-results (base-test-result compared-test-result)
-  (if base-test-result
-      (bind ((base-result (test-result-of base-test-result))
-             (compared-result (test-result-of compared-test-result))
-             (base-failure-count (failure-count-of base-test-result))
-             (compared-failure-count (failure-count-of compared-test-result))
-             (base-error-count (error-count-of base-test-result))
-             (compared-error-count (error-count-of compared-test-result)))
+(def function %compare-system-test-results (old-test-result new-test-result)
+  ;; TODO: make this correct by looking at each individual test
+  (if old-test-result
+      (bind ((base-result (test-result-of old-test-result))
+             (compared-result (test-result-of new-test-result))
+             (base-failure-count (failure-count-of old-test-result))
+             (compared-failure-count (failure-count-of new-test-result))
+             (base-error-count (error-count-of old-test-result))
+             (compared-error-count (error-count-of new-test-result)))
         (flet ((<* (a b)
                  (and a b (< a b)))
                (>* (a b)
                  (and a b (> a b))))
-          (cond ((or (and (eq base-result :pass)
-                          (eq compared-result :pass))
-                     (and (eq base-result :fail)
-                          (eq compared-result :fail)
+          (cond ((or (and (eq base-result :passed)
+                          (eq compared-result :passed))
+                     (and (eq base-result :failed)
+                          (eq compared-result :failed)
                           (eql base-failure-count compared-failure-count)
                           (eql base-error-count compared-error-count)))
                  :same)
-                ((or (and (eq base-result :pass)
-                          (eq compared-result :fail))
+                ((or (and (eq base-result :passed)
+                          (eq compared-result :failed))
                      (and (eq base-result compared-result)
                           (or (<* base-failure-count compared-failure-count)
                               (<* base-error-count compared-error-count))))
                  :worse)
-                ((or (and (eq base-result :fail)
-                          (eq compared-result :pass))
+                ((or (and (eq base-result :failed)
+                          (eq compared-result :passed))
                      (and (eq base-result compared-result)
                           (or (>* base-failure-count compared-failure-count)
                               (>* base-error-count compared-error-count))))
@@ -268,11 +278,12 @@
                  :unknown))))
       :new))
 
-(def function compare-system-test-results (base-test-result compared-test-result)
+(def function compare-system-test-results (old-test-result new-test-result)
   (make-instance 'system-test-result-comparison
-                 :comparison-result (%compare-system-test-results base-test-result compared-test-result)
-                 :compared-test-result compared-test-result
-                 :base-test-result base-test-result))
+                 :system (find-system (system-name-of new-test-result))
+                 :comparison-result (%compare-system-test-results old-test-result new-test-result)
+                 :new-test-result new-test-result
+                 :old-test-result old-test-result))
 
 (def function compare-to-previous-system-test-result (system-test-result)
   (compare-system-test-results (select-last-system-test-result (system-name-of system-test-result)
@@ -329,9 +340,21 @@
                                 (collect (compare-to-previous-system-test-result system-test-result))))
                         :deep-arguments `(:alternatives (sequence/table/inspector (:page-navigation-bar (:page-size ,most-positive-fixnum))))))
 
-(def layered-method make-column-presentations ((component sequence/table/inspector) (class standard-class) (prototype system-test-result-comparison) (value system-test-result-comparison))
-  ;; TODO: inline columns from compared-test-result and base-test-result
-  (call-next-layered-method))
+(def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
+  (asdf:component-name value))
+
+(def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype system-test-result) (value system-test-result))
+  (bind (((:read-only-slots test-result run-at assertion-count failed-assertion-count expected-failure-count failure-count error-count) value)
+         (localized-run-at (localized-timestamp run-at))
+         (localized-test-result (hu.dwim.wui::localized-member-component-value class (find-slot class 'test-result) test-result)))
+    (make-icon/widget (ecase test-result
+                        (:passed 'test-result-passed)
+                        (:failed 'test-result-failed)
+                        (:aborted 'test-result-aborted))
+                      :label (ecase test-result
+                               (:passed (format nil "~A (~A, ~A) @ ~A" localized-test-result assertion-count expected-failure-count localized-run-at))
+                               (:failed (format nil "~A (~A, ~A, ~A, ~A, ~A) @ ~A" localized-test-result assertion-count failed-assertion-count expected-failure-count failure-count error-count localized-run-at))
+                               (:aborted (format nil "~A @ ~A" localized-test-result localized-run-at))))))
 
 ;;;;;;;
 ;;; Send email report
