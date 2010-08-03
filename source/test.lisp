@@ -192,11 +192,13 @@
                                                 :error standard-error
                                                 :wait #t)))))
           (if (zerop (sb-ext::process-exit-code process))
-              (progn
-                (with-transaction
-                  (setf (standard-output-of (select-similar-instance system-test-result :run-at run-at)) (read-file-into-string standard-output-file))
-                  (setf (standard-error-of (select-similar-instance system-test-result :run-at run-at)) (read-file-into-string standard-error-file)))
-                (test.info "Standalone test for ~A ~A finished" system-name system-version))
+              (with-transaction
+                (bind ((system-test-result (select (i)
+                                             (from (i system-test-result))
+                                             (where (timestamp= run-at (run-at-of i))))))
+                  (setf (standard-output-of system-test-result) (read-file-into-string standard-output-file))
+                  (setf (standard-error-of system-test-result) (read-file-into-string standard-error-file))
+                  (test.info "Standalone test for ~A ~A finished" system-name system-version)))
               (with-transaction
                 (make-instance 'system-test-result
                                :system-name (string-downcase system-name)
