@@ -74,6 +74,8 @@
    (run-at
     :type timestamp
     :primary #t)
+   (standard-error
+    :type (or null text))
    (compile-output
     :type (or null text))
    (load-output
@@ -144,67 +146,72 @@
 
 (def (function e) standalone-test-system (system-name system-version &key force)
   (test.info "Standalone test for ~A ~A started" system-name system-version)
-  (bind ((last-test (with-transaction
-                      (awhen (select-last-system-test-result system-name system-version)
-                        (run-at-of it))))
-         (last-write (system-write-timestamp system-name system-version)))
-    (test.debug "System last modified at ~A, last test run was at ~A" last-write last-test)
-    (if (or force
-            (not last-test)
-            (timestamp< last-test last-write)
-            (eq :aborted (test-result-of last-test)))
-        (bind ((run-at (now))
-               (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
-               (test-program `((sb-ext::disable-debugger)
-                               (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
-                               ,@(when (eq system-version :head)
-                                  `((initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? t :insert-at :head)))
-                               (asdf:initialize-output-translations
-                                '(:output-translations
-                                  (,*workspace-directory* ,output-path)
-                                  :ignore-inherited-configuration))
-                               (map nil 'load-system (collect-system-dependencies ,system-name))
-                               (load-system :sb-cover)
-                               (declaim (optimize sb-cover:store-coverage-data))
-                               (load-system ,system-name)
-                               (declaim (optimize (sb-cover:store-coverage-data 0)))
-                               (test-system ,system-name)
-                               (sb-cover:report ,(system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase system-name))))
-                               (load-system :hu.dwim.home)
-                               (in-package :hu.dwim.home)
-                               (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
-                               (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
-                               (quit 0)))
-               (sbcl-home (merge-pathnames "sbcl/" *workspace-directory*))
-               (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
-                                   "--no-sysinit" "--no-userinit"
-                                   "--eval" ,(let ((*package* (find-package :common-lisp)))
-                                                  (format nil "~S" `(progn
-                                                                      ,@(iter (for form :in test-program)
-                                                                              (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
-          (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name system-version shell-arguments)
-          (bind ((process (with-output-to-file (output (merge-pathnames "standard-output.txt" output-path) :if-exists :supersede)
+  (if (or force
+          (with-transaction
+            (bind ((last-test (select-last-system-test-result system-name system-version)))
+              (or (not last-test)
+                  (eq :aborted (test-result-of last-test))
+                  (bind ((last-test-run-at (run-at-of last-test))
+                         (last-write-at (system-write-timestamp system-name system-version)))
+                    (test.debug "System last modified at ~A, last test run was at ~A" last-write-at last-test-run-at)
+                    (timestamp< last-test-run-at last-write-at))))))
+      (bind ((run-at (now))
+             (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
+             (test-program `((sb-ext::disable-debugger)
+                             (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
+                             ,@(when (eq system-version :head) `((initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? t :insert-at :head)))
+                             (asdf:initialize-output-translations '(:output-translations (,*workspace-directory* ,output-path) :ignore-inherited-configuration))
+                             (map nil 'load-system (collect-system-dependencies ,system-name))
+                             (load-system :sb-cover)
+                             (declaim (optimize sb-cover:store-coverage-data))
+                             (load-system ,system-name)
+                             (declaim (optimize (sb-cover:store-coverage-data 0)))
+                             (test-system ,system-name)
+                             (sb-cover:report ,(system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase system-name))))
+                             (load-system :hu.dwim.home)
+                             (in-package :hu.dwim.home)
+                             (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
+                             (store-system-test-result ,system-name ,system-version (parse-timestring ,(format-timestring nil run-at)))
+                             (quit 0)))
+             (sbcl-home (merge-pathnames "sbcl/" *workspace-directory*))
+             (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
+                                 "--no-sysinit" "--no-userinit"
+                                 "--eval" ,(let ((*package* (find-package :common-lisp)))
+                                                (format nil "~S" `(progn
+                                                                    ,@(iter (for form :in test-program)
+                                                                            (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
+        (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name system-version shell-arguments)
+        (bind ((standard-output-file (merge-pathnames "standard-output.log" output-path))
+               (standard-error-file (merge-pathnames "standard-error.log" output-path))
+               (process (with-output-to-file (standard-output standard-output-file :if-exists :supersede)
+                          (with-output-to-file (standard-error standard-error-file :if-exists :supersede)
                             (sb-ext:run-program "/bin/sh" shell-arguments
                                                 :environment (remove nil (list* (concatenate 'string "SBCL_HOME=" (namestring sbcl-home))
                                                                                 (sb-ext:posix-environ)))
-                                                :output output
-                                                :error output
-                                                :wait #t))))
-            (if (zerop (sb-ext::process-exit-code process))
-                (test.info "Standalone test for ~A ~A finished" system-name system-version)
+                                                :output standard-output
+                                                :error standard-error
+                                                :wait #t)))))
+          (if (zerop (sb-ext::process-exit-code process))
+              (progn
                 (with-transaction
-                  (make-instance 'system-test-result
-                                 :system-name (string-downcase system-name)
-                                 :system-version (string-downcase system-version)
-                                 :run-at run-at
-                                 :test-name nil
-                                 :test-result :aborted
-                                 :compile-output "Aborted"
-                                 :load-output "Aborted"
-                                 :test-output "Aborted")
-                  (test.warn "Standalone test for ~A ~A failed" system-name system-version)))
-            (iolib.os:delete-files output-path :recursive t)))
-        (test.info "Standalone test result for ~A ~A is up to date" system-name system-version))))
+                  (setf (standard-output-of (select-similar-instance system-test-result :run-at run-at)) (read-file-into-string standard-output-file))
+                  (setf (standard-error-of (select-similar-instance system-test-result :run-at run-at)) (read-file-into-string standard-error-file)))
+                (test.info "Standalone test for ~A ~A finished" system-name system-version))
+              (with-transaction
+                (make-instance 'system-test-result
+                               :system-name (string-downcase system-name)
+                               :system-version (string-downcase system-version)
+                               :run-at run-at
+                               :test-name nil
+                               :test-result :aborted
+                               :standard-output (read-file-into-string standard-output-file)
+                               :standard-error (read-file-into-string standard-error-file)
+                               :compile-output "Aborted"
+                               :load-output "Aborted"
+                               :test-output "Aborted")
+                (test.warn "Standalone test for ~A ~A aborted" system-name system-version)))
+          (iolib.os:delete-files output-path :recursive t)))
+      (test.info "Standalone test result for ~A ~A is up to date" system-name system-version)))
 
 (def (function e) select-last-system-test-result (system-name system-version &key (run-at-before +end-of-time+))
   ;; TODO: take machine-* and implementation-* into account

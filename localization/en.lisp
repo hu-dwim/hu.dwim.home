@@ -32,6 +32,8 @@
   (slot-name.new-test-result "new test result")
   (slot-name.old-test-result "old test result")
   (slot-name.run-at "run at")
+  (slot-name.standard-error "standard error")
+  (slot-name.standard-output "standard output")
   (slot-name.system-name "system name")
   (slot-name.system-version "system version")
   (slot-name.test-duration "test duration")
