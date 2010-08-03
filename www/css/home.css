@@ -41,7 +41,7 @@ body.tundra
 }
 
 .comparison-result-worse.icon {
-  background-image: url("/static/wui/icon/16x16/red-circel.png");
+  background-image: url("/static/wui/icon/16x16/red-circle.png");
   width: 16px;
   height: 16px;
   line-height: 16px;
