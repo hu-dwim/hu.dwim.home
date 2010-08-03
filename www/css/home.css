@@ -4,6 +4,10 @@ body.tundra
   background-repeat: no-repeat;
 }
 
+.test-system.icon {
+  background-image: url("/static/wui/icon/24x24/function-play.png");
+}
+
 .test-result-passed.icon {
   background-image: url("/static/wui/icon/24x24/apply.png");
 }

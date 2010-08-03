@@ -195,8 +195,7 @@
                                                 :wait #t)))))
           (if (zerop (sb-ext::process-exit-code process))
               (with-transaction
-                (bind ((system-test-result (select (i)
-                                             (from (i system-test-result))
+                (bind ((system-test-result (select-instance (i system-test-result)
                                              (where (timestamp= run-at (run-at-of i))))))
                   (setf (standard-output-of system-test-result) (read-file-into-string standard-output-file))
                   (setf (standard-error-of system-test-result) (read-file-into-string standard-error-file))
@@ -367,6 +366,18 @@
                                (:passed (format nil "~A (~A, ~A) @ ~A" localized-test-result assertion-count expected-failure-count localized-run-at))
                                (:failed (format nil "~A (~A, ~A, ~A, ~A, ~A) @ ~A" localized-test-result assertion-count failed-assertion-count expected-failure-count failure-count error-count localized-run-at))
                                (:aborted (format nil "~A @ ~A" localized-test-result localized-run-at))))))
+
+(def layered-method make-command-bar-commands ((component t/inspector) (class standard-class) (prototype hu.dwim.asdf:hu.dwim.system) (value hu.dwim.asdf:hu.dwim.system))
+  (list* (make-test-system-command value) (call-next-layered-method)))
+
+(def icon test-system)
+
+(def function make-test-system-command (system)
+  (command/widget ()
+    (icon/widget test-system)
+    (make-action
+      (standalone-test-system (asdf:component-name system) :live :force t)
+      (standalone-test-system (asdf:component-name system) :head :force t))))
 
 ;;;;;;;
 ;;; Send email report

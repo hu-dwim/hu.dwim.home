@@ -16,6 +16,7 @@
   (comparison-result.same "same")
   (comparison-result.unknown "unknown")
   (comparison-result.worse "worse")
+  (icon-label.test-system "Test system")
   (slot-name.assertion-count "assertion count")
   (slot-name.comparison-result "comparison result")
   (slot-name.compile-output "compile output")
