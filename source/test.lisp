@@ -151,7 +151,8 @@
     (test.debug "System last modified at ~A, last test run was at ~A" last-write last-test)
     (if (or force
             (not last-test)
-            (timestamp< last-test last-write))
+            (timestamp< last-test last-write)
+            (eq :aborted (test-result-of last-test)))
         (bind ((run-at (now))
                (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
                (test-program `((sb-ext::disable-debugger)
