@@ -384,36 +384,38 @@
   (menu-item/widget ()
       "Test"
     (make-test-browser-menu-item)
-    (make-individual-test-result-browser-menu-item)
     (make-system-test-result-browser-menu-item)
-    (make-last-system-test-results-menu-item)))
+    (make-individual-test-result-browser-menu-item)
+    (make-latest-system-test-results-menu-item)))
 
 (def function make-test-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
-          "Test code browser"
+          "Test Code Browser"
         (make-filter 'hu.dwim.stefil::test))))
 
 (def function make-individual-test-result-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
-          "Individual test result browser"
+          "Individual Test Result Browser"
         (make-filter 'individual-test-result))))
 
 (def function make-system-test-result-browser-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
-          "System test result browser"
+          "System Test Result Browser"
         (make-filter 'system-test-result))))
 
-(def function make-last-system-test-results-menu-item ()
-  (menu-item/widget ()
-      "Last system test results (comparison)"
+(def function make-latest-system-test-results-menu-item ()
+  (flet ((make (title compared-system-version &optional (base-system-version compared-system-version))
+           (replace-target-place/widget ()
+               title
+             (make-periodic-standalone-test-report title compared-system-version base-system-version))))
     (menu-item/widget ()
-        (replace-target-place/widget ()
-            "Live repositories"
-          (make-periodic-standalone-test-report :live)))
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-            "Head repositories"
-          (make-periodic-standalone-test-report :head)))))
+        "Latest System Test Results"
+      (menu-item/widget ()
+          (make "Live Repositories (Comparing Last 2 Results)" :live))
+      (menu-item/widget ()
+          (make "Head Repositories (Comparing Last 2 Results)" :head))
+      (menu-item/widget ()
+          (make "Head Compared To Live Repositories" :head :live)))))

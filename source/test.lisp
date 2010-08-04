@@ -259,8 +259,8 @@
 (def class* system-test-result-comparison ()
   ((system :type asdf:system)
    (comparison-result :type comparison-result)
-   (new-test-result :type system-test-result)
-   (old-test-result :type system-test-result)))
+   (compared-test-result :type system-test-result)
+   (base-test-result :type system-test-result)))
 
 (def icon comparison-result-new)
 
@@ -272,15 +272,15 @@
 
 (def icon comparison-result-unknown)
 
-(def function %compare-system-test-results (old-test-result new-test-result)
+(def function %compare-system-test-results (compared-test-result base-test-result)
   ;; TODO: make this correct by looking at each individual test
-  (if old-test-result
-      (bind ((base-result (test-result-of old-test-result))
-             (compared-result (test-result-of new-test-result))
-             (base-failure-count (failure-count-of old-test-result))
-             (compared-failure-count (failure-count-of new-test-result))
-             (base-error-count (error-count-of old-test-result))
-             (compared-error-count (error-count-of new-test-result)))
+  (if base-test-result
+      (bind ((base-result (test-result-of base-test-result))
+             (compared-result (test-result-of compared-test-result))
+             (base-failure-count (failure-count-of base-test-result))
+             (compared-failure-count (failure-count-of compared-test-result))
+             (base-error-count (error-count-of base-test-result))
+             (compared-error-count (error-count-of compared-test-result)))
         (flet ((<* (a b)
                  (and a b (< a b)))
                (>* (a b)
@@ -308,18 +308,18 @@
                  :unknown))))
       :new))
 
-(def function compare-system-test-results (old-test-result new-test-result)
+(def function compare-system-test-results (compared-test-result base-test-result)
   (make-instance 'system-test-result-comparison
-                 :system (find-system (system-name-of new-test-result))
-                 :comparison-result (%compare-system-test-results old-test-result new-test-result)
-                 :new-test-result new-test-result
-                 :old-test-result old-test-result))
+                 :system (find-system (system-name-of compared-test-result))
+                 :comparison-result (%compare-system-test-results compared-test-result base-test-result)
+                 :compared-test-result compared-test-result
+                 :base-test-result base-test-result))
 
 (def function compare-to-previous-system-test-result (system-test-result)
-  (compare-system-test-results (select-last-system-test-result (system-name-of system-test-result)
+  (compare-system-test-results system-test-result
+                               (select-last-system-test-result (system-name-of system-test-result)
                                                                (system-version-of system-test-result)
-                                                               :run-at-before (run-at-of system-test-result))
-                               system-test-result))
+                                                               :run-at-before (run-at-of system-test-result))))
 
 ;;;;;;
 ;;; Periodic standalone test
@@ -363,12 +363,15 @@
                           :interval +seconds-per-day+
                           :name name)))
 
-(def function make-periodic-standalone-test-report (system-version)
+(def function make-periodic-standalone-test-report (title compared-system-version &optional (base-system-version compared-system-version))
   (make-value-inspector (iter (for system-name :in (collect-periodic-standalone-test-system-names))
-                              (for system-test-result = (select-last-system-test-result system-name system-version))
+                              (for system-test-result = (select-last-system-test-result system-name compared-system-version))
                               (when system-test-result
-                                (collect (compare-to-previous-system-test-result system-test-result))))
-                        :deep-arguments `(:alternatives (sequence/table/inspector (:page-navigation-bar (:page-size ,most-positive-fixnum))))))
+                                (collect (if (eq compared-system-version base-system-version)
+                                             (compare-to-previous-system-test-result system-test-result)
+                                             (compare-system-test-results system-test-result (select-last-system-test-result system-name base-system-version))))))
+                        :deep-arguments `(:alternatives (sequence/table/inspector (:page-navigation-bar (:page-size ,most-positive-fixnum))))
+                        :title (title/widget () title)))
 
 (def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (asdf:component-name value))
