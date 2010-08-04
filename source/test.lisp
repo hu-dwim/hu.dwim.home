@@ -211,13 +211,16 @@
                                                                                 (sb-ext:posix-environ)))
                                                 :output standard-output
                                                 :error standard-error
-                                                :wait #t)))))
-          (if (zerop (sb-ext::process-exit-code process))
+                                                :wait #t))))
+               (process-exit-code (sb-ext::process-exit-code process))
+               (standard-output (read-file-into-string standard-output-file))
+               (standard-error (read-file-into-string standard-error-file)))
+          (test.info "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard error~%~A" system-name system-version process-exit-code standard-error)
+          (if (zerop process-exit-code)
               (with-transaction
-                (bind ((system-test-result (select-instance (i system-test-result)
-                                             (where (timestamp= run-at (run-at-of i))))))
-                  (setf (standard-output-of system-test-result) (read-file-into-string standard-output-file))
-                  (setf (standard-error-of system-test-result) (read-file-into-string standard-error-file))
+                (bind ((system-test-result (select-system-test-result system-name system-version run-at)))
+                  (setf (standard-output-of system-test-result) standard-output)
+                  (setf (standard-error-of system-test-result) standard-error)
                   (test.info "Standalone test for ~A ~A finished" system-name system-version)))
               (with-transaction
                 (make-instance 'system-test-result
@@ -234,6 +237,13 @@
                 (test.warn "Standalone test for ~A ~A aborted" system-name system-version)))
           (iolib.os:delete-files output-path :recursive t)))
       (test.info "Standalone test result for ~A ~A is up to date" system-name system-version)))
+
+(def (function e) select-system-test-result (system-name system-version run-at)
+  ;; TODO: take machine-* and implementation-* into account
+  (select-instance (instance system-test-result)
+    (where (and (equal (system-name-of instance) (string-downcase system-name))
+                (equal (system-version-of instance) (string-downcase system-version))
+                (timestamp= (run-at-of instance) run-at)))))
 
 (def (function e) select-last-system-test-result (system-name system-version &key (run-at-before +end-of-time+))
   ;; TODO: take machine-* and implementation-* into account
