@@ -155,7 +155,8 @@
                   (format *trace-output* "ASDF source registry after loading environment.lisp is ~S" (asdf::source-registry))
                   ;; (trace asdf:initialize-source-registry)
                   ,@(when (eq system-version :head)
-                      ;; alternatively, but it doesn't work as expected: (initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? #t :insert-at :head)
+                      ;; alternatively. but it doesn't work as expected, because :inherit-configuration will inherit the default logic, not the current config
+                      ;; (initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? #t :insert-at :head)
                       `((initialize-asdf-source-registry '(#P"/opt/darcs/" ,*workspace-directory*))))
                   (format *trace-output* "Final ASDF source registry is ~S" (asdf::source-registry))
                   (asdf:initialize-output-translations '(:output-translations
@@ -196,14 +197,10 @@
                     (timestamp< last-test-run-at last-write-at))))))
       (bind ((run-at (now))
              (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
-             (test-program (standalone-test-system/build-lisp-form system-name system-version output-path :run-at run-at))
              (sbcl-home (merge-pathnames "sbcl/" *workspace-directory*))
              (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
                                  "--no-sysinit" "--no-userinit"
-                                 "--eval" ,(let ((*package* (find-package :common-lisp)))
-                                                (format nil "~S" `(progn
-                                                                    ,@(iter (for form :in test-program)
-                                                                            (collect `(eval (read-from-string ,(format nil "~S" form)))))))))))
+                                 "--eval" ,(standalone-test-system/build-lisp-form system-name system-version output-path :run-at run-at))))
         (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name system-version shell-arguments)
         (bind ((standard-output-file (merge-pathnames "standard-output.log" output-path))
                (standard-error-file (merge-pathnames "standard-error.log" output-path))
