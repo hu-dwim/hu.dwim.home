@@ -107,7 +107,7 @@
 (def function %store-system-test-result (system-name system-version run-at)
   (bind ((system (find-system system-name))
          (test-system (find-system (system-test-system-name system)))
-         (root-test-name (find-symbol "TEST" (system-package-name test-system)))
+         (root-test-name (find-symbol (system-test-name test-system) (system-package-name test-system)))
          (result (system-test-result test-system))
          (failures (hu.dwim.stefil::failure-descriptions-of result))
          ((&key number-of-assertions number-of-failures number-of-expected-failures number-of-failed-assertions number-of-unexpected-errors &allow-other-keys)
