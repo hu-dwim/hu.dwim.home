@@ -417,10 +417,9 @@
 (def function send-standalone-test-email-report ()
   (send-standalone-test-email-message (with-active-layers (passive-layer)
                                         (vertical-list/layout ()
-                                          "HEAD versions at http://dwim.hu/darcs/<repository-name>"
-                                          (make-periodic-standalone-test-report :head)
-                                          "LIVE versions at http://dwim.hu/live/<repository-name>"
-                                          (make-periodic-standalone-test-report :live)))))
+                                          (make-periodic-standalone-test-report "Head Repositories (Comparing Last 2 Results)" :head)
+                                          (make-periodic-standalone-test-report "Live Repositories (Comparing Last 2 Results)" :live)
+                                          (make-periodic-standalone-test-report "Head Compared To Live Repositories" :head :live)))))
 
 (def function send-standalone-test-email-message (component)
   (test.info "Sending standalone test report email")
