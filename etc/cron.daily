@@ -1,0 +1,9 @@
+#!/bin/sh
+
+. /opt/hu.dwim.home/workspace/hu.dwim.home/bin/environment.sh
+
+ERROR_LOG_FILE="${DWIM_LOG_DIRECTORY}/error.log"
+
+if [ -s ${ERROR_LOG_FILE} ]; then
+  mail --subject "[dwim.hu] error log" attila.lendvai@gmail.com <${ERROR_LOG_FILE}
+fi
