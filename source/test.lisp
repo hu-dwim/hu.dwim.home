@@ -164,7 +164,7 @@
                                                          (#P"/opt/darcs/" ,output-path)
                                                          :ignore-inherited-configuration))
                   (format *trace-output* "Loading dependencies for system ~S" ',system-name)
-                  (map nil 'load-system (collect-system-dependencies ,system-name))
+                  (map nil 'load-system (collect-system-dependencies ,system-name :transitive #t))
                   (load-system :sb-cover)
                   (declaim (optimize sb-cover:store-coverage-data))
                   (format *trace-output* "Loading system ~S now" ',system-name)
