@@ -113,11 +113,12 @@
       "git clone git://dwim.hu/git/sbcl"
       "cd ${DWIM_WORKSPACE}/sbcl"
       "git checkout hu.dwim")
-    (paragraph ()
-      "Alternatively, you can check out the current SBCL CVS HEAD.")
-    (shell-script ()
-      "cd ${DWIM_WORKSPACE}"
-      "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl")
+    #+nil
+    ((paragraph ()
+       "Alternatively, you can check out the current SBCL CVS HEAD.")
+     (shell-script ()
+                   "cd ${DWIM_WORKSPACE}"
+                   "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl"))
     (paragraph ()
       "Bootstrap (build) SBCL using CLISP.")
     (shell-script ()
@@ -205,19 +206,25 @@
         "sudo chgrp root ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script"
         "sudo chmod u=rwx,g=rwx,o=r ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
         "sudo chmod u+x,g+x,o-x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/*.sh"
-        "sudo update-rc.d ${DWIM_PROJECT_NAME} defaults")))
+        "sudo update-rc.d ${DWIM_PROJECT_NAME} defaults"))
+    (chapter (:title "Set up a daily cron job")
+      (shell-script ()
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/${DWIM_PROJECT_NAME}"))
+    (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
+      (shell-script ()
+        "sudo echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf")))
   (chapter (:title "Set up www/ directory which is served at the 'static/' URL")
     (chapter (:title "Build a Dojo Toolkit checkout")
       (paragraph ()
         "You may need to update your Dojo Toolkit checkout to a certain revision. The following does that when invoked in the workspace/dojotoolkit/ directory:")
       (shell-script ()
-        "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done")))
+        "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"
+        "sh ${DWIM_WORKSPACE}/hu.dwim.wui/etc/build-dojo.sh --dojo ${DWIM_WORKSPACE}/dojotoolkit/ --dojo-release-dir ${DWIM_WORKSPACE}/hu.dwim.wui/www/dojo/ --profile ${DWIM_WORKSPACE}/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\"")))
   (chapter (:title "Build the server executable")
     (paragraph ()
       "If you changed the installation path, then make sure you update hu.dwim.home/bin/env.sh accordingly.")
     (shell-script ()
       "sudo apt-get install libz-dev"
-      "sh ${DWIM_WORKSPACE}/hu.dwim.wui/etc/build-dojo.sh --dojo ${DWIM_WORKSPACE}/dojotoolkit/ --dojo-release-dir ${DWIM_WORKSPACE}/hu.dwim.wui/www/dojo/ --profile ${DWIM_WORKSPACE}/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\""
       "sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/build.sh"))
   (chapter (:title "Running the server")
     (paragraph ()
