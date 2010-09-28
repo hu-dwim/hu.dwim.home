@@ -5,5 +5,5 @@
 ERROR_LOG_FILE="${DWIM_LOG_DIRECTORY}/error.log"
 
 if [ -s ${ERROR_LOG_FILE} ]; then
-  mail --subject "[dwim.hu] error log" attila.lendvai@gmail.com <${ERROR_LOG_FILE}
+  mail --subject "[dwim.hu] error log" admin@dwim.hu <${ERROR_LOG_FILE}
 fi
