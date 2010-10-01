@@ -12,8 +12,10 @@ export DWIM_MAXIMUM_MEMORY_SIZE="1500Mi"
 export DWIM_DAEMON_USER="home-service"
 export DWIM_TOPLEVEL_FUNCTION="hu.dwim.home::executable-toplevel"
 export DWIM_ASDF_SYSTEM_NAME="hu.dwim.home.all"
-
 export DWIM_POSTGRESQL_VERSION="8.4"
-export DWIM_INSTALL_PATH="/opt/${DWIM_PROJECT_NAME}"
 
-. ${DWIM_INSTALL_PATH}/workspace/hu.dwim.environment/etc/service-scripts/service-environment.sh
+export DWIM_INSTALL_PATH="/opt/${DWIM_PROJECT_NAME}"
+export DWIM_WORKSPACE="${DWIM_INSTALL_PATH}/workspace"
+export DWIM_LOG_DIRECTORY="/var/log/${DWIM_PROJECT_NAME}"
+export DWIM_EXECUTABLE_CORE_FILE="${DWIM_INSTALL_PATH}/${DWIM_PROJECT_NAME}"
+export DWIM_BACKUP_DIRECTORY="/opt/${DWIM_PROJECT_NAME}/backup/"
