@@ -342,9 +342,9 @@
 
 (def function periodic-standalone-test ()
   (with-layered-error-handlers ((lambda (error)
-                                  (bind ((error-message (build-backtrace-string error
-                                                                                :message "Error reached toplevel in PERIODIC-STANDALONE-TEST"
-                                                                                :timestamp (local-time:now))))
+                                  (bind ((error-message (build-error-log-message :error-condition error
+                                                                                 :message "Error reached toplevel in PERIODIC-STANDALONE-TEST"
+                                                                                 :timestamp (local-time:now))))
                                     (test.error error-message)
                                     (send-standalone-test-email-message error-message)))
                                 (lambda (&rest args)
