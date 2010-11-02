@@ -209,7 +209,8 @@
         "sudo update-rc.d ${DWIM_PROJECT_NAME} defaults"))
     (chapter (:title "Set up a daily cron job")
       (shell-script ()
-        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/${DWIM_PROJECT_NAME}"))
+        "chmod +x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00${DWIM_PROJECT_NAME}"))
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
         "sudo echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf")))
