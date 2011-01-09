@@ -192,6 +192,19 @@
       (hyperlink "http://www.graphviz.org/"))
     (shell-script ()
       "sudo apt-get install libgraphviz4"))
+  (chapter (:title "Install libfixposix")
+    (paragraph ()
+     "The I/O library iolib" (hyperlink "http://common-lisp.net/project/iolib/")
+     "uses libfixposix" (hyperlink "http://gitorious.org/libfixposix") "which has to be built and installed before iolib tries to use it with cffi. The necessary steps are")
+    (shell-script ()
+      "sudo apt-get install automake autoconf libtool"
+      "cd ${DWIM_WORKSPACE}/libfixposix/"
+      "mkdir build"
+      "cd build"
+      "../configure"
+      "make"
+      "sudo make install"
+      "sudo ldconfig"))
   (chapter (:title "Configure the server as a unix service (optional)")
     (chapter (:title "Set up logging")
       (shell-script ()
