@@ -161,12 +161,12 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Server Status"
-        (bind ((uri "http://dwim.hu/status"))
+        (bind ((uri (uri/delete-all-query-parameters (make-uri-for-current-application "status"))))
           (make-value-inspector
            (book (:title "Server Status" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
                "This example demonstrates how to define a simple entry point that shows some server status information. The live entry point is at: "
-               (parse-uri uri))
+               uri)
              (chapter (:title "Source")
                (paragraph ()
                  "The status is rendered by the following code:")
@@ -180,18 +180,18 @@
                (fdefinition 'make-server-status-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>))))))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(print-uri-to-string uri))>))))))))
 
 (def function make-echo-server-demo-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Echo Server"
-        (bind ((uri "http://dwim.hu/echo"))
+        (bind ((uri (uri/delete-all-query-parameters (make-uri-for-current-application "echo"))))
           (make-value-inspector
            (book (:title "Echo Server" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
                "This example demonstrates how to define a simple request echo server. The live entry point is at: "
-               (parse-uri uri))
+               uri)
              (chapter (:title "Source")
                (paragraph ()
                  "The echo server source is the following:")
@@ -201,18 +201,18 @@
                (fdefinition 'make-echo-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,uri)>))))))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(print-uri-to-string uri))>))))))))
 
 (def function make-hello-world-server-demo-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Hello World Server"
-        (bind ((uri "http://dwim.hu/hello-world"))
+        (bind ((uri (uri/delete-all-query-parameters (make-uri-for-current-application "hello-world"))))
           (make-value-inspector
            (book (:title "Hello World Server" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
                "This example demonstrates how to define a simple hello world server. The live entry point is at: "
-               (parse-uri uri))
+               uri)
              (chapter (:title "Source")
                (paragraph ()
                  "The hello world server source is the following:")
@@ -222,7 +222,7 @@
                (fdefinition 'make-hello-world-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,uri)>))))))))
+                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,(print-uri-to-string uri))>))))))))
 
 (def function make-home-server-demo-menu-item ()
   (menu-item/widget ()
