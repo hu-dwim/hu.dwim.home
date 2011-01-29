@@ -239,10 +239,12 @@
   (chapter (:title "Set up www/ directory which is served at the 'static/' URL")
     (chapter (:title "Build a Dojo Toolkit checkout")
       (paragraph ()
-        "You may need to update your Dojo Toolkit checkout to a certain revision. The following does that when invoked in the workspace/dojotoolkit/ directory:")
+        "Check out the sources of Dojo Toolkit into the workspace directory:")
       (shell-script ()
-        "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"
-        "sh ${DWIM_WORKSPACE}/hu.dwim.wui/etc/build-dojo.sh --dojo ${DWIM_WORKSPACE}/dojotoolkit/ --dojo-release-dir ${DWIM_WORKSPACE}/hu.dwim.wui/www/dojo/ --profile ${DWIM_WORKSPACE}/hu.dwim.wui/etc/wui.profile.js --locales \"en-us,hu\"")))
+        "cd ${DWIM_WORKSPACE}"
+        "svn co http://svn.dojotoolkit.org/src/tags/release-1.5/ dojotoolkit-v1.5/"
+        ;; "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"
+        "sh $DWIM_WORKSPACE/hu.dwim.web-server/etc/build-dojo.sh --dojo $DWIM_WORKSPACE/dojotoolkit-v1.5/ --dojo-release-dir $DWIM_WORKSPACE/hu.dwim.web-server/www/libraries/ --profile $DWIM_WORKSPACE/hu.dwim.web-server/etc/dojo-build-profile.js --locales \"en-us,hu\"")))
   (chapter (:title "Build the server executable")
     (paragraph ()
       "If you changed the installation path, then make sure you update hu.dwim.home/bin/env.sh accordingly.")
@@ -273,9 +275,9 @@
       "wget http://dwim.hu/install/init.el"))
   (chapter (:title "Install Slime")
     (paragraph ()
-      "It's recommended to install the SLIME branch called 'hu.dwim.slime', but the official checkout should work fine, too.")
+      "It's recommended to install our branch of SLIME, but the official SLIME should be fine, too.")
     (paragraph ()
-      "The official SLIME can be found at " (hyperlink "http://common-lisp.net/project/slime/") "or a darcs mirror at " (hyperlink "http://common-lisp.net/project/slime/"))
+      "The official SLIME can be found at " (hyperlink "http://common-lisp.net/project/slime/"))
     (shell-script ()
       "cd ${DWIM_WORKSPACE}"
       "cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot checkout slime"))
