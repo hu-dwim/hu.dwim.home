@@ -10,16 +10,17 @@
 
 (defsystem :hu.dwim.home
   :class hu.dwim.system
-  :description "A web application for all hu.dwim systems including their test suite and documentation."
+  :description "The web application running at http://dwim.hu"
   :depends-on (:cl-smtp
                :hu.dwim.logger
                :hu.dwim.meta-model
                :hu.dwim.model
                :hu.dwim.perec+iolib
-               :hu.dwim.wui+cl-typesetting
-               :hu.dwim.wui+hu.dwim.perec
-               :hu.dwim.wui+hu.dwim.reader
-               :hu.dwim.wui+stefil
+               :hu.dwim.presentation.test
+               :hu.dwim.presentation+cl-typesetting
+               :hu.dwim.presentation+hu.dwim.perec
+               :hu.dwim.presentation+hu.dwim.reader
+               :hu.dwim.presentation+hu.dwim.stefil
                :sb-cover)
   :components ((:module "source"
                 :components ((:file "authentication" :depends-on ("server"))

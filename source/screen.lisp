@@ -48,7 +48,7 @@
 
 (def function make-home-menu-item ()
   (bind ((content (vertical-list/layout ()
-                    (image/widget :id "dwim-logo" :location (make-uri-for-current-application "static/wui/image/about/dwim-logo.png"))
+                    (image/widget :id "dwim-logo" :location (make-uri-for-current-application "static/hdp/image/about/dwim-logo.png"))
                     (make-value-inspector
                      (book (:title "dwim.hu")
                        (chapter (:title "About us")
@@ -72,7 +72,7 @@
                        #+nil
                        (chapter (:title "Architecture overview")
                          (paragraph ()
-                           "The dwim Server runs on the scalable iolib based pure lisp-from-the-socket web server called hu.dwim.wui. It stores persistent data in the Common Lisp Object System (CLOS) based Object Relational Mapping (ORM) called hu.dwim.perec. The persistence layer is backed up with PostgreSQL, but other relational databases such as Sqlite, and Oracle are also partially supported. The Common Lisp code fragments that are presented throughout this site are shown by introspection. In other words they are part of the live system, and this serves well our goal of providing reflexive documentation."))
+                           "The dwim Server runs on the scalable iolib based pure lisp-from-the-socket web server called hu.dwim.web-server. It stores persistent data in the Common Lisp Object System (CLOS) based Object Relational Mapping (ORM) called hu.dwim.perec. The persistence layer is backed up with PostgreSQL, but other relational databases such as Sqlite, and Oracle are also partially supported. The Common Lisp code fragments that are presented throughout this site are shown by introspection. In other words they are part of the live system, and this serves well our goal of providing reflexive documentation."))
                        #+nil
                        (chapter (:title "Licence")
                          (paragraph ()
@@ -136,7 +136,7 @@
 (def function make-live-project-licences-inspector ()
   (make-instance 'sequence/alternator/inspector
                  :component-value (mapcar (lambda (pathname)
-                                            (hu.dwim.wui::project-licence-pathname
+                                            (hu.dwim.presentation::project-licence-pathname
                                              (bind ((project-name (project-name pathname)))
                                                (or (find-project project-name :otherwise nil)
                                                    (make-instance 'project
@@ -244,8 +244,8 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "User Interface"
-        ;; NOTE: due to loading issues related to hu.dwim.home not being dependent on hu.dwim.wui.test
-        (funcall (find-symbol "MAKE-COMPONENT-DEMO-CONTENT" :hu.dwim.wui.test)))))
+        ;; NOTE: due to loading issues related to hu.dwim.home not being dependent on hu.dwim.presentation.test
+        (funcall (find-symbol "MAKE-COMPONENT-DEMO-CONTENT" :hu.dwim.presentation.test)))))
 
 (def function make-perec-demo-menu-item ()
   (menu-item/widget ()
@@ -258,7 +258,7 @@
 ;;; Project menu
 
 (def function make-project-menu ()
-  (bind (((dwim-projects other-projects) (hu.dwim.wui::partition (collect-live-project-pathnames)
+  (bind (((dwim-projects other-projects) (hu.dwim.web-server::partition (collect-live-project-pathnames)
                                                                  (lambda (pathname)
                                                                    (search "hu.dwim" (last-elt (pathname-directory pathname))))
                                                                  (constantly #t))))
@@ -275,7 +275,7 @@
                                      :path pathname))))
     (menu-item/widget ()
         (replace-target-place/widget ()
-            (string-downcase (hu.dwim.wui::name-of project))
+            (string-downcase (hu.dwim.presentation::name-of project))
           (make-value-inspector project)))))
 
 ;;;;;;
@@ -304,7 +304,7 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "User Interface"
-        (make-value-inspector (find-user-guide :hu.dwim.wui)))))
+        (make-value-inspector (find-user-guide :hu.dwim.presentation)))))
 
 (def function make-perec-documentation-item ()
   (menu-item/widget ()

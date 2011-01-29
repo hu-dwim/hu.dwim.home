@@ -13,9 +13,9 @@
         :hu.dwim.home
         :hu.dwim.logger
         :hu.dwim.perec
+        :hu.dwim.presentation
         :hu.dwim.rdbms
         :hu.dwim.stefil
         :hu.dwim.syntax-sugar
-        :hu.dwim.util
-        :hu.dwim.wui)
+        :hu.dwim.util)
   (:readtable-setup (setup-readtable/same-as-package :hu.dwim.home)))

@@ -15,14 +15,14 @@
                                                           :host +any-host+
                                                           :port +default-hello-world-server-port+
                                                           :handler (lambda ()
-                                                                     (hu.dwim.wui::send-response (make-hello-world-response))))
+                                                                     (hu.dwim.web-server::send-response (make-hello-world-response))))
   "The hello world server unconditionally sends back a simple HTML page with the usual content.")
 
 (def function make-hello-world-response ()
   (make-functional-html-response ()
     <html
       <head
-        <title "hu.dwim.wui hello world server">>
+        <title "hu.dwim.web-server hello world server">>
       <body
         <h1 (:style "font-style: italic;")
           "hello world">>>))

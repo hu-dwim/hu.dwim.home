@@ -36,12 +36,14 @@
                                                        :host +any-host+
                                                        :port +default-http-server-port+
                                                        :brokers (list* *home-application*
+                                                                       ;; TODO this should come from the equivalent of make-default-broker-list in hu.dwim.presentation
+                                                                       (make-instance 'js-component-hierarchy-serving-broker :priority 100)
                                                                        (make-default-broker-list))))
 
 (def localization-loader-callback home-localization-loader :hu.dwim.home "localization/")
 
 (def method startup-server :after ((server home-server) &key &allow-other-keys)
-  (register-timer-entry/periodic-standalone-test (hu.dwim.wui::timer-of server)))
+  (register-timer-entry/periodic-standalone-test (hu.dwim.web-server::timer-of server)))
 
 ;;;;;;
 ;;; Production

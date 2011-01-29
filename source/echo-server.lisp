@@ -15,7 +15,7 @@
                                                    :host +any-host+
                                                    :port +default-echo-server-port+
                                                    :handler (lambda ()
-                                                              (hu.dwim.wui::send-response (make-request-echo-response))))
+                                                              (hu.dwim.web-server::send-response (make-request-echo-response))))
   "The echo server echoes back various parts of the received HTTP request, such as request path, HTTP headers, request parameters, etc.")
 
 (def function startup-echo-server ()

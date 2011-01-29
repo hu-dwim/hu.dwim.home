@@ -32,6 +32,7 @@
                :hu.dwim.new-project.documentation
                :hu.dwim.partial-eval.documentation
                :hu.dwim.perec.documentation
+               :hu.dwim.presentation.documentation
                :hu.dwim.quasi-quote.documentation
                :hu.dwim.rdbms.documentation
                :hu.dwim.reader.documentation
@@ -44,7 +45,7 @@
                :hu.dwim.vm.documentation
                :hu.dwim.walker.documentation
                :hu.dwim.wiki.documentation
-               :hu.dwim.wui.documentation))
+               :hu.dwim.web-server.documentation))
 
 (defmethod perform :after ((o develop-op) (c (eql (find-system :hu.dwim.home.all))))
   (develop-system :hu.dwim.home))

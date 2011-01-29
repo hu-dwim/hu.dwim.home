@@ -389,7 +389,7 @@
 (def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype system-test-result) (value system-test-result))
   (bind (((:read-only-slots test-result run-at assertion-count failed-assertion-count expected-failure-count failure-count error-count) value)
          (localized-run-at (localized-timestamp run-at))
-         (localized-test-result (hu.dwim.wui::localized-member-component-value class (find-slot class 'test-result) test-result)))
+         (localized-test-result (hu.dwim.presentation::localized-member-component-value class (find-slot class 'test-result) test-result)))
     (make-icon/widget (ecase test-result
                         (:passed 'test-result-passed)
                         (:failed 'test-result-failed)

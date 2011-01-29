@@ -50,7 +50,8 @@
 
 (def macro with-symbol-finding-entry-point-logic ((var-name symbol-name &optional (packages ''(:hu.dwim.home
                                                                                                :hu.dwim.perec
-                                                                                               :hu.dwim.wui)))
+                                                                                               :hu.dwim.presentation
+                                                                                               :hu.dwim.web-server)))
                                                    &body body)
   (once-only (symbol-name)
     `(bind ((,var-name (find-symbol* ,symbol-name :packages ,packages :otherwise nil)))
@@ -75,7 +76,7 @@
 (def entry-point (*home-application* :path-prefix "definition/")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
     (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
-      (awhen (hu.dwim.wui::make-definitions name)
+      (awhen (hu.dwim.presentation::make-definitions name)
         (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path-prefix "function/")

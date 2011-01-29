@@ -1,33 +1,33 @@
 body.tundra
 {
-  background-image: url('/static/wui/image/page/clouds.png');
+  background-image: url('/static/hdp/image/page/clouds.png');
   background-repeat: no-repeat;
 }
 
 .test-system.icon {
-  background-image: url("/static/wui/icon/24x24/function-play.png");
+  background-image: url("/static/hdp/icon/24x24/function-play.png");
 }
 
 .test-result-passed.icon {
-  background-image: url("/static/wui/icon/24x24/apply.png");
+  background-image: url("/static/hdp/icon/24x24/apply.png");
 }
 
 .test-result-failed.icon {
-  background-image: url("/static/wui/icon/24x24/delete.png");
+  background-image: url("/static/hdp/icon/24x24/delete.png");
 }
 
 .test-result-aborted.icon {
-  background-image: url("/static/wui/icon/24x24/delete-disabled.png");
+  background-image: url("/static/hdp/icon/24x24/delete-disabled.png");
 }
 
 .comparison-result-new.icon {
-  background-image: url("/static/wui/icon/16x16/gray-circle.png");
+  background-image: url("/static/hdp/icon/16x16/gray-circle.png");
   padding-left: 18px;
   padding-top: 2px;
 }
 
 .comparison-result-same.icon {
-  background-image: url("/static/wui/icon/16x16/blue-circle.png");
+  background-image: url("/static/hdp/icon/16x16/blue-circle.png");
   width: 16px;
   height: 16px;
   line-height: 16px;
@@ -36,7 +36,7 @@ body.tundra
 }
 
 .comparison-result-better.icon {
-  background-image: url("/static/wui/icon/16x16/green-circle.png");
+  background-image: url("/static/hdp/icon/16x16/green-circle.png");
   width: 16px;
   height: 16px;
   line-height: 16px;
@@ -45,7 +45,7 @@ body.tundra
 }
 
 .comparison-result-worse.icon {
-  background-image: url("/static/wui/icon/16x16/red-circle.png");
+  background-image: url("/static/hdp/icon/16x16/red-circle.png");
   width: 16px;
   height: 16px;
   line-height: 16px;
@@ -54,7 +54,7 @@ body.tundra
 }
 
 .comparison-result-unknown.icon {
-  background-image: url("/static/wui/icon/16x16/yellow-circle.png");
+  background-image: url("/static/hdp/icon/16x16/yellow-circle.png");
   width: 16px;
   height: 16px;
   line-height: 16px;

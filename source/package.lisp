@@ -18,12 +18,13 @@
         :hu.dwim.meta-model
         :hu.dwim.model
         :hu.dwim.perec
+        :hu.dwim.presentation
         :hu.dwim.rdbms
         :hu.dwim.syntax-sugar
         :hu.dwim.util
-        :hu.dwim.wui
+        :hu.dwim.web-server
         :iolib
         :local-time)
   (:shadowing-import-from :hu.dwim.perec
                           #:ip-address)
-  (:readtable-setup (setup-readtable/same-as-package :hu.dwim.wui)))
+  (:readtable-setup (setup-readtable/same-as-package :hu.dwim.presentation)))
