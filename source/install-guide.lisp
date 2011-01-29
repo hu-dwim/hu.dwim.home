@@ -169,6 +169,15 @@
       ;; TODO bold
       "Alternatively you can install the HEAD revisions of the dependencies, but this is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the LIVE repositories (see above). "
       (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands #f)))))
+  (chapter (:title "Install libfixposix (needed by iolib)")
+    (shell-script ()
+      "sudo apt-get install automake autoconf libtool"
+      "cd ${DWIM_WORKSPACE}/libfixposix"
+      "autoreconf -i"
+      "./configure"
+      "make"
+      "sudo make install"
+      "sudo ldconfig"))
   (chapter (:title "Download the latest CLDR locale repository for cl-l10n")
     (shell-script ()
       "sh ${DWIM_WORKSPACE}/cl-l10n/bin/update-cldr.sh"))
