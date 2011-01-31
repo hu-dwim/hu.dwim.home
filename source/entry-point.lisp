@@ -17,19 +17,26 @@
   ("git/"           #P"/opt/git/")
   ("live/"          *workspace-directory*)
   ("darcsweb/"      (merge-pathnames "darcsweb/" *workspace-directory*))
-  ("gitweb/"        (merge-pathnames "gitweb/" *workspace-directory*)))
+  ("gitweb/"        (merge-pathnames "gitweb/" *workspace-directory*))
+  ("mailman/images/" #P"/usr/share/images/mailman/" :priority 100))
 
 ;;;;;;
 ;;; CGI
 
 (def entry-points *home-application*
-  (cgi-broker :path-prefix "darcsweb/darcsweb.cgi"
-              :cgi-file (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*)
-              :environment '(("PATH" . "/usr/bin"))
-              :priority 1)
-  (cgi-broker :path-prefix "gitweb/gitweb.cgi"
-              :cgi-file (merge-pathnames "gitweb/gitweb.cgi" *workspace-directory*)
-              :priority 1))
+  (cgi-file-broker :path "darcsweb/darcsweb.cgi"
+                   :cgi-file (iolib.pathnames:merge-file-paths "darcsweb/darcsweb.cgi" *workspace-directory*)
+                   :environment '(("PATH" . "/usr/bin"))
+                   :priority 1)
+  (cgi-file-broker :path "gitweb/gitweb.cgi"
+                   :cgi-file (iolib.pathnames:merge-file-paths "gitweb/gitweb.cgi" *workspace-directory*)
+                   :priority 1)
+  (cgi-directory-broker :path-prefix "mailman/"
+                        :root-directory "/usr/lib/cgi-bin/mailman/"
+                        :command-line-transformer (lambda (cgi-file)
+                                                    `("sudo" "-n" "-E" "-u" "list" "-g" "www-data" ,(iolib.pathnames:file-path-namestring cgi-file)))
+                        :render-directory-index #f
+                        :priority 1))
 
 ;;;;;;
 ;;; Main entry point
