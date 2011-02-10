@@ -85,7 +85,7 @@
     (paragraph ()
       "This guide describes how to install and configure the web service running at " (hyperlink "http://dwim.hu/") ". It is meant to be as complete and standalone as possible, including the installation of all the required dependencies under a single local directory.")
     (paragraph ()
-      "The shell script below will use version control tools (where available) to install the dependencies. It can replicate the exact same revisions used by the 'live' site (most probably the one you are reading this guide on), or it can clone the bleeding edge versions (called 'head'). You are advised to clone the live repositories though, and also to update only from them (unless you are planning to work on the framework itself). This way the updates to the numerous integrated libraries arrive to your local checkouts in packages that properly work together -- or at least good enough to run this site.")
+      "The shell script below will use version control tools (where available) to install the required components. It can replicate the exact same revisions used by the 'live' site (most probably the one you are reading this guide on), or it can clone the bleeding edge versions (called 'head'). You are advised to clone the live repositories though, and also to update only from them (unless you are planning to work on the framework itself). This way the updates to the numerous integrated libraries arrive to your local checkouts in packages that properly work together -- or at least good enough to run this site.")
     (paragraph ()
       "NOTE: the shell script fragments on this page are ready for copy&pasting! Even if the selection is displayed wrong by some browsers, the copied text will be what you expect it to be.")
     (paragraph ()
@@ -103,28 +103,6 @@
       "export DWIM_PROJECT_NAME=\"hu.dwim.home\""
       "export DWIM_DAEMON_USER=\"home-service\""
       "mkdir --parents ${DWIM_WORKSPACE}"))
-  (chapter (:title "Install SBCL")
-    (paragraph ()
-      "This server runs on " (hyperlink "http://sbcl.org" "Steel Bank Common Lisp (SBCL)") ", an " (hyperlink/wikipedia "open source") " " (hyperlink/wikipedia "Common Lisp") " implementation.")
-    (paragraph ()
-      "The preferred way to install SBCL is to download the same version dwim.hu is compiled with (at the time of this writing, our git repository contains a few extra patches).")
-    (shell-script ()
-      "cd ${DWIM_WORKSPACE}"
-      "git clone git://dwim.hu/git/sbcl"
-      "cd ${DWIM_WORKSPACE}/sbcl"
-      "git checkout hu.dwim")
-    #+nil
-    ((paragraph ()
-       "Alternatively, you can check out the current SBCL CVS HEAD.")
-     (shell-script ()
-                   "cd ${DWIM_WORKSPACE}"
-                   "cvs -z3 -d :pserver:anonymous@sbcl.cvs.sourceforge.net:/cvsroot/sbcl checkout -P sbcl"))
-    (paragraph ()
-      "Bootstrap (build) SBCL using CLISP.")
-    (shell-script ()
-      "sudo apt-get install clisp"
-      "cd ${DWIM_WORKSPACE}/sbcl"
-      "sh ${DWIM_WORKSPACE}/sbcl/make.sh \"clisp -ansi -on-error abort\""))
   (chapter (:title "Install PostgreSQL")
     (paragraph ()
       ;; TODO
@@ -140,16 +118,14 @@
       "sudo -u postgres createuser --pwprompt --no-superuser --no-createdb --no-createrole ${DWIM_PROJECT_NAME}")
     (paragraph ()
       "When prompted for the password type in 'engedjbe', which is the default password for hu.dwim.home."))
-  (chapter (:title "Install Sqlite")
+  (chapter (:title "Install Sqlite (optional)")
     (paragraph ()
-      "This installation step is optional. The Sqlite relational database should be installed only if you want to run the corresponding test suites."
-      (hyperlink "http://www.sqlite.org/"))
+      "You only need to install " (hyperlink "http://www.oracle.com/" "SQLite") " if you plan to use the correspondig backend of hu.dwim.rdbms (e.g. running its test suite).")
     (shell-script ()
       "sudo apt-get install sqlite3"))
-  (chapter (:title "Install Oracle")
+  (chapter (:title "Install Oracle (optional)")
     (paragraph ()
-      "This installation step is optional. The Oracle relational database should be installed only if you want to run the corresponding test suites."
-      (hyperlink "http://www.oracle.com/")))
+      "You only need to install " (hyperlink "http://www.oracle.com/" "Oracle") " if you plan to use the correspondig backend of hu.dwim.rdbms (e.g. running its test suite)."))
   (chapter (:title "Install Java")
     (paragraph ()
       "Java is required to build the Dojo Toolkit.")
@@ -162,58 +138,85 @@
       "sudo adduser ${DWIM_DAEMON_USER} darcs"
       "sudo adduser ${DWIM_DAEMON_USER} git"))
   (chapter (:title "Install dependencies from source code repositories")
-    (chapter (:title "Live repositories")
+    (chapter (:title "Live repositories (recommended)")
       "The following script installs the live revisions of the dependencies (the ones that were used to compile and run dwim.hu). Usually the live repositories are lagging behind head by a week or two, but in return they are more stable."
       (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands #t))))
-    (chapter (:title "Head repositories")
+    (chapter (:title "Head repositories (not recommended)")
       ;; TODO bold
       "Alternatively you can install the HEAD revisions of the dependencies, but this is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the LIVE repositories (see above). "
       (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands #f)))))
-  (chapter (:title "Install libfixposix (needed by iolib)")
+  (chapter (:title "Compile and install libfixposix")
+    (paragraph ()
+      (hyperlink "http://gitorious.org/libfixposix" "libfixposix") " is a dependency of " (hyperlink "http://common-lisp.net/project/iolib/" "IOLib") ".")
     (shell-script ()
       "sudo apt-get install automake autoconf libtool"
       "cd ${DWIM_WORKSPACE}/libfixposix"
       "autoreconf -i"
-      "./configure"
-      "make"
-      "sudo make install"
-      "sudo ldconfig"))
-  (chapter (:title "Download the latest CLDR locale repository for cl-l10n")
-    (shell-script ()
-      "sh ${DWIM_WORKSPACE}/cl-l10n/bin/update-cldr.sh"))
-  (chapter (:title "Set up backups")
-    (shell-script ()
-      "sudo mkdir --parents /var/backups/${DWIM_PROJECT_NAME}/workspace /var/backups/${DWIM_PROJECT_NAME}/database"
-      "sudo chown -R ${DWIM_DAEMON_USER}:admin /var/backups/${DWIM_PROJECT_NAME}"
-      "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/${DWIM_PROJECT_NAME}"))
-  (chapter (:title "Set up darcsweb")
-    (shell-script ()
-      "sudo chmod ug+rx ${DWIM_WORKSPACE}/darcsweb/darcsweb.cgi"))
-  (chapter (:title "Set up gitweb")
-    (paragraph ()
-      "The following dependencies are needed for gitweb:")
-    (shell-script ()
-      "sudo apt-get install curl libcurl4-gnutls-dev"
-      "make GIT_BINDIR=\"/usr/bin\" GITWEB_PROJECTROOT=${DWIM_WORKSPACE} GITWEB_PROJECT_MAXDEPTH=2 gitweb/gitweb.cgi"
-      "sudo chmod ug+rx ${DWIM_WORKSPACE}/gitweb/gitweb.cgi"))
-  (chapter (:title "Install Graphviz")
-    (paragraph ()
-      (hyperlink "http://www.graphviz.org/"))
-    (shell-script ()
-      "sudo apt-get install libgraphviz4"))
-  (chapter (:title "Install libfixposix")
-    (paragraph ()
-     "The I/O library iolib" (hyperlink "http://common-lisp.net/project/iolib/")
-     "uses libfixposix" (hyperlink "http://gitorious.org/libfixposix") "which has to be built and installed before iolib tries to use it with cffi. The necessary steps are")
-    (shell-script ()
-      "sudo apt-get install automake autoconf libtool"
-      "cd ${DWIM_WORKSPACE}/libfixposix/"
       "mkdir build"
       "cd build"
       "../configure"
       "make"
       "sudo make install"
       "sudo ldconfig"))
+  (chapter (:title "Install Graphviz")
+    (paragraph ()
+      (hyperlink "http://www.graphviz.org/"))
+    (shell-script ()
+      "sudo apt-get install libgraphviz4"))
+  (chapter (:title "Build SBCL")
+    (paragraph ()
+      "This server runs on " (hyperlink "http://sbcl.org" "Steel Bank Common Lisp (SBCL)") ", an " (hyperlink/wikipedia "open source") " " (hyperlink/wikipedia "Common Lisp") " implementation.")
+    (paragraph ()
+      ;; TODO bold
+      "NOTE: At the time of writing, our git repository contains a few extra but not essential patches. If you followed this guide, then you have those patches in a git branch called 'hu.dwim', so you will not be running a vanilla SBCL.")
+    (paragraph ()
+      "To build SBCL using CLISP:")
+    (shell-script ()
+      "sudo apt-get install clisp"
+      "cd ${DWIM_WORKSPACE}/sbcl"
+      "sh ${DWIM_WORKSPACE}/sbcl/make.sh \"clisp -ansi -on-error abort\"")
+    (paragraph ()
+      "Building with CLISP may not always work, but you can also build SBCL with itself. To do so you need to download a precompiled SBCL binary from " (hyperlink "http://www.sbcl.org/platform-table.html") ".")
+    (shell-script ()
+      "cd ${DWIM_WORKSPACE}/sbcl"
+      "sh ${DWIM_WORKSPACE}/sbcl/make.sh /path/to/the-extracted-sbcl/run-sbcl.sh"))
+  (chapter (:title "Set up www/ directory which is served at the 'static/' URL")
+    (chapter (:title "Build a Dojo Toolkit checkout")
+      (paragraph ()
+        "The sources of Dojo Toolkit should already be checked out into the workspace directory by one of the VCS commands above.")
+      (shell-script ()
+        "cd ${DWIM_WORKSPACE}"
+        ;; it's not needed because it's above in the automatically generated checkout commands "svn co http://svn.dojotoolkit.org/src/tags/release-1.5/ dojotoolkit-v1.5/"
+        ;; "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"
+        "sh $DWIM_WORKSPACE/hu.dwim.web-server/etc/build-dojo.sh --dojo $DWIM_WORKSPACE/dojotoolkit-v1.5/ --dojo-release-dir $DWIM_WORKSPACE/hu.dwim.web-server/www/libraries/ --profile $DWIM_WORKSPACE/hu.dwim.web-server/etc/dojo-build-profile.js --locales \"en-us,hu\"")))
+  (chapter (:title "Build the server executable")
+    (paragraph ()
+      "If you changed the installation path, then make sure you update hu.dwim.home/bin/env.sh accordingly!")
+    (shell-script ()
+      "sudo apt-get install libz-dev"
+      "sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/build.sh"))
+  (chapter (:title "Running the server")
+    (paragraph ()
+      "Starting up the server shouldn't take more than a couple of seconds, most of which is spent with the synchronization of the SQL schema.")
+    (shell-script ()
+      "/opt/hu.dwim.home/hu.dwim.home --verbose")
+    (paragraph ()
+      "If everything started normally then the service should be listening on " (hyperlink "http://127.0.0.1:8080/") ". Pressing Control-c in the terminal should initiate a graceful server shutdown which normally takes a few seconds."))
+  (chapter (:title "Set up backups (optional)")
+    (shell-script ()
+      "sudo mkdir --parents /var/backups/${DWIM_PROJECT_NAME}/workspace /var/backups/${DWIM_PROJECT_NAME}/database"
+      "sudo chown -R ${DWIM_DAEMON_USER}:admin /var/backups/${DWIM_PROJECT_NAME}"
+      "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/${DWIM_PROJECT_NAME}"))
+  (chapter (:title "Set up darcsweb (optional)")
+    (shell-script ()
+      "sudo chmod ug+rx ${DWIM_WORKSPACE}/darcsweb/darcsweb.cgi"))
+  (chapter (:title "Set up gitweb (optional)")
+    (paragraph ()
+      "The following dependencies are needed for gitweb:")
+    (shell-script ()
+      "sudo apt-get install curl libcurl4-gnutls-dev"
+      "make GIT_BINDIR=\"/usr/bin\" GITWEB_PROJECTROOT=${DWIM_WORKSPACE} GITWEB_PROJECT_MAXDEPTH=2 gitweb/gitweb.cgi"
+      "sudo chmod ug+rx ${DWIM_WORKSPACE}/gitweb/gitweb.cgi"))
   (chapter (:title "Configure the server as a unix service (optional)")
     (chapter (:title "Set up logging")
       (shell-script ()
@@ -236,28 +239,6 @@
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
         "sudo echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf")))
-  (chapter (:title "Set up www/ directory which is served at the 'static/' URL")
-    (chapter (:title "Build a Dojo Toolkit checkout")
-      (paragraph ()
-        "Check out the sources of Dojo Toolkit into the workspace directory:")
-      (shell-script ()
-        "cd ${DWIM_WORKSPACE}"
-        "svn co http://svn.dojotoolkit.org/src/tags/release-1.5/ dojotoolkit-v1.5/"
-        ;; "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"
-        "sh $DWIM_WORKSPACE/hu.dwim.web-server/etc/build-dojo.sh --dojo $DWIM_WORKSPACE/dojotoolkit-v1.5/ --dojo-release-dir $DWIM_WORKSPACE/hu.dwim.web-server/www/libraries/ --profile $DWIM_WORKSPACE/hu.dwim.web-server/etc/dojo-build-profile.js --locales \"en-us,hu\"")))
-  (chapter (:title "Build the server executable")
-    (paragraph ()
-      "If you changed the installation path, then make sure you update hu.dwim.home/bin/env.sh accordingly.")
-    (shell-script ()
-      "sudo apt-get install libz-dev"
-      "sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/build.sh"))
-  (chapter (:title "Running the server")
-    (paragraph ()
-      "Starting up the server shouldn't take more than a couple of seconds, most of which is spent with the synchronization of the SQL schema.")
-    (shell-script ()
-      "/opt/hu.dwim.home/hu.dwim.home --verbose")
-    (paragraph ()
-      "If everything started normally then the service should be listening on " (hyperlink "http://127.0.0.1:8080/") ". Pressing Control-c in the terminal should initiate a graceful server shutdown which normally takes a few seconds."))
   #+nil
   (chapter (:title "Run Test Suite")
     (paragraph ()
@@ -266,14 +247,8 @@
   (chapter (:title "Browse Test Suite")
     (paragraph ()
       "TODO"))
-  (chapter (:title "Install Emacs")
-    (paragraph ()
-      (hyperlink "http://www.gnu.org/software/emacs/"))
-    (shell-script ()
-      "sudo apt-get install emacs-snapshot hyperspec"
-      "cd ~/.emacs.d"
-      "wget http://dwim.hu/install/init.el"))
-  (chapter (:title "Install Slime")
+  #+()
+  (chapter (:title "Install Slime (optional)")
     (paragraph ()
       "It's recommended to install our branch of SLIME, but the official SLIME should be fine, too.")
     (paragraph ()
@@ -281,12 +256,13 @@
     (shell-script ()
       "cd ${DWIM_WORKSPACE}"
       "cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/slime/cvsroot checkout slime"))
-  (chapter (:title "Configure the Development Environment")
+  (chapter (:title "Configure the Development Environment (optional)")
     (paragraph ()
-      "TODO")
+      "Install " (hyperlink "http://www.gnu.org/software/emacs/" "Emacs") ".")
     (shell-script ()
-      "cd ~"
-      "wget http://dwim.hu/install/.sbclrc"))
+      "sudo apt-get install emacs-snapshot hyperspec"
+      "wget http://dwim.hu/install/init.el --no-clobber --output-document=\"~/.emacs.d/init.el\""
+      "wget http://dwim.hu/install/.sbclrc --no-clobber --output-document=\"~/.sbclrc\""))
   #+nil
   (chapter (:title "Connect Server with Slime")
     (paragraph ()
