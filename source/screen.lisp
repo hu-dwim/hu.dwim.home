@@ -315,8 +315,7 @@
 (def function collect-live-project-pathnames ()
   (iter (for pathname :in (directory (merge-pathnames *workspace-directory* "/*.*")))
         (unless (or (pathname-name pathname)
-                    (char= #\. (first-elt (last-elt (pathname-directory pathname))))
-                    (string= "sbcl" (last-elt (pathname-directory pathname))))
+                    (char= #\. (first-elt (last-elt (pathname-directory pathname)))))
           (collect pathname))))
 
 ;;;;;;
