@@ -188,7 +188,11 @@
         "cd ${DWIM_WORKSPACE}"
         ;; it's not needed because it's above in the automatically generated checkout commands "svn co http://svn.dojotoolkit.org/src/tags/release-1.5/ dojotoolkit-v1.5/"
         ;; "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"
-        "sh $DWIM_WORKSPACE/hu.dwim.web-server/etc/build-dojo.sh --dojo $DWIM_WORKSPACE/dojotoolkit-v1.5/ --dojo-release-dir $DWIM_WORKSPACE/hu.dwim.web-server/www/libraries/ --profile $DWIM_WORKSPACE/hu.dwim.web-server/etc/dojo-build-profile.js --locales \"en-us,hu\"")))
+        "sh ${DWIM_WORKSPACE}/hu.dwim.web-server/etc/build-dojo.sh --dojo ${DWIM_WORKSPACE}/dojotoolkit-v1.5/ --dojo-release-dir ${DWIM_WORKSPACE}/hu.dwim.web-server/www/libraries/ --profile ${DWIM_WORKSPACE}/hu.dwim.web-server/etc/dojo-build-profile.js --locales \"en-us,hu\""))
+    (chapter (:title "Build a Sencha (Ext JS) checkout (optional)")
+      (shell-script ()
+        "cd ${DWIM_WORKSPACE}"
+        "sh ${DWIM_WORKSPACE}/hu.dwim.web-server/etc/build-sencha.sh ${DWIM_WORKSPACE}/ext-core-3.3.x/ --output-dir ${DWIM_WORKSPACE}/hu.dwim.web-server/www/libraries/")))
   (chapter (:title "Build the server executable")
     (paragraph ()
       "If you changed the installation path, then make sure you update hu.dwim.home/bin/env.sh accordingly!")
