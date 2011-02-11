@@ -1,19 +1,23 @@
-(setq dwim-workspace (getenv "DWIM_WORKSPACE"))
-(if (not dwim-workspace)
-    (error "You MUST set the environment variable DWIM_WORKSPACE"))
+(unless (and (setq dwim-workspace (or (getenv "DWIM_WORKSPACE")
+                                      (let ((dir (expand-file-name "~/workspace")))
+                                        (and (file-exists-p dir) dir))
+                                      (let ((dir "/opt/hu.dwim.home/workspace"))
+                                        (and (file-exists-p dwim-workspace) dir))))
+             (file-exists-p dwim-workspace))
+  (error "Could not find workspace directory (tried '%s'). Set/change the shell environment variable DWIM_WORKSPACE if you want to use something else." dwim-workspace))
 
 (add-to-list 'load-path (expand-file-name (concat dwim-workspace "/hu.dwim.environment/emacs/")))
-
 (require 'dwim-init)
-(require 'sunrise-commander)
-(require 'color-moccur)
-(require 'moccur-edit)
-(require 'pretty-unicode)
 
-(setf undo-high-threshold 100000)
-(setf undo-threshold 2000000)
-(setf slime-default-lisp 'sbcl-development-image)
-(setf slime-highlight-suppressed-forms t)
+;; (require 'sunrise-commander)
+;; (require 'color-moccur)
+;; (require 'moccur-edit)
+;; (require 'pretty-unicode)
+
+(setq
+ slime-default-lisp 'sbcl
+ undo-limit 3000000
+ undo-strong-limit 5000000)
 
 ;; (require 'dwim-key-bindings)
 ;; (global-set-key (kbd "\\") 'dwim-switch-between-slime-repl-and-last-buffer)
