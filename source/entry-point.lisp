@@ -9,6 +9,8 @@
 ;;;;;;
 ;;; Static file serving
 
+;; TODO setup redirect entry points: http://dwim.hu/darcs etc
+
 (def file-serving-entry-points *home-application*
   ("static/home/"   (system-relative-pathname :hu.dwim.home "www/"))
   ("install/"       (system-relative-pathname :hu.dwim.home "www/install/"))

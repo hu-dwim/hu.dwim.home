@@ -44,8 +44,8 @@
                :hu.dwim.util.documentation
                :hu.dwim.vm.documentation
                :hu.dwim.walker.documentation
-               :hu.dwim.wiki.documentation
-               :hu.dwim.web-server.documentation))
+               :hu.dwim.web-server.documentation
+               :hu.dwim.wiki.documentation))
 
 (defmethod perform :after ((o develop-op) (c (eql (find-system :hu.dwim.home.all))))
   (develop-system :hu.dwim.home))

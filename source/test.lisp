@@ -182,6 +182,7 @@
                   (quit 0))))
     (write-to-string `(progn
                         ,@(iter (for form :in forms)
+                                ;; because of read-time dependencies we must delay reading every form
                                 (collect `(eval (read-from-string ,(write-to-string form)))))))))
 
 (def (function e) standalone-test-system (system-name system-version &key force)
