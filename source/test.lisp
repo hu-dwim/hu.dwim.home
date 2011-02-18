@@ -348,8 +348,7 @@
                                                                                  :timestamp (local-time:now))))
                                     (test.error error-message)
                                     (send-standalone-test-email-message error-message)))
-                                (lambda (&rest args)
-                                  (declare (ignore args))
+                                (lambda (&key &allow-other-keys)
                                   (return-from periodic-standalone-test)))
     (with-simple-restart (abort "Abort testing")
       (with-model-database
