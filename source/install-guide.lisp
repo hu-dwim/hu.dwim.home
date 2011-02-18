@@ -126,12 +126,6 @@
   (chapter (:title "Install Oracle (optional)")
     (paragraph ()
       "You only need to install " (hyperlink "http://www.oracle.com/" "Oracle") " if you plan to use the correspondig backend of hu.dwim.rdbms (e.g. running its test suite)."))
-  (chapter (:title "Install Java")
-    (paragraph ()
-      "Java is required to build the Dojo Toolkit.")
-    (shell-script ()
-      ;; TODO alternatively: "sudo apt-get install sun-java6-jdk"
-      "sudo apt-get install default-jre-headless"))
   (chapter (:title "Add a user that will be used to run the server process (optional)")
     (shell-script ()
       "sudo adduser --disabled-login --disabled-password --no-create-home ${DWIM_DAEMON_USER}"
@@ -149,7 +143,7 @@
     (paragraph ()
       (hyperlink "http://gitorious.org/libfixposix" "libfixposix") " is a dependency of " (hyperlink "http://common-lisp.net/project/iolib/" "IOLib") ".")
     (shell-script ()
-      "sudo apt-get install automake autoconf libtool"
+      "sudo apt-get install build-essential automake autoconf libtool"
       "cd ${DWIM_WORKSPACE}/libfixposix"
       "autoreconf -i"
       "mkdir build"
@@ -183,6 +177,11 @@
   (chapter (:title "Set up www/ directory which is served at the 'static/' URL")
     (chapter (:title "Build a Dojo Toolkit checkout")
       (paragraph ()
+        "Java is required to build the Dojo Toolkit.")
+      (shell-script ()
+        ;; TODO alternatively: "sudo apt-get install sun-java6-jdk"
+        "sudo apt-get install default-jre-headless")
+      (paragraph ()
         "The sources of Dojo Toolkit should already be checked out into the workspace directory by one of the VCS commands above.")
       (shell-script ()
         "cd ${DWIM_WORKSPACE}"
@@ -208,7 +207,7 @@
       "If everything started normally then the service should be listening on " (hyperlink "http://127.0.0.1:8080/") ". Pressing Control-c in the terminal should initiate a graceful server shutdown which normally takes a few seconds."))
   (chapter (:title "Set up backups (optional)")
     (shell-script ()
-      "sudo mkdir --parents /var/backups/${DWIM_PROJECT_NAME}/workspace /var/backups/${DWIM_PROJECT_NAME}/database"
+      "sudo mkdir --parents /var/backups/${DWIM_PROJECT_NAME}/database"
       "sudo chown -R ${DWIM_DAEMON_USER}:admin /var/backups/${DWIM_PROJECT_NAME}"
       "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/${DWIM_PROJECT_NAME}"))
   (chapter (:title "Set up darcsweb (optional)")
