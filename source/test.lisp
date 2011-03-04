@@ -147,9 +147,7 @@
     system-test-result))
 
 (def function standalone-test-system/build-lisp-form (system-name system-version output-path &key (disable-debugger #t) (run-at (now)))
-  (bind ((*package* (find-package :common-lisp))
-         (*print-readably* #t)
-         (forms `(,@(when disable-debugger
+  (bind ((forms `(,@(when disable-debugger
                       `((sb-ext::disable-debugger)))
                   (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
                   (format *trace-output* "ASDF source registry after loading environment.lisp is ~S" (asdf::source-registry))
@@ -180,10 +178,12 @@
                   (store-system-test-result ,system-name ,system-version (parse-timestring ,(with-output-to-string (str) ; so that it's not a simple-base-string, which is not print-readable
                                                                                               (format-timestring str run-at))))
                   (quit 0))))
-    (write-to-string `(progn
-                        ,@(iter (for form :in forms)
-                                ;; because of read-time dependencies we must delay reading every form
-                                (collect `(eval (read-from-string ,(write-to-string form)))))))))
+    (with-standard-io-syntax
+      (bind ((*package* (find-package :common-lisp)))
+        (write-to-string `(progn
+                            ,@(iter (for form :in forms)
+                                    ;; because of read-time dependencies we must delay reading every form
+                                    (collect `(eval (read-from-string ,(write-to-string form)))))))))))
 
 (def (function e) standalone-test-system (system-name system-version &key force)
   (test.info "Standalone test for ~A ~A started" system-name system-version)
