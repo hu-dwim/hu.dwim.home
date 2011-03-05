@@ -148,9 +148,12 @@
                          :error-count nil))
     system-test-result))
 
-(def function standalone-test-system/build-lisp-form (system-name system-version output-path &key (disable-debugger #t) (run-at (now)))
+(def function standalone-test-system/build-lisp-form (system-name system-version output-path &key (disable-debugger #t) (run-at (now)) (swank-directory "slime/"))
   (bind ((forms `(,@(when disable-debugger
                       `((sb-ext::disable-debugger)))
+                  ,@(when swank-directory
+                      `((make-package :hu.dwim.asdf)
+                        (defparameter hu.dwim.asdf::*swank-directory* ,(merge-pathnames swank-directory *workspace-directory*))))
                   (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" *workspace-directory*))
                   (format *trace-output* "ASDF source registry after loading environment.lisp is ~S" (asdf::source-registry))
                   ;; (trace asdf:initialize-source-registry)
