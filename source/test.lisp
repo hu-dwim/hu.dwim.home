@@ -166,22 +166,30 @@
                                                          (#P"/opt/darcs/" ,output-path)
                                                          :ignore-inherited-configuration))
                   (format *trace-output* "Loading dependencies for system ~S" ',system-name)
-                  (map nil 'load-system (collect-system-dependencies ,system-name :transitive #t))
-                  (load-system :sb-cover)
-                  (declaim (optimize sb-cover:store-coverage-data))
-                  (format *trace-output* "Loading system ~S now" ',system-name)
-                  (load-system ,system-name)
-                  (declaim (optimize (sb-cover:store-coverage-data 0)))
-                  (format *trace-output* "Starting the test of system ~S" ',system-name)
-                  (test-system ,system-name)
-                  (sb-cover:report ,(system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase system-name))))
-                  (format *trace-output* "Loading system ~S" :hu.dwim.home)
-                  (load-system :hu.dwim.home)
-                  (in-package :hu.dwim.home)
-                  (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
-                  (store-system-test-result ,system-name ,system-version (parse-timestring ,(with-output-to-string (str) ; so that it's not a simple-base-string, which is not print-readable
-                                                                                              (format-timestring str run-at))))
-                  (quit 0))))
+                  (map nil 'load-system '(:hu.dwim.home :sb-cover))
+                  (with-layered-error-handlers
+                      ((lambda (error)
+                         (write-string (build-error-log-message :error-condition error :message "Error while running the standalone test of system ~S, version ~S" ',system-name ',system-version)
+                                       *trace-output*)
+                         (when (debug-on-error? nil error)
+                           (maybe-invoke-debugger error)))
+                       (lambda (&key &allow-other-keys)
+                         (quit 1)))
+                    (map nil 'load-system (collect-system-dependencies ,system-name :transitive #t))
+                    (declaim (optimize sb-cover:store-coverage-data))
+                    (format *trace-output* "Loading system ~S now" ',system-name)
+                    (load-system ,system-name)
+                    (declaim (optimize (sb-cover:store-coverage-data 0)))
+                    (format *trace-output* "Starting the test of system ~S" ',system-name)
+                    (test-system ,system-name)
+                    (sb-cover:report ,(system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase system-name))))
+                    (format *trace-output* "Loading system ~S" :hu.dwim.home)
+                    (load-system :hu.dwim.home)
+                    (in-package :hu.dwim.home)
+                    (setf (connection-specification-of *model*) ',(connection-specification-of *model*))
+                    (store-system-test-result ,system-name ,system-version (parse-timestring ,(with-output-to-string (str) ; so that it's not a simple-base-string, which is not print-readable
+                                                                                                                     (format-timestring str run-at))))
+                    (quit 0)))))
     (with-standard-io-syntax
       (bind ((*package* (find-package :common-lisp)))
         (write-to-string `(progn
@@ -189,7 +197,7 @@
                                     ;; because of read-time dependencies we must delay reading every form
                                     (collect `(eval (read-from-string ,(write-to-string form)))))))))))
 
-(def (function e) standalone-test-system (system-name system-version &key force)
+(def (function e) standalone-test-system (system-name system-version &key force (delete-temporary-files #t))
   (test.info "Standalone test for ~A ~A started" system-name system-version)
   (if (or force
           (with-transaction
@@ -201,46 +209,52 @@
                     (test.debug "System last modified at ~A, last test run was at ~A" last-write-at last-test-run-at)
                     (timestamp< last-test-run-at last-write-at))))))
       (bind ((run-at (now))
-             (output-path (ensure-directories-exist (pathname (format nil "/tmp/test/~A/~A/" (string-downcase system-name) run-at))))
+             (output-path (ensure-directories-exist
+                           (pathname (format nil "~A/standalone-test/~A/~A/"
+                                             (iolib.pathnames:file-path-namestring (directory-for-temporary-files))
+                                             (string-downcase system-name)
+                                             run-at))))
              (sbcl-home (merge-pathnames "sbcl/" *workspace-directory*))
-             (shell-arguments `(,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
-                                 "--no-sysinit" "--no-userinit"
-                                 "--eval" ,(standalone-test-system/build-lisp-form system-name system-version output-path :run-at run-at))))
-        (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%/bin/sh ~{~S ~}~%" system-name system-version shell-arguments)
-        (bind ((standard-output-file (merge-pathnames "standard-output.log" output-path))
-               (standard-error-file (merge-pathnames "standard-error.log" output-path))
-               (process (with-output-to-file (standard-output standard-output-file :if-exists :supersede)
-                          (with-output-to-file (standard-error standard-error-file :if-exists :supersede)
-                            (sb-ext:run-program "/bin/sh" shell-arguments
-                                                :environment (remove nil (list* (concatenate 'string "SBCL_HOME=" (namestring sbcl-home))
-                                                                                (sb-ext:posix-environ)))
-                                                :output standard-output
-                                                :error standard-error
-                                                :wait #t))))
-               (process-exit-code (sb-ext::process-exit-code process))
-               (standard-output (read-file-into-string standard-output-file))
-               (standard-error (read-file-into-string standard-error-file)))
-          (test.info "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard error~%~A" system-name system-version process-exit-code standard-error)
-          (if (zerop process-exit-code)
-              (with-transaction
-                (bind ((system-test-result (select-system-test-result system-name system-version run-at)))
-                  (setf (standard-output-of system-test-result) standard-output)
-                  (setf (standard-error-of system-test-result) standard-error)
-                  (test.info "Standalone test for ~A ~A finished" system-name system-version)))
-              (with-transaction
-                (make-instance 'system-test-result
-                               :system-name (string-downcase system-name)
-                               :system-version (string-downcase system-version)
-                               :run-at run-at
-                               :test-name nil
-                               :test-result :aborted
-                               :standard-output (read-file-into-string standard-output-file)
-                               :standard-error (read-file-into-string standard-error-file)
-                               :compile-output "Aborted"
-                               :load-output "Aborted"
-                               :test-output "Aborted")
-                (test.warn "Standalone test for ~A ~A aborted" system-name system-version)))
-          (iolib.os:delete-files output-path :recursive t)))
+             (command-line `("/bin/sh" ,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
+                                       "--no-sysinit" "--no-userinit"
+                                       "--eval" ,(standalone-test-system/build-lisp-form system-name system-version output-path :run-at run-at))))
+        (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%~{~S ~}~%" system-name system-version command-line)
+        (unwind-protect
+             (bind ((standard-output-file (merge-pathnames "standard-output.log" output-path))
+                    (standard-error-file (merge-pathnames "standard-error.log" output-path))
+                    (environment (aprog1
+                                     (iolib.os:environment)
+                                   (setf (iolib.os:environment-variable "SBCL_HOME" it) (namestring sbcl-home))))
+                    (process-exit-code (%test/run-program command-line
+                                                          :environment environment
+                                                          :stdin nil
+                                                          :stdout standard-output-file
+                                                          :stderr standard-error-file
+                                                          :timeout (* 60 30)))
+                    (standard-output (read-file-into-string standard-output-file))
+                    (standard-error (read-file-into-string standard-error-file)))
+               (test.info "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard error~%~A" system-name system-version process-exit-code standard-error)
+               (if (zerop process-exit-code)
+                   (with-transaction
+                     (bind ((system-test-result (select-system-test-result system-name system-version run-at)))
+                       (setf (standard-output-of system-test-result) standard-output)
+                       (setf (standard-error-of system-test-result) standard-error)
+                       (test.info "Standalone test for ~A ~A finished" system-name system-version)))
+                   (with-transaction
+                     (make-instance 'system-test-result
+                                    :system-name (string-downcase system-name)
+                                    :system-version (string-downcase system-version)
+                                    :run-at run-at
+                                    :test-name nil
+                                    :test-result :aborted
+                                    :standard-output (read-file-into-string standard-output-file)
+                                    :standard-error (read-file-into-string standard-error-file)
+                                    :compile-output "Aborted"
+                                    :load-output "Aborted"
+                                    :test-output "Aborted")
+                     (test.warn "Standalone test for ~A ~A aborted" system-name system-version))))
+          (when delete-temporary-files
+            (iolib.os:delete-files output-path :recursive #t))))
       (test.info "Standalone test result for ~A ~A is up to date" system-name system-version)))
 
 (def (function e) select-system-test-result (system-name system-version run-at)
@@ -458,3 +472,50 @@
                                      (not (member (last-elt (pathname-directory pathname)) '("_darcs" ".git") :test #'equal)))))
     (assert universal)
     (universal-to-timestamp universal)))
+
+;; TODO these should be part of iolib
+(def condition %timeout (error)
+  ())
+
+(def condition %simple-timeout (simple-error %timeout)
+  ())
+
+(def function %test/run-program (command-line &key (environment t) (stdin :pipe) (stdout :pipe) (stderr :pipe) current-directory
+                                        (external-format :utf-8) timeout)
+  "TIMEOUT is relative and is measured in seconds."
+  (check-type timeout (or null number))
+  (bind ((process (iolib.os:create-process command-line
+                                           :stdin stdin
+                                           :stdout stdout
+                                           :stderr stderr
+                                           :environment environment
+                                           :current-directory current-directory
+                                           :external-format external-format)))
+    (unwind-protect
+         (bind ((exit-code nil))
+           (if timeout
+               (iter
+                 (with start-time = (get-monotonic-time))
+                 (with absolute-deadline = (coerce (+ start-time timeout) 'float))
+                 (setf exit-code (iolib.os:process-status process :wait #f))
+                 (until (numberp exit-code))
+                 (if (> (get-monotonic-time) absolute-deadline)
+                     (restart-case
+                         (error '%simple-timeout :format-control "~S timed out: ~S" :format-arguments (list '%test/run-program command-line))
+                       (wait-until-finished ()
+                         :report "Wait until child process finishes without a deadline"
+                         (setf exit-code (iolib.os:process-status process :wait #t))
+                         (return))
+                       (wait-more (new-timeout)
+                         :report "Extend deadline with user specified seconds..."
+                         :interactive (lambda ()
+                                        (format *query-io* "~@<Enter new timeout in seconds: ~@:>")
+                                        (finish-output *query-io*)
+                                        (list (read *query-io*)))
+                         (check-type new-timeout number)
+                         (setf absolute-deadline (coerce (+ (get-monotonic-time) new-timeout) 'float))))
+                     ;; KLUDGE should not busy wait... but it needs iolib support.
+                     (sleep 0.1)))
+               (setf exit-code (iolib.os:process-status process :wait #t)))
+           exit-code)
+      (close process))))
