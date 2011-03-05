@@ -111,7 +111,6 @@
          (test-system (find-system (system-test-system-name system)))
          (root-test-name (find-symbol (system-test-name test-system) (system-package-name test-system)))
          (result (system-test-result test-system))
-         (failures (hu.dwim.stefil::failure-descriptions-of result))
          ((&key number-of-assertions number-of-failures number-of-expected-failures number-of-failed-assertions number-of-unexpected-errors &allow-other-keys)
           (hu.dwim.stefil::extract-test-run-statistics result))
          (system-test-result (make-instance 'system-test-result
@@ -123,7 +122,7 @@
                                             :test-output (system-test-output test-system)
                                             :test-name root-test-name
                                             :test-duration (hu.dwim.stefil::internal-realtime-spent-with-test-of (gethash (hu.dwim.stefil:find-test root-test-name) (hu.dwim.stefil::run-tests-of result)))
-                                            :test-result (if (zerop (length failures))
+                                            :test-result (if (= number-of-expected-failures number-of-failures)
                                                              :passed
                                                              :failed)
                                             ;; TODO: we don't have that information in the test results, do we?
