@@ -169,9 +169,9 @@
                   (map nil 'load-system '(:hu.dwim.home :sb-cover))
                   (with-layered-error-handlers
                       ((lambda (error)
-                         (write-string (build-error-log-message :error-condition error :message "Error while running the standalone test of system ~S, version ~S" ',system-name ',system-version)
-                                       *trace-output*)
-                         (when (debug-on-error? nil error)
+                         (bind ((error-message (build-error-log-message :error-condition error :message "Error while running the standalone test of system ~S, version ~S" ',system-name ',system-version)))
+                           (test.error error-message)
+                           (write-string error-message *trace-output*)
                            (maybe-invoke-debugger error)))
                        (lambda (&key &allow-other-keys)
                          (quit 1)))
