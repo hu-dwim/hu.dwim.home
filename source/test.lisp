@@ -35,7 +35,9 @@
 
 (def (entity e) abstract-test-result ()
   ((test-name
-    :type (symbol* 128))
+    ;; FIXME? symbol type makes this slot unreadable in a vm that doesn't have the test package loaded...
+    :type (symbol* 128)
+    :prefetch #f)
    (test-duration
     :type (or null duration)
     :primary #t)
