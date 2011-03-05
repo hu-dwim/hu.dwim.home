@@ -5,5 +5,5 @@
 ERROR_LOG_FILE="${DWIM_LOG_DIRECTORY}/error.log"
 
 if [ -s ${ERROR_LOG_FILE} ]; then
-  head -1000 ${ERROR_LOG_FILE} | mail --subject "[dwim.hu] error log" admin@dwim.hu
+  head -2000 ${ERROR_LOG_FILE} | mail --subject "[dwim.hu] error log" admin@dwim.hu
 fi
