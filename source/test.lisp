@@ -148,69 +148,76 @@
     system-test-result))
 
 (def function standalone-test-system/build-lisp-form (system-name system-version output-path &key (disable-debugger #t) (run-at (now)) (swank-directory "slime/"))
-  (bind ((forms {(with-package :cl-user)
-                 `(,@(when hu.dwim.home::disable-debugger
-                       `((sb-ext::disable-debugger)))
-                   (require :asdf)
-                   (asdf:initialize-source-registry '(:source-registry (:directory ,(merge-pathnames "hu.dwim.asdf/" hu.dwim.asdf:*workspace-directory*))
-                                                      :ignore-inherited-configuration))
-                   (asdf:initialize-output-translations '(:output-translations
-                                                          (,(namestring hu.dwim.asdf:*workspace-directory*) ,(namestring hu.dwim.home::output-path))
-                                                          ("/opt/darcs/" ,(namestring hu.dwim.home::output-path))
-                                                          :ignore-inherited-configuration))
-                   ;; another option, but more fragile to changes and also has trouble with the .fasl dir... (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" hu.dwim.asdf:*workspace-directory*))
-                   ,@(when hu.dwim.home::swank-directory
-                       `((make-package :hu.dwim.asdf)
-                         (defparameter hu.dwim.asdf::*swank-directory* ,(merge-pathnames hu.dwim.home::swank-directory hu.dwim.asdf:*workspace-directory*))))
-                   (asdf:load-system :hu.dwim.asdf)
-                   (hu.dwim.asdf:initialize-asdf-source-registry (list ,hu.dwim.asdf:*workspace-directory*))
-                   ,@(when (eq hu.dwim.home::system-version :head)
-                       ;; alternatively. but it doesn't work as expected, because :inherit-configuration will inherit the default logic, not the current config
-                       ;; (initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? #t :insert-at :head)
-                       `((initialize-asdf-source-registry '(#P"/opt/darcs/" ,hu.dwim.asdf:*workspace-directory*))))
-                   (format *trace-output* "Final ASDF source registry is ~S" (asdf::source-registry))
-                   (let ((systems '(:hu.dwim.util.error-handling :sb-cover)))
-                     (format *trace-output* "Preloading some systems needed for the test infrastructure: ~S" systems)
-                     (map nil 'asdf:load-system systems))
-                   (hu.dwim.util:with-layered-error-handlers
-                       ((lambda (error)
-                          (let ((error-message (hu.dwim.util:build-error-log-message :error-condition error :message "Error while running the standalone test of system ~S, version ~S" ',hu.dwim.home::system-name ',hu.dwim.home::system-version)))
-                            (test.error error-message)
-                            (write-string error-message *trace-output*)
-                            (hu.dwim.util:maybe-invoke-debugger error)))
-                        (lambda (&key &allow-other-keys)
-                          (hu.dwim.util:quit 1)))
-                     (format *trace-output* "Loading dependencies for system ~S" ',hu.dwim.home::system-name)
-                     (map nil 'asdf:load-system (hu.dwim.asdf:collect-system-dependencies ,hu.dwim.home::system-name :transitive #t))
-                     (declaim (optimize sb-cover:store-coverage-data))
-                     (format *trace-output* "Loading system ~S now" ',hu.dwim.home::system-name)
-                     (asdf:load-system ,hu.dwim.home::system-name)
-                     (declaim (optimize (sb-cover:store-coverage-data 0)))
-                     (format *trace-output* "Starting the test of system ~S" ',hu.dwim.home::system-name)
-                     (asdf:test-system ,hu.dwim.home::system-name)
-                     (sb-cover:report ,(asdf:system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase hu.dwim.home::system-name))))
-                     (format *trace-output* "Loading system ~S" :hu.dwim.home)
-                     (asdf:load-system :hu.dwim.home)
-                     (in-package :hu.dwim.home)
-                     (setf (hu.dwim.meta-model:connection-specification-of hu.dwim.meta-model:*model*)
-                           ',(hu.dwim.meta-model:connection-specification-of hu.dwim.meta-model:*model*))
-                     (hu.dwim.home::store-system-test-result ,hu.dwim.home::system-name ,hu.dwim.home::system-version
-                                                             (local-time:parse-timestring
-                                                              ,(with-output-to-string (str) ; so that it's not a simple-base-string, which is not print-readable
-                                                                 (local-time:format-timestring str hu.dwim.home::run-at))))
-                     (hu.dwim.util:quit 0)))}))
-    (with-standard-io-syntax
-      (bind ((*package* (find-package :common-lisp)))
-        (write-to-string `(progn
-                            ,@(flet ((wrap (form)
-                                       `(eval (read-from-string ,(write-to-string form)))))
-                                (iter (for form :in forms)
-                                      ;; because of read-time dependencies we must delay reading every form
-                                      (if (eq (first form) 'with-layered-error-handlers)
-                                          (collect (wrap `(with-layered-error-handlers ,(second form)
-                                                            ,@(iter (for subform :in (nthcdr 3 form))
-                                                                    (collect (wrap subform))))))
-                                          (collect (wrap form)))))))))))
+  {(with-package :cl-user)
+  `((in-package :cl-user)
+    ,@(when hu.dwim.home::disable-debugger
+        `((sb-ext::disable-debugger)))
+    (eval-when (:compile-toplevel :load-toplevel :execute)
+      (require :asdf))
+    (asdf:initialize-source-registry '(:source-registry (:directory ,(merge-pathnames "hu.dwim.asdf/" hu.dwim.asdf:*workspace-directory*))
+                                       :ignore-inherited-configuration))
+    (asdf:initialize-output-translations '(:output-translations
+                                           (,(namestring hu.dwim.asdf:*workspace-directory*) ,(namestring hu.dwim.home::output-path))
+                                           ("/opt/darcs/" ,(namestring hu.dwim.home::output-path))
+                                           :ignore-inherited-configuration))
+    ;; another option, but more fragile to changes and also has trouble with the .fasl dir... (load ,(merge-pathnames "hu.dwim.environment/source/environment.lisp" hu.dwim.asdf:*workspace-directory*))
+    ,@(when hu.dwim.home::swank-directory
+        `((make-package :hu.dwim.asdf)
+          (defparameter hu.dwim.asdf::*swank-directory* ,(merge-pathnames hu.dwim.home::swank-directory hu.dwim.asdf:*workspace-directory*))))
+    (eval-when (:compile-toplevel :load-toplevel :execute)
+      (asdf:load-system :hu.dwim.asdf))
+    (hu.dwim.asdf:initialize-asdf-source-registry (list ,hu.dwim.asdf:*workspace-directory*))
+    ,@(when (eq hu.dwim.home::system-version :head)
+        ;; alternatively. but it doesn't work as expected, because :inherit-configuration will inherit the default logic, not the current config
+        ;; (initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? #t :insert-at :head)
+        `((initialize-asdf-source-registry '(#P"/opt/darcs/" ,hu.dwim.asdf:*workspace-directory*))))
+    (format *trace-output* "Final ASDF source registry is ~S" (asdf::source-registry))
+    (eval-when (:compile-toplevel :load-toplevel :execute)
+      (with-muffled-boring-compiler-warnings
+        (let ((systems '(:hu.dwim.def :hu.dwim.util.error-handling :sb-cover)))
+          (format *trace-output* "Preloading some systems needed for the test infrastructure: ~S" systems)
+          (map nil 'asdf:load-system systems))))
+
+    (hu.dwim.def:def hu.dwim.def:with-macro with-wrapper ()
+      (with-muffled-boring-compiler-warnings
+        (hu.dwim.util:with-layered-error-handlers
+            ((lambda (error)
+               (let ((error-message (hu.dwim.util:build-error-log-message :error-condition error :message (list "Error while running the standalone test of system ~S, version ~S" ',hu.dwim.home::system-name ',hu.dwim.home::system-version))))
+                 ;; we can't log here yet unfortunately (hu.dwim.home::test.error error-message)
+                 (write-string error-message *trace-output*)
+                 (hu.dwim.util:maybe-invoke-debugger error)))
+             (lambda (&key &allow-other-keys)
+               (hu.dwim.util:quit 42)))
+          (hu.dwim.def:-with-macro/body-))))
+
+    (defun run-test ()
+      (format *trace-output* "Loading dependencies for system ~S" ',hu.dwim.home::system-name)
+      (map nil 'asdf:load-system (hu.dwim.asdf:collect-system-dependencies ,hu.dwim.home::system-name :transitive #t))
+      (declaim (optimize sb-cover:store-coverage-data))
+      (format *trace-output* "Loading system ~S now" ',hu.dwim.home::system-name)
+      (asdf:load-system ,hu.dwim.home::system-name)
+      (declaim (optimize (sb-cover:store-coverage-data 0)))
+      (format *trace-output* "Starting the test of system ~S" ',hu.dwim.home::system-name)
+      (asdf:test-system ,hu.dwim.home::system-name)
+      (sb-cover:report ,(asdf:system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase hu.dwim.home::system-name)))))
+
+    (with-wrapper
+      (run-test))
+
+    (eval-when (:compile-toplevel :load-toplevel :execute)
+      (with-wrapper
+        (format *trace-output* "Loading system ~S" :hu.dwim.home)
+        (asdf:load-system :hu.dwim.home)))
+
+    (with-wrapper
+      (setf (hu.dwim.meta-model:connection-specification-of hu.dwim.meta-model:*model*)
+            ',(hu.dwim.meta-model:connection-specification-of hu.dwim.meta-model:*model*))
+      (hu.dwim.home:store-system-test-result ,hu.dwim.home::system-name ,hu.dwim.home::system-version
+                                             (local-time:parse-timestring
+                                              ,(with-output-to-string (str) ; so that it's not a simple-base-string, which is not print-readable
+                                                 (local-time:format-timestring str hu.dwim.home::run-at)))))
+
+    (hu.dwim.util:quit 0))})
 
 (def (function e) standalone-test-system (system-name system-version &key force (delete-temporary-files #t))
   (test.info "Standalone test for ~A ~A started" system-name system-version)
@@ -230,45 +237,54 @@
                                              (string-downcase system-name)
                                              run-at))))
              (sbcl-home (merge-pathnames "sbcl/" *workspace-directory*))
+             (form (standalone-test-system/build-lisp-form system-name system-version output-path :run-at run-at))
+             (form-file (merge-pathnames "form.lisp" output-path))
              (command-line `("/bin/sh" ,(namestring (truename (merge-pathnames "run-sbcl.sh" sbcl-home)))
                                        "--no-sysinit" "--no-userinit" "--disable-debugger"
-                                       "--eval" ,(standalone-test-system/build-lisp-form system-name system-version output-path :run-at run-at))))
+                                       "--load" ,(namestring form-file))))
         (test.debug "Running standalone test for ~A ~A with the following arguments (copy to shell):~%~{~S ~}~%" system-name system-version command-line)
         (unwind-protect
-             (bind ((standard-output-file (merge-pathnames "standard-output.log" output-path))
-                    (standard-error-file (merge-pathnames "standard-error.log" output-path))
-                    (environment (aprog1
-                                     (iolib.os:environment)
-                                   (setf (iolib.os:environment-variable "SBCL_HOME" it) (namestring sbcl-home))))
-                    (process-exit-code (%test/run-program command-line
-                                                          :environment environment
-                                                          :stdin nil
-                                                          :stdout standard-output-file
-                                                          :stderr standard-error-file
-                                                          :timeout (* 60 30)))
-                    (standard-output (read-file-into-string standard-output-file))
-                    (standard-error (read-file-into-string standard-error-file)))
-               (test.info "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard error~%~A" system-name system-version process-exit-code standard-error)
-               (test.debug "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard output~%~A" system-name system-version process-exit-code standard-output)
-               (if (zerop process-exit-code)
-                   (with-model-transaction
-                     (bind ((system-test-result (select-system-test-result system-name system-version run-at)))
-                       (setf (standard-output-of system-test-result) standard-output)
-                       (setf (standard-error-of system-test-result) standard-error)
-                       (test.info "Standalone test for ~A ~A finished" system-name system-version)))
-                   (with-model-transaction
-                     (make-instance 'system-test-result
-                                    :system-name (string-downcase system-name)
-                                    :system-version (string-downcase system-version)
-                                    :run-at run-at
-                                    :test-name nil
-                                    :test-result :aborted
-                                    :standard-output (read-file-into-string standard-output-file)
-                                    :standard-error (read-file-into-string standard-error-file)
-                                    :compile-output "Aborted"
-                                    :load-output "Aborted"
-                                    :test-output "Aborted")
-                     (test.warn "Standalone test for ~A ~A aborted" system-name system-version))))
+             (progn
+               (with-standard-io-syntax
+                 (bind ((*package* (find-package :common-lisp)))
+                   (with-output-to-file (*standard-output* form-file)
+                     (map nil #'write form)
+                     (test.debug "Form file ~A is ~A long" form-file (file-length *standard-output*)))))
+               (bind ((standard-output-file (merge-pathnames "standard-output.log" output-path))
+                      (standard-error-file (merge-pathnames "standard-error.log" output-path))
+                      (environment (aprog1
+                                       (iolib.os:environment)
+                                     (setf (iolib.os:environment-variable "SBCL_HOME" it) (namestring sbcl-home))))
+                      (process-exit-code (%test/run-program command-line
+                                                            :environment environment
+                                                            :stdin nil
+                                                            :stdout standard-output-file
+                                                            :stderr standard-error-file
+                                                            :timeout (* 60 30)))
+                      (standard-output (read-file-into-string standard-output-file))
+                      (standard-error (read-file-into-string standard-error-file)))
+                 (test.info "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard error~%~A" system-name system-version process-exit-code standard-error)
+                 (test.debug "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard output~%~A" system-name system-version process-exit-code standard-output)
+                 (if (zerop process-exit-code)
+                     (with-model-transaction
+                       (bind ((system-test-result (select-system-test-result system-name system-version run-at)))
+                         (setf (standard-output-of system-test-result) standard-output)
+                         (setf (standard-error-of system-test-result) standard-error)
+                         (test.info "Standalone test for ~A ~A finished" system-name system-version)))
+                     (with-model-transaction
+                       (make-instance 'system-test-result
+                                      :system-name (string-downcase system-name)
+                                      :system-version (string-downcase system-version)
+                                      :run-at run-at
+                                      :test-name nil
+                                      :test-result :aborted
+                                      :standard-output (read-file-into-string standard-output-file)
+                                      :standard-error (read-file-into-string standard-error-file)
+                                      :compile-output "Aborted"
+                                      :load-output "Aborted"
+                                      :test-output "Aborted")
+                       (test.warn "Standalone test for ~A ~A aborted" system-name system-version)))
+                 process-exit-code))
           (when delete-temporary-files
             (iolib.os:delete-files output-path :recursive #t))))
       (test.info "Standalone test result for ~A ~A is up to date" system-name system-version)))
