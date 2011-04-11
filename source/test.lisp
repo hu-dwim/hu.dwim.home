@@ -261,8 +261,9 @@
                                                             :stdout standard-output-file
                                                             :stderr standard-error-file
                                                             :timeout (* 60 30)))
-                      (standard-output (read-file-into-string standard-output-file))
-                      (standard-error (read-file-into-string standard-error-file)))
+                      ;; zero bytes are not allowed by postgresql, so get rid of them
+                      (standard-output (sanitize-string (read-file-into-string standard-output-file) 1 nil))
+                      (standard-error (sanitize-string (read-file-into-string standard-error-file) 1 nil)))
                  (test.info "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard error~%~A" system-name system-version process-exit-code standard-error)
                  (test.debug "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard output~%~A" system-name system-version process-exit-code standard-output)
                  (if (zerop process-exit-code)
