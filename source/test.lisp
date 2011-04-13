@@ -477,9 +477,10 @@
   ;; TODO: put the mail addresses into the database
   (cl-smtp:send-email "localhost" ;; (hu.dwim.model::mail-relay-host-name-of (cluster-of (cluster-node-of *cluster-node-session*)))
                       "root@dwim.hu" '("admin@dwim.hu")
-                      "[dwim.hu] Periodic standalone test results" ""
-                      :html-message (with-active-layers (passive-layer)
-                                      (render-to-xhtml-string component))))
+                      "[dwim.hu] Periodic standalone test results" (if (stringp component) component "")
+                      :html-message (unless (stringp component)
+                                      (with-active-layers (passive-layer)
+                                        (render-to-xhtml-string component)))))
 
 ;;;;;;
 ;;; Utility
