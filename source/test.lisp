@@ -202,6 +202,10 @@
       (sb-cover:report ,(asdf:system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase hu.dwim.home::system-name)))))
 
     (with-wrapper
+      ;; we will quit the whole lisp, so we can sideffect it so that it stays in effect even when comitting the results.
+      (push (make-error-log-decorator
+              (format t "~%The system being tested is: ~S" ',hu.dwim.home::system-name))
+            hu.dwim.util::*error-log-decorators*)
       (run-test))
 
     (eval-when (:compile-toplevel :load-toplevel :execute)
