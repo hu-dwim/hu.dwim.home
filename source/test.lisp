@@ -203,7 +203,7 @@
 
     (with-wrapper
       ;; we will quit the whole lisp, so we can sideffect it so that it stays in effect even when comitting the results.
-      (push (make-error-log-decorator
+      (push (hu.dwim.util:make-error-log-decorator
               (format t "~%The system being tested is: ~S" ',hu.dwim.home::system-name))
             hu.dwim.util::*error-log-decorators*)
       (run-test))
