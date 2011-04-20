@@ -184,14 +184,14 @@
             ((lambda (error)
                (let ((error-message (hu.dwim.util:build-error-log-message :error-condition error :message (list "Error while running the standalone test of system ~S, version ~S" ',hu.dwim.home::system-name ',hu.dwim.home::system-version))))
                  ;; we can't log here yet unfortunately (hu.dwim.home::test.error error-message)
-                 (write-string error-message *trace-output*)
+                 (write-string error-message *error-output*)
                  (hu.dwim.util:maybe-invoke-debugger error)))
              (lambda (&key &allow-other-keys)
                (hu.dwim.util:quit 42))
              :level-2-error-handler (alexandria:named-lambda standalone-test/level-2-error-handler
                                         (error &key message &allow-other-keys)
                                       (declare (optimize (debug 3)))
-                                      (format *trace-output* "Nested error of type ~S while standalone testing ~S, message is ~S~%" (type-of error) ',hu.dwim.home::system-name message)
+                                      (format *error-output* "Nested error of type ~S while standalone testing ~S, message is ~S~%" (type-of error) ',hu.dwim.home::system-name message)
                                       (hu.dwim.util:maybe-invoke-debugger error)))
           (hu.dwim.def:-with-macro/body-))))
 
