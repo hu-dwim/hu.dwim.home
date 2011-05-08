@@ -33,8 +33,10 @@
   ())
 
 (def (special-variable e) *home-server* (make-instance 'home-server
-                                                       :host +any-host+
-                                                       :port +default-http-server-port+
+                                                       :listen-entries `((:host ,+any-host+ :port 8080)
+                                                                         (:host ,+any-host+ :port 8443
+                                                                                :ssl-certificate ,(namestring (system-relative-pathname :hu.dwim.web-server "etc/ssl-key/server.crt"))
+                                                                                :ssl-key ,(namestring (system-relative-pathname :hu.dwim.web-server "etc/ssl-key/server.key"))))
                                                        :brokers (list* *home-application*
                                                                        ;; TODO this should come from the equivalent of make-default-broker-list in hu.dwim.presentation
                                                                        (make-instance 'js-component-hierarchy-serving-broker :priority 100)
