@@ -54,9 +54,7 @@
                                                                                       `("--git-dir" ,(string+ pathname-string "/.git") "rev-list" "--max-count=1" "HEAD")
                                                                                       :output output)))
                                                       (hash (string-trim-whitespace git-info)))
-                                                 (string+ " ; git --git-dir " ;
-                                                          name
-                                                          "/.git checkout -q " hash))))))
+                                                 (string+ " ; git --git-dir " name "/.git --work-tree " name "/ checkout -q " hash))))))
                                  ((probe-file (merge-pathnames ".svn" pathname))
                                   (bind ((svn-info (with-output-to-string (output)
                                                      (sb-ext:run-program "/usr/bin/svn"
@@ -156,7 +154,7 @@
     (paragraph ()
       (hyperlink "http://www.graphviz.org/"))
     (shell-script ()
-      "sudo apt-get install libgraphviz4"))
+      "sudo apt-get install libgraphviz-dev"))
   (chapter (:title "Build SBCL")
     (paragraph ()
       "This server runs on " (hyperlink "http://sbcl.org" "Steel Bank Common Lisp (SBCL)") ", an " (hyperlink/wikipedia "open source") " " (hyperlink/wikipedia "Common Lisp") " implementation.")
