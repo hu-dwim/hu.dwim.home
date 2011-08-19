@@ -22,6 +22,17 @@
   ("gitweb/"        (merge-pathnames "gitweb/" *workspace-directory*))
   ("mailman/images/" #P"/usr/share/images/mailman/" :priority 100))
 
+(def entry-points *home-application*
+  (file-serving-broker :path "attila.lendvai.vcf"
+                       :file-to-serve (merge-pathnames "hu.dwim.environment/user/attila.lendvai/attila.lendvai.vcf" *workspace-directory*)
+                       :priority most-positive-fixnum)
+  (file-serving-broker :path "attila.lendvai.vcf.sig"
+                       :file-to-serve (merge-pathnames "hu.dwim.environment/user/attila.lendvai/attila.lendvai.vcf.sig" *workspace-directory*)
+                       :priority most-positive-fixnum)
+  (file-serving-broker :path "attila.lendvai.key"
+                       :file-to-serve (merge-pathnames "hu.dwim.environment/user/attila.lendvai/attila.lendvai.key" *workspace-directory*)
+                       :priority most-positive-fixnum))
+
 ;;;;;;
 ;;; CGI
 
