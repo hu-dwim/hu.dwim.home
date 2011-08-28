@@ -1,0 +1,16 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:Attila Lendvai
+N:Lendvai;Attila;;;
+EMAIL;TYPE=pref:attila.lendvai@gmail.com
+EMAIL:attila.lendvai@dwim.hu
+X-GTALK:attila.lendvai
+X-SKYPE:attila.lendvai
+TEL;TYPE=CELL:+36 (70) 3167947
+REV:2011-08-23
+KEY;VALUE=uri:http://dwim.hu/attila.lendvai.key
+PHOTO;VALUE=uri:http://dwim.hu/attila.lendvai.jpg
+NOTE:Key fingerprints\:\n - PGP\: 2FA1 A9DC 9C1E BA25 A59C  963F 5D5F 45C7 
+ DFCD 0A39\n - OTR XMPP\: 8647EEAC EA30FEEF E1B55146 573E52EE 21B1FF06\n\nD
+ igital Business Card\:\nhttp\://dwim.hu/attila.lendvai.vcf\n
+END:VCARD
