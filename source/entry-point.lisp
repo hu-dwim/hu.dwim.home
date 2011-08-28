@@ -25,12 +25,14 @@
 (macrolet ((forward (name)
              `(def entry-point (*home-application* file-serving-broker
                                                    :path ,name
-                                                   :file-to-serve (merge-pathnames ,(string+ "hu.dwim.environment/user/attila.lendvai/" name) *workspace-directory*)
+                                                   :file-to-serve ,(system-relative-pathname :hu.dwim.home (string+ "www/attila.lendvai/" name))
                                                    :priority most-positive-fixnum))))
   (forward "attila.lendvai.vcf")
   (forward "attila.lendvai.vcf.sig")
-  (forward "attila.lendvai.jpg")
-  (forward "attila.lendvai.key"))
+  (forward "attila.lendvai.key")
+  (forward "attila.lendvai.cv.pdf")
+  (forward "attila.lendvai.cv.pdf.sig")
+  (forward "attila.lendvai.jpg"))
 
 ;;;;;;
 ;;; CGI
