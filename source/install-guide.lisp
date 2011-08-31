@@ -127,6 +127,7 @@
   (chapter (:title "Add a user that will be used to run the server process (optional)")
     (shell-script ()
       "sudo adduser --disabled-login --disabled-password --no-create-home ${DWIM_DAEMON_USER}"
+      "sudo adduser ${DWIM_DAEMON_USER} www-data"
       "sudo adduser ${DWIM_DAEMON_USER} darcs"
       "sudo adduser ${DWIM_DAEMON_USER} git"))
   (chapter (:title "Install dependencies from source code repositories")
@@ -200,14 +201,15 @@
     (paragraph ()
       "Starting up the server shouldn't take more than a couple of seconds, most of which is spent with the synchronization of the SQL schema.")
     (shell-script ()
-      "/opt/hu.dwim.home/hu.dwim.home --verbose")
+      "/opt/hu.dwim.home/hu.dwim.home --verbose --repl")
     (paragraph ()
       "If everything started normally then the service should be listening on " (hyperlink "http://127.0.0.1:8080/") ". Pressing Control-c in the terminal should initiate a graceful server shutdown which normally takes a few seconds."))
   (chapter (:title "Set up backups (optional)")
     (shell-script ()
       "sudo mkdir --parents /var/backups/${DWIM_PROJECT_NAME}/database"
       "sudo chown -R ${DWIM_DAEMON_USER}:admin /var/backups/${DWIM_PROJECT_NAME}"
-      "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/${DWIM_PROJECT_NAME}"))
+      "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/${DWIM_PROJECT_NAME}"
+      "ln -s /var/backups/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/backup"))
   (chapter (:title "Set up darcsweb (optional)")
     (shell-script ()
       "sudo chmod ug+rx ${DWIM_WORKSPACE}/darcsweb/darcsweb.cgi"))
@@ -225,18 +227,20 @@
         "sudo chown -R ${DWIM_DAEMON_USER}:${DWIM_DAEMON_USER} ${DWIM_INSTALL_PATH}"
         "sudo chown -R ${DWIM_DAEMON_USER}:admin /var/log/${DWIM_PROJECT_NAME} /var/run/${DWIM_PROJECT_NAME}"
         "sudo chmod ug=rwxs,o-rwx ${DWIM_INSTALL_PATH} /var/log/${DWIM_PROJECT_NAME} /var/log/${DWIM_PROJECT_NAME}/archive /var/run/${DWIM_PROJECT_NAME}"
-        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/logrotate.conf /etc/logrotate.d/${DWIM_PROJECT_NAME}.conf"))
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/logrotate.conf /etc/logrotate.d/${DWIM_PROJECT_NAME}.conf"
+        "ln -s /var/log/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/log"))
     (chapter (:title "Set up rc.d scripts to automatically start the server")
       (shell-script ()
         "sudo ln -sf ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script /etc/init.d/${DWIM_PROJECT_NAME}"
-        "sudo chgrp root ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script"
-        "sudo chmod u=rwx,g=rwx,o=r ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
+        "sudo chmod root:root ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script"
+        "sudo chmod u=rwx,g=r,o= ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
         "sudo chmod u+x,g+x,o-x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/*.sh"
         "sudo update-rc.d ${DWIM_PROJECT_NAME} defaults"))
     (chapter (:title "Set up a daily cron job")
       (shell-script ()
-        "chmod +x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
-        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00${DWIM_PROJECT_NAME}"))
+        "sudo chown root:root ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
+        "sudo chmod u=rwx,g=r,o= ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"))
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
         "sudo echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf")))
