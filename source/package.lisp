@@ -19,6 +19,7 @@
         :hu.dwim.model
         :hu.dwim.perec
         :hu.dwim.presentation
+        :hu.dwim.quasi-quote.js
         :hu.dwim.rdbms
         :hu.dwim.syntax-sugar
         :hu.dwim.util
