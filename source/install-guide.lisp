@@ -231,16 +231,19 @@
         "ln -s /var/log/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/log"))
     (chapter (:title "Set up rc.d scripts to automatically start the server")
       (shell-script ()
-        "sudo ln -sf ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script /etc/init.d/${DWIM_PROJECT_NAME}"
-        "sudo chmod root:root ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script"
-        "sudo chmod u=rwx,g=r,o= ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
+        ;; NOTE we don't ln -s here, because that's a security risk
+        "sudo cp ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script /etc/init.d/${DWIM_PROJECT_NAME}"
+        "sudo chmod root:root /etc/init.d/${DWIM_PROJECT_NAME}"
+        "sudo chmod u=rwx,go=rx /etc/init.d/${DWIM_PROJECT_NAME} ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
         "sudo chmod u+x,g+x,o-x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/*.sh"
         "sudo update-rc.d ${DWIM_PROJECT_NAME} defaults"))
     (chapter (:title "Set up a daily cron job")
       (shell-script ()
-        "sudo chown root:root ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
-        "sudo chmod u=rwx,g=r,o= ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
-        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"))
+        ;; NOTE we don't ln -s here, because that's a security risk
+        ;; WARNING run-parts (usually used to run cron.daily) ignores files that has a dot in their names!
+        "sudo cp ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"
+        "sudo chown root:root /etc/cron.daily/00-${DWIM_PROJECT_NAME}"
+        "sudo chmod u=rwx,g=rx,o=rx /etc/cron.daily/00-${DWIM_PROJECT_NAME}"))
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
         "sudo echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf")))
