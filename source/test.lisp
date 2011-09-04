@@ -290,12 +290,12 @@
                                       :run-at run-at
                                       :test-name nil
                                       :test-result :aborted
-                                      :standard-output (read-file-into-string standard-output-file)
-                                      :standard-error (read-file-into-string standard-error-file)
+                                      :standard-output standard-output
+                                      :standard-error standard-error
                                       :compile-output "Aborted"
                                       :load-output "Aborted"
                                       :test-output "Aborted")
-                       (test.warn "Standalone test for ~A ~A aborted" system-name system-version)))
+                       (test.warn "Standalone test for ~A ~A aborted with exit code ~A. See logs for the process error output for further details." system-name system-version process-exit-code)))
                  process-exit-code))
           (when delete-temporary-files
             (iolib.os:delete-files output-path :recursive #t))))
