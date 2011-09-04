@@ -171,7 +171,7 @@
         ;; alternatively. but it doesn't work as expected, because :inherit-configuration will inherit the default logic, not the current config
         ;; (initialize-asdf-source-registry #P"/opt/darcs/" :inherit-configuration? #t :insert-at :head)
         `((initialize-asdf-source-registry '(#P"/opt/darcs/" ,hu.dwim.asdf:*workspace-directory*))))
-    (format *trace-output* "Final ASDF source registry is ~S" (asdf::source-registry))
+    (format *trace-output* "Final ASDF source registry is ~S" asdf::*source-registry*)
     (eval-when (:compile-toplevel :load-toplevel :execute)
       (with-muffled-boring-compiler-warnings
         (let ((systems '(:hu.dwim.def :hu.dwim.util.error-handling :sb-cover)))
