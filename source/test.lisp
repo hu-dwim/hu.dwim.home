@@ -148,6 +148,7 @@
     system-test-result))
 
 (def function standalone-test-system/build-lisp-form (system-name system-version output-path &key (disable-debugger #t) (run-at (now)) (swank-directory "slime/"))
+  ;; WARNING: the ordering and package prefixing here is not trivial due to read-time/runtime phases. stay away from unnecessary restructuring!
   {(with-package :cl-user)
   `((in-package :cl-user)
     ,@(when hu.dwim.home::disable-debugger
@@ -198,6 +199,7 @@
     (defun run-test ()
       (format *trace-output* "Loading dependencies for system ~S" ',hu.dwim.home::system-name)
       (map nil 'asdf:load-system (hu.dwim.asdf:collect-system-dependencies ,hu.dwim.home::system-name :transitive #t))
+      ;; FIXME coverage report is hopeless (due to our custom syntaxes) until we can hook into the coverage code's way of loading files. see SB-COVER::READ-AND-RECORD-SOURCE-MAP
       (declaim (optimize sb-cover:store-coverage-data))
       (format *trace-output* "Loading system ~S now" ',hu.dwim.home::system-name)
       (asdf:load-system ,hu.dwim.home::system-name)
@@ -468,6 +470,7 @@
   (command/widget ()
     (icon/widget test-system)
     (make-action
+      ;; FIXME this can put a major load on the system and through that also blocks request processing
       (standalone-test-system (asdf:component-name system) :live :force t)
       (standalone-test-system (asdf:component-name system) :head :force t))))
 

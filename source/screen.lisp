@@ -179,6 +179,7 @@
                  "The demo menu item is created by the following code:")
                (fdefinition 'make-server-status-menu-item))
              (chapter (:title "Live")
+               ;; TODO FIXME this and all the rest are broken: the result will end up xhtml quoted...
                (inline-render-xhtml/widget ()
                  <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(print-uri-to-string uri))>))))))))
 
