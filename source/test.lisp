@@ -462,7 +462,9 @@
                                (:aborted (format nil "~A @ ~A" localized-test-result localized-run-at))))))
 
 (def layered-method make-command-bar-commands ((component t/inspector) (class standard-class) (prototype hu.dwim.asdf:hu.dwim.system) (value hu.dwim.asdf:hu.dwim.system))
-  (list* (make-test-system-command value) (call-next-layered-method)))
+  (list*
+   ;; FIXME see below (make-test-system-command value)
+   (call-next-layered-method)))
 
 (def icon test-system)
 
