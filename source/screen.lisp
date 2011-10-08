@@ -181,7 +181,7 @@
              (chapter (:title "Live")
                ;; TODO FIXME this and all the rest are broken: the result will end up xhtml quoted...
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(print-uri-to-string uri))>))))))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(uri/print-to-string uri))>))))))))
 
 (def function make-echo-server-demo-menu-item ()
   (menu-item/widget ()
@@ -202,7 +202,7 @@
                (fdefinition 'make-echo-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(print-uri-to-string uri))>))))))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(uri/print-to-string uri))>))))))))
 
 (def function make-hello-world-server-demo-menu-item ()
   (menu-item/widget ()
@@ -223,7 +223,7 @@
                (fdefinition 'make-hello-world-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,(print-uri-to-string uri))>))))))))
+                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,(uri/print-to-string uri))>))))))))
 
 (def function make-home-server-demo-menu-item ()
   (menu-item/widget ()

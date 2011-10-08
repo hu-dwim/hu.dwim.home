@@ -87,7 +87,7 @@
     (paragraph ()
       "NOTE: the shell script fragments on this page are ready for copy&pasting! Even if the selection is displayed wrong by some browsers, the copied text will be what you expect it to be.")
     (paragraph ()
-      "For the curious, " (hyperlink (print-uri-to-string (make-uri-to-workspace-location "hu.dwim.home/source/install-guide.lisp")) "the source code of this guide") " is inspectable online."))
+      "For the curious, " (hyperlink (uri/print-to-string (make-uri-to-workspace-location "hu.dwim.home/source/install-guide.lisp")) "the source code of this guide") " is inspectable online."))
   (chapter (:title "Required operating system")
     (paragraph ()
       "Our site runs on " (hyperlink "http://www.debian.org/" "Debian Linux") ", but setting it up on other Debian based Linux distributions is likely to work without any issues. Other operating systems, such as Windows or Mac OS X, are not tested and will most probably not work out of the box (but it's all " (hyperlink/wikipedia "open source") ", patches are welcome!)."))
