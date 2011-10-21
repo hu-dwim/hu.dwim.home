@@ -9,11 +9,11 @@
 (def function make-uri-to-workspace-location (workspace-relative-path)
   (make-uri :scheme "http" :host "dwim.hu" :path (string+ "/file/" workspace-relative-path)))
 
-(def function collect-project-installing-shell-commands (live?)
+(def function collect-project-installing-shell-commands (pathnames live?)
   (with-simple-restart (skip-all "Return NIL from COLLECT-PROJECT-INSTALLING-SHELL-COMMANDS")
     (sort (iter (with darcs-get = "darcs get ") ;; TODO: add --lazy after it is proved to be worth
                 (with git-clone = "git clone ") ;; TODO: add --depth 1 after it is proved to be worth
-                (for pathname :in (collect-live-project-pathnames))
+                (for pathname :in pathnames)
                 (for pathname-string = (namestring pathname))
                 (for name = (last-elt (pathname-directory pathname)))
                 (format *debug-io* "Getting project information for ~A (~A)~%"
@@ -133,11 +133,11 @@
   (chapter (:title "Install dependencies from source code repositories")
     (chapter (:title "Live repositories (recommended)")
       "The following script installs the live revisions of the dependencies (the ones that were used to compile and run dwim.hu). Usually the live repositories are lagging behind head by a week or two, but in return they are more stable."
-      (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands #t))))
+      (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands (collect-live-project-pathnames) #t))))
     (chapter (:title "Head repositories (not recommended)")
       ;; TODO bold
       "Alternatively you can install the HEAD revisions of the dependencies, but this is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the LIVE repositories (see above). "
-      (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands #f)))))
+      (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands (collect-live-project-pathnames) #f)))))
   (chapter (:title "Compile and install libfixposix")
     (paragraph ()
       (hyperlink "http://gitorious.org/libfixposix" "libfixposix") " is a dependency of " (hyperlink "http://common-lisp.net/project/iolib/" "IOLib") ".")
