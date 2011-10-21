@@ -186,7 +186,7 @@
         "cd ${DWIM_WORKSPACE}"
         ;; it's not needed because it's above in the automatically generated checkout commands "svn co http://svn.dojotoolkit.org/src/tags/release-1.5/ dojotoolkit-v1.5/"
         ;; "for i in . dojo dojox dijit demos util ; do pushd $i; svn up --ignore-externals --revision {desired dojo svn revision}; popd; done"
-        "sh ${DWIM_WORKSPACE}/hu.dwim.web-server/etc/build-dojo.sh --dojo ${DWIM_WORKSPACE}/dojotoolkit-v1.5/ --dojo-release-dir ${DWIM_WORKSPACE}/hu.dwim.web-server/www/libraries/ --profile ${DWIM_WORKSPACE}/hu.dwim.web-server/etc/dojo-build-profile.js --locales \"en-us,hu\""))
+        "sh ${DWIM_WORKSPACE}/hu.dwim.web-server/etc/build-dojo.sh --dojo ${DWIM_WORKSPACE}/dojotoolkit-v1.6/ --dojo-release-dir ${DWIM_WORKSPACE}/hu.dwim.web-server/www/libraries/ --profile ${DWIM_WORKSPACE}/hu.dwim.web-server/etc/dojo-build-profile.js --locales \"en-us,hu\""))
     (chapter (:title "Build a Sencha (Ext JS) checkout (optional)")
       (shell-script ()
         "cd ${DWIM_WORKSPACE}"
@@ -207,9 +207,9 @@
   (chapter (:title "Set up backups (optional)")
     (shell-script ()
       "sudo mkdir --parents /var/backups/${DWIM_PROJECT_NAME}/database"
-      "sudo chown -R ${DWIM_DAEMON_USER}:admin /var/backups/${DWIM_PROJECT_NAME}"
+      "sudo chown -R ${DWIM_DAEMON_USER}:adm /var/backups/${DWIM_PROJECT_NAME}"
       "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/${DWIM_PROJECT_NAME}"
-      "ln -s /var/backups/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/backup"))
+      "sudo ln -s /var/backups/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/backup"))
   (chapter (:title "Set up darcsweb (optional)")
     (shell-script ()
       "sudo chmod ug+rx ${DWIM_WORKSPACE}/darcsweb/darcsweb.cgi"))
@@ -225,7 +225,7 @@
       (shell-script ()
         "sudo mkdir --parents /var/log/${DWIM_PROJECT_NAME}/archive /var/run/${DWIM_PROJECT_NAME}"
         "sudo chown -R ${DWIM_DAEMON_USER}:${DWIM_DAEMON_USER} ${DWIM_INSTALL_PATH}"
-        "sudo chown -R ${DWIM_DAEMON_USER}:admin /var/log/${DWIM_PROJECT_NAME} /var/run/${DWIM_PROJECT_NAME}"
+        "sudo chown -R ${DWIM_DAEMON_USER}:adm /var/log/${DWIM_PROJECT_NAME} /var/run/${DWIM_PROJECT_NAME}"
         "sudo chmod ug=rwxs,o-rwx ${DWIM_INSTALL_PATH} /var/log/${DWIM_PROJECT_NAME} /var/log/${DWIM_PROJECT_NAME}/archive /var/run/${DWIM_PROJECT_NAME}"
         "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/logrotate.conf /etc/logrotate.d/${DWIM_PROJECT_NAME}.conf"
         "ln -s /var/log/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/log"))
@@ -246,7 +246,7 @@
         "sudo chmod u=rwx,g=rx,o=rx /etc/cron.daily/00-${DWIM_PROJECT_NAME}"))
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
-        "sudo echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf")))
+        "sudo bash -c 'echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf'")))
   #+nil
   (chapter (:title "Run Test Suite")
     (paragraph ()
