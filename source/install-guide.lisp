@@ -41,20 +41,15 @@
                                             (string+ darcs-get "http://dwim.hu/darcs/" name)
                                             (string+ darcs-get project)))))
                                  ((probe-file (merge-pathnames ".git" pathname))
-                                  (bind ((git-info (with-output-to-string (output)
-                                                     (sb-ext:run-program "/usr/bin/git"
-                                                                         `("--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
-                                                                         :output output)))
-                                         ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
-                                         (project (first-elt groups)))
-                                    (string+ git-clone project
-                                             (when live?
-                                               (bind ((git-info (with-output-to-string (output)
-                                                                  (sb-ext:run-program "/usr/bin/git"
-                                                                                      `("--git-dir" ,(string+ pathname-string "/.git") "rev-list" "--max-count=1" "HEAD")
-                                                                                      :output output)))
-                                                      (hash (string-trim-whitespace git-info)))
-                                                 (string+ " ; git --git-dir " name "/.git --work-tree " name "/ checkout -q " hash))))))
+                                  (if live?
+                                      (string+ git-clone "git://dwim.hu/live/" name)
+                                      (bind ((git-info (with-output-to-string (output)
+                                                         (sb-ext:run-program "/usr/bin/git"
+                                                                             `("--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
+                                                                             :output output)))
+                                             ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
+                                             (project-git-url (first-elt groups)))
+                                            (string+ git-clone project-git-url))))
                                  ((probe-file (merge-pathnames ".svn" pathname))
                                   (bind ((svn-info (with-output-to-string (output)
                                                      (sb-ext:run-program "/usr/bin/svn"
