@@ -49,5 +49,5 @@
               (setf (current-locale) (list \"en\"))
               (setf (running-in-test-mode? *home-application*) t)
               (startup-server *home-server*)
-              (hu.dwim.meta-model::export-model))")))
+              (export-persistent-classes-to-database-schema))")))
   (warn "Made sideffects on the following global variables: *database*, *compiled-query-cache*, *debug-on-error*, *locale*."))
