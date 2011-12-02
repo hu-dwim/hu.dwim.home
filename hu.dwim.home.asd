@@ -28,22 +28,23 @@
                              (:file "entry-point" :depends-on ("server"))
                              (:file "hello-world-server" :depends-on ("server"))
                              (:file "install-guide" :depends-on ("screen"))
-                             (:file "logger" :depends-on ("package"))
+                             (:file "logger" :depends-on ("package" "variables"))
                              (:file "package")
                              (:file "screen" :depends-on ("test" "server"))
                              (:file "server" :depends-on ("test"))
                              (:file "test" :depends-on ("logger"))
-                             (:file "tutorial" :depends-on ("logger"))))))
+                             (:file "tutorial" :depends-on ("logger"))
+                             (:file "variables" :depends-on ("package"))))))
 
 (defmethod perform :after ((o develop-op) (c (eql (find-system :hu.dwim.home))))
   (eval (let ((*package* (find-package :hu.dwim.home)))
           (read-from-string
            "(progn
-              (unless (connection-specification-of *model*)
-                (setf (connection-specification-of *model*)
+              (setf *database* *home-database*)
+              (unless (connection-specification-of *database*)
+                (setf (connection-specification-of *database*)
                       `(:host \"localhost\" :port ,hu.dwim.rdbms.postgresql::+default-postgresql-database-server-port+
                         :database ,+default-database-name+ :user-name ,+default-database-user-name+ :password ,+default-database-password+)))
-              (setf *database* (database-of *model*))
               (setf hu.dwim.perec::*compiled-query-cache* (make-compiled-query-cache))
               (setf *debug-on-error* t)
               (setf (current-locale) (list \"en\"))

@@ -24,7 +24,8 @@
                                   application-with-dojo-support)
   ())
 
-(def (special-variable e) *home-application* (make-instance 'home-application))
+(def (special-variable e) *home-application* (make-instance 'home-application
+                                                            :database *home-database*))
 
 ;;;;;;
 ;;; Server
@@ -54,7 +55,6 @@
   "The toplevel function that is called when the dwim Server is started from the command line. For development use (asdf:develop-system :hu.dwim.home) instead."
   (with-standard-toplevel-restarts
     (bind ((options (append (list +help-command-line-option+)
-                            (list +http-server-port-command-line-option+)
                             (list +quiet-command-line-option+)
                             (copy-command-line-options +database-command-line-options+
                                                        :database-port hu.dwim.rdbms.postgresql::+default-postgresql-database-server-port+
@@ -64,8 +64,7 @@
                             +generic-command-line-options+))
            (arguments (process-command-line-options options (get-command-line-arguments))))
       (process-help-command-line-argument options arguments)
-      (process-http-server-port-command-line-argument arguments *home-server*)
       (process-quiet-command-line-argument arguments)
       (home.debug "Parsed command line arguments are: ~S" arguments)
-      (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
+      (run-production-server arguments :hu.dwim.home *home-server* *home-application* :database *home-database*))
     +process-return-code/no-error+))

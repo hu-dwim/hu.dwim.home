@@ -101,10 +101,8 @@
 ;;; Standalone test system
 
 (def (function e) store-system-test-result (system-name system-version run-at)
-  (with-model-database
-    (with-new-compiled-query-cache
-      (with-transaction
-        (%store-system-test-result system-name system-version run-at)))))
+  (with-transaction/home
+    (%store-system-test-result system-name system-version run-at)))
 
 (def function %store-system-test-result (system-name system-version run-at)
   (bind ((system (find-system system-name))
@@ -221,8 +219,8 @@
         (asdf:load-system :hu.dwim.home)))
 
     (with-wrapper
-      (setf (hu.dwim.meta-model:connection-specification-of hu.dwim.meta-model:*model*)
-            ',(hu.dwim.meta-model:connection-specification-of hu.dwim.meta-model:*model*))
+      (setf (hu.dwim.rdbms:connection-specification-of hu.dwim.home::*home-database*)
+            ',(hu.dwim.rdbms:connection-specification-of hu.dwim.home::*home-database*))
       (hu.dwim.home:store-system-test-result ,hu.dwim.home::system-name ,hu.dwim.home::system-version
                                              (local-time:parse-timestring
                                               ,(with-output-to-string (str) ; so that it's not a simple-base-string, which is not print-readable
@@ -233,7 +231,7 @@
 (def (function e) standalone-test-system (system-name system-version &key force (delete-temporary-files #t))
   (test.info "Standalone test for ~A ~A started" system-name system-version)
   (if (or force
-          (with-model-transaction
+          (with-transaction/home
             (bind ((last-test (select-last-system-test-result system-name system-version)))
               (or (not last-test)
                   (eq :aborted (test-result-of last-test))
@@ -277,25 +275,25 @@
                       (standard-error (sanitize-string (read-file-into-string standard-error-file) 1 nil)))
                  (test.info "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard error~%~A" system-name system-version process-exit-code standard-error)
                  (test.debug "Standalone test execution for ~A ~A finished with exit code ~A~%Captured standard output~%~A" system-name system-version process-exit-code standard-output)
-                 (if (zerop process-exit-code)
-                     (with-model-transaction
+                 (with-transaction/home
+                   (if (zerop process-exit-code)
                        (bind ((system-test-result (select-system-test-result system-name system-version run-at)))
                          (setf (standard-output-of system-test-result) standard-output)
                          (setf (standard-error-of system-test-result) standard-error)
-                         (test.info "Standalone test for ~A ~A finished" system-name system-version)))
-                     (with-model-transaction
-                       (make-instance 'system-test-result
-                                      :system-name (string-downcase system-name)
-                                      :system-version (string-downcase system-version)
-                                      :run-at run-at
-                                      :test-name nil
-                                      :test-result :aborted
-                                      :standard-output standard-output
-                                      :standard-error standard-error
-                                      :compile-output "Aborted"
-                                      :load-output "Aborted"
-                                      :test-output "Aborted")
-                       (test.warn "Standalone test for ~A ~A aborted with exit code ~A. See logs for the process error output for further details." system-name system-version process-exit-code)))
+                         (test.info "Standalone test for ~A ~A finished" system-name system-version))
+                       (progn
+                         (make-instance 'system-test-result
+                                        :system-name (string-downcase system-name)
+                                        :system-version (string-downcase system-version)
+                                        :run-at run-at
+                                        :test-name nil
+                                        :test-result :aborted
+                                        :standard-output standard-output
+                                        :standard-error standard-error
+                                        :compile-output "Aborted"
+                                        :load-output "Aborted"
+                                        :test-output "Aborted")
+                         (test.warn "Standalone test for ~A ~A aborted with exit code ~A. See logs for the process error output for further details." system-name system-version process-exit-code))))
                  process-exit-code))
           (when delete-temporary-files
             (iolib.os:delete-files output-path :recursive #t))))
@@ -413,12 +411,13 @@
                                 (lambda (&key &allow-other-keys)
                                   (return-from periodic-standalone-test)))
     (with-simple-restart (abort "Abort testing")
-      (with-model-database
-        (dolist (system-name (collect-periodic-standalone-test-system-names))
-          (standalone-test-system system-name :head)
-          (standalone-test-system system-name :live))
-        (with-readonly-transaction
-          (send-standalone-test-email-report))))))
+      (with-database *home-database*
+        (with-new-compiled-query-cache
+          (dolist (system-name (collect-periodic-standalone-test-system-names))
+            (standalone-test-system system-name :head)
+            (standalone-test-system system-name :live))
+         (with-readonly-transaction
+           (send-standalone-test-email-report)))))))
 
 (def function register-timer-entry/periodic-standalone-test (timer)
   (bind ((name "Standalone test")
