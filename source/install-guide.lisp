@@ -56,17 +56,17 @@
                                                                          `("info" ,pathname-string)
                                                                          :output output)))
                                          ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
-                                         (project (first-elt groups))
+                                         (project-svn-url (first-elt groups))
                                          ((:values nil groups) (cl-ppcre:scan-to-strings ".*Revision: (.*?)\\n.*" svn-info))
                                          (revision (first-elt groups)))
-                                    (string+ "svn checkout " project
+                                    (string+ "svn checkout " project-svn-url
                                              (when live?
                                                (string+ " -r " revision))
                                              " " name)))
                                  ((probe-file (merge-pathnames "CVS" pathname))
                                   (bind ((root (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Root" pathname))))
-                                         (project (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Repository" pathname)))))
-                                    (string+ "cvs -z3 -d " root " checkout -d " name " " project)))
+                                         (project-cvs-url (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Repository" pathname)))))
+                                    (string+ "cvs -z3 -d " root " checkout -d " name " " project-cvs-url)))
                                  (t
                                   (warn "Don't know how to install project ~A" name)
                                   (string+ "# TODO: Don't know how to install project " name))))))
@@ -216,29 +216,39 @@
       "make GIT_BINDIR=\"/usr/bin\" GITWEB_PROJECTROOT=${DWIM_WORKSPACE} GITWEB_PROJECT_MAXDEPTH=2 gitweb/gitweb.cgi"
       "sudo chmod ug+rx ${DWIM_WORKSPACE}/gitweb/gitweb.cgi"))
   (chapter (:title "Configure the server as a unix service (optional)")
+    (chapter (:title "Ensure proper file permissions")
+      (shell-script ()
+        "sudo chown -R ${DWIM_DAEMON_USER}:${DWIM_DAEMON_USER} ${DWIM_INSTALL_PATH}"))
     (chapter (:title "Set up logging")
       (shell-script ()
-        "sudo mkdir --parents /var/log/${DWIM_PROJECT_NAME}/archive /var/run/${DWIM_PROJECT_NAME}"
-        "sudo chown -R ${DWIM_DAEMON_USER}:${DWIM_DAEMON_USER} ${DWIM_INSTALL_PATH}"
-        "sudo chown -R ${DWIM_DAEMON_USER}:adm /var/log/${DWIM_PROJECT_NAME} /var/run/${DWIM_PROJECT_NAME}"
-        "sudo chmod ug=rwxs,o-rwx ${DWIM_INSTALL_PATH} /var/log/${DWIM_PROJECT_NAME} /var/log/${DWIM_PROJECT_NAME}/archive /var/run/${DWIM_PROJECT_NAME}"
+        "sudo mkdir --parents /var/log/${DWIM_PROJECT_NAME}/archive"
+        "sudo chown -R ${DWIM_DAEMON_USER}:adm /var/log/${DWIM_PROJECT_NAME}"
+        "sudo chmod ug=rwxs,o-rwx ${DWIM_INSTALL_PATH} /var/log/${DWIM_PROJECT_NAME} /var/log/${DWIM_PROJECT_NAME}/archive"
+        ;; NOTE: chown/mod the dir also, because darcs seems to update using: rename, create new file, delete old one
+        "sudo chown root:adm ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/logrotate.conf"
+        "sudo chmod u=rw,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/"
+        "sudo chmod u=rw,g=r,o=r ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/logrotate.conf"
         "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/logrotate.conf /etc/logrotate.d/${DWIM_PROJECT_NAME}.conf"
         "ln -s /var/log/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/log"))
     (chapter (:title "Set up rc.d scripts to automatically start the server")
       (shell-script ()
-        ;; NOTE we don't ln -s here, because that's a security risk
-        "sudo cp ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script /etc/init.d/${DWIM_PROJECT_NAME}"
-        "sudo chmod root:root /etc/init.d/${DWIM_PROJECT_NAME}"
-        "sudo chmod u=rwx,go=rx /etc/init.d/${DWIM_PROJECT_NAME} ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
-        "sudo chmod u+x,g+x,o-x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/*.sh"
+        "sudo mkdir --parents /var/run/${DWIM_PROJECT_NAME}"
+        ;; NOTE security risk, so chown a few things
+        "sudo chown root:adm /var/run/${DWIM_PROJECT_NAME} ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/ ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/server-loop.sh"
+        "sudo chmod ug=rwxs,o-rwx /var/run/${DWIM_PROJECT_NAME}"
+        "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
+        "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
+        "sudo chmod u+x,g+x,o+x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/*.sh"
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script /etc/init.d/${DWIM_PROJECT_NAME}"
         "sudo update-rc.d ${DWIM_PROJECT_NAME} defaults"))
     (chapter (:title "Set up a daily cron job")
+      (paragraph ()
+        "WARNING: the linux run-parts script (usually used to run cron.daily) ignores files that have a dot in their names!")
       (shell-script ()
-        ;; NOTE we don't ln -s here, because that's a security risk
-        ;; WARNING run-parts (usually used to run cron.daily) ignores files that has a dot in their names!
-        "sudo cp ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"
-        "sudo chown root:root /etc/cron.daily/00-${DWIM_PROJECT_NAME}"
-        "sudo chmod u=rwx,g=rx,o=rx /etc/cron.daily/00-${DWIM_PROJECT_NAME}"))
+        ;; NOTE security risk, so chown a few things
+        "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
+        "sudo chown root:adm ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"))
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
         "sudo bash -c 'echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf'")))
