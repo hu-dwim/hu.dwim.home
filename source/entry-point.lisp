@@ -19,7 +19,7 @@
   ("git/"           #P"/opt/git/")
   ("live/"          *workspace-directory*)
   ("darcsweb/"      (merge-pathnames "darcsweb/" *workspace-directory*))
-  ("gitweb/"        (merge-pathnames "gitweb/" *workspace-directory*))
+  ("gitweb/"        #P"/usr/share/gitweb/")
   ("mailman/images/" #P"/usr/share/images/mailman/" :priority 100))
 
 (macrolet ((forward (name)
@@ -43,7 +43,7 @@
                    :environment '(("PATH" . "/usr/bin"))
                    :priority 1)
   (cgi-file-broker :path "gitweb/gitweb.cgi"
-                   :cgi-file (iolib.pathnames:merge-file-paths "gitweb/gitweb.cgi" *workspace-directory*)
+                   :cgi-file #P"/usr/lib/cgi-bin/gitweb.cgi"
                    :priority 1)
   (cgi-directory-broker :path "mailman"
                         :root-directory "/usr/lib/cgi-bin/mailman/"
