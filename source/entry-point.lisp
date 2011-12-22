@@ -9,8 +9,6 @@
 ;;;;;;
 ;;; Static file serving
 
-;; TODO setup redirect entry points: http://dwim.hu/darcs etc
-
 (def file-serving-entry-points *home-application*
   ("static/home/"   (system-relative-pathname :hu.dwim.home "www/"))
   ("install/"       (system-relative-pathname :hu.dwim.home "www/install/"))
@@ -69,47 +67,53 @@
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
     (make-frame-root-component-rendering-response :content-component (make-instance 'usage-help/widget))))
 
-(def macro with-symbol-finding-entry-point-logic ((var-name symbol-name &optional (packages ''(:hu.dwim.home
-                                                                                               :hu.dwim.perec
-                                                                                               :hu.dwim.presentation
-                                                                                               :hu.dwim.web-server)))
-                                                   &body body)
-  (once-only (symbol-name)
-    `(bind ((,var-name (find-symbol* ,symbol-name :packages ,packages :otherwise nil)))
-       (or (when ,var-name
-             ,@body)
-           (make-not-found-response)))))
+(def (with-macro* :macro-only-arguments var-name) with-symbol-finding-entry-point-logic
+    (var-name &key (symbol-name nil symbol-name?)
+              (packages ''(:hu.dwim.home
+                           :hu.dwim.perec
+                           :hu.dwim.presentation
+                           :hu.dwim.web-server)))
+  (or (when (length= 1 *entry-point-relative-path*)
+        (bind ((symbol (find-symbol* (if symbol-name?
+                                         symbol-name
+                                         (string-upcase (first *entry-point-relative-path*)))
+                                     :packages packages :otherwise nil)))
+          (when symbol
+            (-with-macro/body- (symbol var-name)))))
+      (make-not-found-response)))
 
 (def entry-point (*home-application* :path "project")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (with-symbol-finding-entry-point-logic (project-name (string-upcase *entry-point-relative-path*) :keyword)
+    (with-symbol-finding-entry-point-logic (project-name :packages '(:keyword))
       (awhen (find-project project-name :otherwise #f)
         (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path "file")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (bind ((pathname (merge-pathnames *entry-point-relative-path* *workspace-directory*)))
-      (if (and (starts-with-subseq (namestring (truename *workspace-directory*)) (namestring pathname))
+    (bind ((pathname (iolib.pathnames:merge-file-paths (join-strings *entry-point-relative-path* "/")
+                                                       *workspace-directory*)))
+      (if (and (starts-with-subseq (iolib.pathnames:file-path-namestring (truename *workspace-directory*))
+                                   (iolib.pathnames:file-path-namestring pathname))
                (iolib.os:file-exists-p pathname))
           (make-frame-root-component-rendering-response :content-component (make-value-inspector pathname))
           (make-not-found-response)))))
 
 (def entry-point (*home-application* :path "definition")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
+    (with-symbol-finding-entry-point-logic (name)
       (awhen (hu.dwim.presentation::make-definitions name)
         (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path "function")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
+    (with-symbol-finding-entry-point-logic (name)
       (awhen (and (typep name 'function-name)
                   (fdefinition name))
         (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 
 (def entry-point (*home-application* :path "class")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (with-symbol-finding-entry-point-logic (name (string-upcase *entry-point-relative-path*))
+    (with-symbol-finding-entry-point-logic (name)
       (awhen (find-class name #f)
         (make-frame-root-component-rendering-response :content-component (make-value-inspector it))))))
 

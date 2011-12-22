@@ -161,7 +161,7 @@
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Server Status"
-        (bind ((uri (uri/delete-all-query-parameters (make-uri-for-current-application "status"))))
+        (bind ((uri (hu.dwim.uri:delete-all-query-parameters (make-uri-for-current-application "status"))))
           (make-value-inspector
            (book (:title "Server Status" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
@@ -181,13 +181,13 @@
              (chapter (:title "Live")
                ;; TODO FIXME this and all the rest are broken: the result will end up xhtml quoted...
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(uri/print-to-string uri))>))))))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(hu.dwim.uri:print-uri-to-string uri))>))))))))
 
 (def function make-echo-server-demo-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Echo Server"
-        (bind ((uri (uri/delete-all-query-parameters (make-uri-for-current-application "echo"))))
+        (bind ((uri (hu.dwim.uri:delete-all-query-parameters (make-uri-for-current-application "echo"))))
           (make-value-inspector
            (book (:title "Echo Server" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
@@ -202,13 +202,13 @@
                (fdefinition 'make-echo-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(uri/print-to-string uri))>))))))))
+                 <iframe (:width "100%" :height "400px" :style "border: none;" :src ,(hu.dwim.uri:print-uri-to-string uri))>))))))))
 
 (def function make-hello-world-server-demo-menu-item ()
   (menu-item/widget ()
       (replace-target-place/widget ()
           "Hello World Server"
-        (bind ((uri (uri/delete-all-query-parameters (make-uri-for-current-application "hello-world"))))
+        (bind ((uri (hu.dwim.uri:delete-all-query-parameters (make-uri-for-current-application "hello-world"))))
           (make-value-inspector
            (book (:title "Hello World Server" :authors '("Levente Mészáros"))
              (chapter (:title "Introduction")
@@ -223,7 +223,7 @@
                (fdefinition 'make-hello-world-server-demo-menu-item))
              (chapter (:title "Live")
                (inline-render-xhtml/widget ()
-                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,(uri/print-to-string uri))>))))))))
+                 <iframe (:width "100%" :height "100px" :style "border: none;" :src ,(hu.dwim.uri:print-uri-to-string uri))>))))))))
 
 (def function make-home-server-demo-menu-item ()
   (menu-item/widget ()
@@ -232,7 +232,7 @@
         (make-value-inspector
          (book (:title "Home Server" :authors '("Levente Mészáros"))
            (chapter (:title "Introduction")
-             "This example demonstrates how the dwim Home Server is defined that is running at:" (parse-uri "http://dwim.hu/"))
+             "This example demonstrates how the dwim Home Server is defined that is running at:" (net.uri:parse-uri "http://dwim.hu/"))
            (chapter (:title "Source")
              (paragraph ()
                "The following source file defines the server, the application and the toplevel function used to execute the server:")
