@@ -279,6 +279,17 @@
             (string-downcase (hu.dwim.presentation::name-of project))
           (make-value-inspector project)))))
 
+;; KLUDGE this should dispatch on PROJECT, or should be done in a different way
+(def method make-project-tab-pages :around ((component project/detail/inspector) project)
+  (append (call-next-method)
+          (bind ((project-package-name (hu.dwim.presentation::name-of project))
+                 (doc-package (when (starts-with-subseq (symbol-name '#:hu.dwim.) (symbol-name project-package-name))
+                                (find-package (symbolicate project-package-name '#:.documentation)))))
+            (awhen (and doc-package
+                        (find-user-guide doc-package))
+              (list (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "User guide"))
+                      (make-value-inspector it)))))))
+
 ;;;;;;
 ;;; Documentation menu
 
