@@ -7,3 +7,6 @@ ERROR_LOG_FILE="${DWIM_LOG_DIRECTORY}/error.log"
 if [ -s ${ERROR_LOG_FILE} ]; then
   head -2000 ${ERROR_LOG_FILE} | mail --subject "[dwim.hu] error log" admin@dwim.hu
 fi
+
+# keep a mirror of the backup dir on the nafi dev machine
+sudo -u alendvai rsync --recursive --links --times --omit-dir-times --progress /opt/hu.dwim.home/backup/ alendvai@195.199.249.136:/var/backups/hu.dwim.home
