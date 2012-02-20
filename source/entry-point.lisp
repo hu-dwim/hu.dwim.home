@@ -32,6 +32,14 @@
   (forward "attila.lendvai.cv.pdf.sig")
   (forward "attila.lendvai.jpg"))
 
+;; TODO this should come from some structured map of url's, entry points, and their properties
+;; NOTE: this only works if *home-application* is mapped to the root url "/"
+(def entry-point (*home-application* :path "robots.txt")
+  (make-byte-vector-response*
+    (babel:string-to-octets "User-agent: *
+Disallow: /
+" :encoding :utf-8 :use-bom #f)))
+
 ;;;;;;
 ;;; CGI
 
