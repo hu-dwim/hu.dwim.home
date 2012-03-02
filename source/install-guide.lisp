@@ -137,7 +137,7 @@
     (paragraph ()
       (hyperlink "http://gitorious.org/libfixposix" "libfixposix") " is a dependency of " (hyperlink "http://common-lisp.net/project/iolib/" "IOLib") ".")
     (shell-script ()
-      "sudo apt-get install build-essential automake autoconf libtool"
+      "sudo apt-get install build-essential automake autoconf libtool check"
       "cd ${DWIM_WORKSPACE}/libfixposix"
       "autoreconf -i"
       "mkdir build"
