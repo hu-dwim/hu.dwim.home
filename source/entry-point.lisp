@@ -127,3 +127,14 @@ Disallow: /
 
 (def entry-point (*home-application* :path "status")
   (make-server-status-response))
+
+;;;;;;
+;;; Number toss redirects
+
+(def constant +number-toss-url+ "http://market.android.com/details?id=hu.dwim.numbertoss.free&referrer=utm_source%3Dhome%26utm_medium%3Dshare%26utm_campaign%3Dinitial")
+
+(def entry-point (*home-application* :path "game")
+ (make-redirect-response +number-toss-url+))
+
+(def entry-point (*home-application* :path "challenge")
+ (make-redirect-response +number-toss-url+))
