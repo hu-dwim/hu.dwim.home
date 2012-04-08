@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# keep a mirror of the backup dir on the nafi dev machine.
+# the weekly version is without --quiet, so that a mail is sent to the email specified in the crontab.
+sudo -u alendvai rsync --recursive --links --times --omit-dir-times --progress /opt/hu.dwim.home/backup/ alendvai@195.199.249.136:/var/backups/hu.dwim.home
+sudo -u alendvai ssh alendvai@195.199.249.136 "echo ----------- && hostname && echo ----------- && df --human-readable --local"
