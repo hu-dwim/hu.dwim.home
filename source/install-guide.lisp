@@ -133,19 +133,22 @@
       ;; TODO bold
       "Alternatively you can install the HEAD revisions of the dependencies, but this is only advised if you are prepared for random incompatibilities between the head revisions of the ninty-some libraries that are used for this project! Otherwise check out the LIVE repositories (see above). "
       (make-instance 'shell-script :contents (list* "cd ${DWIM_WORKSPACE}" (collect-project-installing-shell-commands (collect-live-project-pathnames) #f)))))
-  (chapter (:title "Compile and install libfixposix")
+  (chapter (:title "Install libfixposix")
     (paragraph ()
-      (hyperlink "http://gitorious.org/libfixposix" "libfixposix") " is a dependency of " (hyperlink "http://common-lisp.net/project/iolib/" "IOLib") ".")
-    (shell-script ()
-      "sudo apt-get install build-essential automake autoconf libtool check"
-      "cd ${DWIM_WORKSPACE}/libfixposix"
-      "autoreconf -i"
-      "mkdir build"
-      "cd build"
-      "../configure"
-      "make"
-      "sudo make install"
-      "sudo ldconfig"))
+      (hyperlink "http://gitorious.org/libfixposix" "libfixposix") " is a dependency of " (hyperlink "http://common-lisp.net/project/iolib/" "IOLib") ". The preferred way to install it on Linux is to add the APT repository maintained by the author as described " (hyperlink "http://comments.gmane.org/gmane.lisp.iolib.devel/422" "in this mail") ".")
+    (chapter (:title "Compiling on Linux")
+      (paragraph ()
+        "Alternatively, you can compile it on Linux, and possibly other unix-like operating systems, as described below.")
+      (shell-script ()
+        "sudo apt-get install build-essential automake autoconf libtool check"
+        "cd ${DWIM_WORKSPACE}/libfixposix"
+        "autoreconf -i"
+        "mkdir build"
+        "cd build"
+        "../configure"
+        "make"
+        "sudo make install"
+        "sudo ldconfig")))
   (chapter (:title "Install Graphviz")
     (paragraph ()
       (hyperlink "http://www.graphviz.org/"))
@@ -201,9 +204,11 @@
       "If everything started normally then the service should be listening on " (hyperlink "http://127.0.0.1:8080/") ". Pressing Control-c in the terminal should initiate a graceful server shutdown which normally takes a few seconds."))
   (chapter (:title "Set up backups (optional)")
     (shell-script ()
+      "sudo apt-get install bzip2 tar"
       "sudo mkdir --parents /var/backups/${DWIM_PROJECT_NAME}/database"
-      "sudo chown -R ${DWIM_DAEMON_USER}:adm /var/backups/${DWIM_PROJECT_NAME}"
-      "sudo chmod -R u=rwx,g=rwx,o-rwx /var/backups/${DWIM_PROJECT_NAME}"
+      "sudo chown ${DWIM_DAEMON_USER}:adm /var/backups/${DWIM_PROJECT_NAME}"
+      "sudo chmod ug=rwx,o=rx /var/backups/${DWIM_PROJECT_NAME}"
+      "sudo chown ${DWIM_DAEMON_USER}:postgres /var/backups/${DWIM_PROJECT_NAME}/database"
       "sudo ln -s /var/backups/${DWIM_PROJECT_NAME} ${DWIM_INSTALL_PATH}/backup"))
   (chapter (:title "Set up darcsweb (optional)")
     (shell-script ()
@@ -223,7 +228,9 @@
       (shell-script ()
         "sudo mkdir --parents /var/log/${DWIM_PROJECT_NAME}/archive"
         "sudo chown -R ${DWIM_DAEMON_USER}:adm /var/log/${DWIM_PROJECT_NAME}"
-        "sudo chmod ug=rwxs,o-rwx ${DWIM_INSTALL_PATH} /var/log/${DWIM_PROJECT_NAME} /var/log/${DWIM_PROJECT_NAME}/archive"
+        "sudo chmod u=rwx,g=rwxs,o=rx ${DWIM_INSTALL_PATH} /var/log/${DWIM_PROJECT_NAME} /var/log/${DWIM_PROJECT_NAME}/archive"
+        "sudo touch /var/log/${DWIM_PROJECT_NAME}/backup.log"
+        "sudo chown ${DWIM_DAEMON_USER}:postgres /var/log/${DWIM_PROJECT_NAME}/backup.log"
         ;; NOTE: chown/mod the dir also, because darcs seems to update using: rename, create new file, delete old one
         "sudo chown root:adm ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/logrotate.conf"
         "sudo chmod u=rw,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/"
@@ -234,10 +241,11 @@
       (shell-script ()
         "sudo mkdir --parents /var/run/${DWIM_PROJECT_NAME}"
         ;; NOTE security risk, so chown a few things
-        "sudo chown root:adm /var/run/${DWIM_PROJECT_NAME} ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/ ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/server-loop.sh"
+        "sudo chown root:adm /var/run/${DWIM_PROJECT_NAME} ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/ ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/login-environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/server-loop.sh"
+        "sudo chown root:postgres ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/postgresql-wal-archive-command.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/create-database-backup-snapshot.sh"
         "sudo chmod ug=rwxs,o-rwx /var/run/${DWIM_PROJECT_NAME}"
         "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
-        "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/"
+        "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/rc.d-script ${DWIM_WORKSPACE}/hu.dwim.environment/etc/service-scripts/server-loop.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/login-environment.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/postgresql-wal-archive-command.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/create-database-backup-snapshot.sh ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/server-loop.sh"
         "sudo chmod u+x,g+x,o+x ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/bin/*.sh"
         "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/rc.d-script /etc/init.d/${DWIM_PROJECT_NAME}"
         "sudo update-rc.d ${DWIM_PROJECT_NAME} defaults"))
@@ -246,9 +254,11 @@
         "WARNING: the linux run-parts script (usually used to run cron.daily) ignores files that have a dot in their names!")
       (shell-script ()
         ;; NOTE security risk, so chown a few things
-        "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
-        "sudo chown root:adm ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily"
-        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"))
+        "sudo chmod u=rwx,g=rx,o=rx ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/ ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.*"
+        "sudo chown root:adm ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.*"
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.hourly /etc/cron.hourly/00-${DWIM_PROJECT_NAME}"
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.weekly /etc/cron.hourly/00-${DWIM_PROJECT_NAME}"))
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
         "sudo bash -c 'echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf'")))
