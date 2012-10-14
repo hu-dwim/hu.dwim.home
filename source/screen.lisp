@@ -259,10 +259,10 @@
 ;;; Project menu
 
 (def function make-project-menu ()
-  (bind (((dwim-projects other-projects) (hu.dwim.web-server::partition (collect-live-project-pathnames)
-                                                                 (lambda (pathname)
-                                                                   (search "hu.dwim" (last-elt (pathname-directory pathname))))
-                                                                 (constantly #t))))
+  (bind (((dwim-projects other-projects) (partition (collect-live-project-pathnames)
+                                                    (lambda (pathname)
+                                                      (search "hu.dwim" (last-elt (pathname-directory pathname))))
+                                                    (constantly #t))))
     (menu-item/widget ()
         "Project"
       (make-menu-item "Dwim" (mapcar 'make-project-menu-item dwim-projects))

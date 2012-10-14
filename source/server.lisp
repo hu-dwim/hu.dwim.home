@@ -7,15 +7,6 @@
 (in-package :hu.dwim.home)
 
 ;;;;;;
-;;; Constants
-
-(def (constant e) +default-database-name+ "hu.dwim.home")
-
-(def (constant e) +default-database-user-name+ "hu.dwim.home")
-
-(def (constant e) +default-database-password+ "engedjbe")
-
-;;;;;;
 ;;; Application
 
 (def (class* e) home-application (application-with-persistent-login-support
@@ -43,6 +34,7 @@
                                                                        (make-instance 'js-component-hierarchy-serving-broker :priority 100)
                                                                        (make-default-broker-list))))
 
+;; register a callback that will load our own localization files
 (def localization-loader-callback home-localization-loader :hu.dwim.home "localization/")
 
 (def method startup-server :after ((server home-server) &key &allow-other-keys)
