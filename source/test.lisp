@@ -198,13 +198,15 @@
       (format *trace-output* "Loading dependencies for system ~S" ',hu.dwim.home::system-name)
       (map nil 'asdf:load-system (hu.dwim.asdf:collect-system-dependencies ,hu.dwim.home::system-name :transitive #t))
       ;; FIXME coverage report is hopeless (due to our custom syntaxes) until we can hook into the coverage code's way of loading files. see SB-COVER::READ-AND-RECORD-SOURCE-MAP
-      (declaim (optimize sb-cover:store-coverage-data))
+      ;; FIXME commented out sb-cover, because (STANDALONE-TEST-SYSTEM "hu.dwim.blog" :HEAD :FORCE NIL :DELETE-TEMPORARY-FILES nil) breaks sb-cover in that it will end up endlessly reporting "unmatched close parenthesis" on the same position in a file until the heap blows up
+      ;;(declaim (optimize sb-cover:store-coverage-data))
       (format *trace-output* "Loading system ~S now" ',hu.dwim.home::system-name)
       (asdf:load-system ,hu.dwim.home::system-name)
-      (declaim (optimize (sb-cover:store-coverage-data 0)))
+      ;;(declaim (optimize (sb-cover:store-coverage-data 0)))
       (format *trace-output* "Starting the test of system ~S" ',hu.dwim.home::system-name)
       (asdf:test-system ,hu.dwim.home::system-name)
-      (sb-cover:report ,(asdf:system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase hu.dwim.home::system-name)))))
+      ;;(sb-cover:report ,(asdf:system-relative-pathname :hu.dwim.home (format nil "www/test/coverage/~A/" (string-downcase hu.dwim.home::system-name))))
+      )
 
     (with-wrapper
       ;; we will quit the whole lisp, so we can sideffect it so that it stays in effect even when comitting the results.
