@@ -77,15 +77,20 @@
     :type timestamp
     :primary #t)
    (standard-output
-    :type (or null text))
+    :type (or null text)
+    :prefetch #f)
    (standard-error
-    :type (or null text))
+    :type (or null text)
+    :prefetch #f)
    (compile-output
-    :type (or null text))
+    :type (or null text)
+    :prefetch #f)
    (load-output
-    :type (or null text))
+    :type (or null text)
+    :prefetch #f)
    (test-output
-    :type (or null text))))
+    :type (or null text)
+    :prefetch #f)))
 
 (def association
   ((:slot system-test-result :type (or null system-test-result))
