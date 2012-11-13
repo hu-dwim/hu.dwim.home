@@ -37,6 +37,7 @@
 ;; register a callback that will load our own localization files
 (def localization-loader-callback home-localization-loader :hu.dwim.home "localization/")
 
+#+nil
 (def method startup-server :after ((server home-server) &key &allow-other-keys)
   (register-timer-entry/periodic-standalone-test (hu.dwim.web-server::timer-of server)))
 
