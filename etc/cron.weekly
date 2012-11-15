@@ -7,3 +7,7 @@ echo Backing up /opt/hu.dwim.home/backup/ to nafi-dev
 
 sudo -u alendvai rsync --recursive --links --times --omit-dir-times --progress /opt/hu.dwim.home/backup/ alendvai@195.199.249.136:/var/backups/hu.dwim.home
 sudo -u alendvai ssh alendvai@195.199.249.136 "echo ----------- && hostname && echo ----------- && df --human-readable --local"
+echo -----------
+hostname
+echo -----------
+df --human-readable --local
