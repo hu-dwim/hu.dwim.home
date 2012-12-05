@@ -199,7 +199,7 @@
     (paragraph ()
       "Starting up the server shouldn't take more than a couple of seconds, most of which is spent with the synchronization of the SQL schema.")
     (shell-script ()
-      "/opt/hu.dwim.home/hu.dwim.home --verbose --repl")
+      "/opt/hu.dwim.home/hu.dwim.home --verbose")
     (paragraph ()
       "If everything started normally then the service should be listening on " (hyperlink "http://127.0.0.1:8080/") ". Pressing Control-c in the terminal should initiate a graceful server shutdown which normally takes a few seconds."))
   (chapter (:title "Set up backups (optional)")
