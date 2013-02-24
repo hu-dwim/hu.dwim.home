@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # keep a mirror of the backup dir on the nafi dev machine
-sudo -u alendvai rsync --quiet --recursive --links --times --omit-dir-times --progress /opt/hu.dwim.home/backup/ alendvai@195.199.249.136:/var/backups/hu.dwim.home
+sudo -u alendvai rsync --quiet --recursive --links --times --omit-dir-times --progress /opt/hu.dwim.home/backup/ alendvai@nafi42-dev.okm.gov.hu:/var/backups/hu.dwim.home
