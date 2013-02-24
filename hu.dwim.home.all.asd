@@ -4,12 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(load-system :hu.dwim.asdf)
-
-(in-package :hu.dwim.asdf)
-
 (defsystem :hu.dwim.home.all
-  :class hu.dwim.system
+  :defsystem-depends-on (hu.dwim.asdf)
+  :class hu.dwim.asdf:hu.dwim.system
   :description "All hu.dwim systems including their test suite and documentation."
   :depends-on (:hu.dwim.asdf.documentation
                :hu.dwim.blog.documentation
@@ -47,5 +44,5 @@
                :hu.dwim.web-server.documentation
                :hu.dwim.wiki.documentation))
 
-(defmethod perform :after ((o develop-op) (c (eql (find-system :hu.dwim.home.all))))
-  (develop-system :hu.dwim.home))
+(defmethod perform :after ((o hu.dwim.asdf:develop-op) (c (eql (find-system :hu.dwim.home.all))))
+  (hu.dwim.asdf:develop-system :hu.dwim.home))

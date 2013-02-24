@@ -4,12 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(load-system :hu.dwim.asdf)
-
-(in-package :hu.dwim.asdf)
-
 (defsystem :hu.dwim.home
-  :class hu.dwim.system
+  :defsystem-depends-on (hu.dwim.asdf)
+  :class hu.dwim.asdf:hu.dwim.system
   :description "The web application running at http://dwim.hu"
   :depends-on (:cl-smtp
                :hu.dwim.logger
@@ -36,7 +33,7 @@
                              (:file "tutorial" :depends-on ("logger"))
                              (:file "variables" :depends-on ("package"))))))
 
-(defmethod perform :after ((o develop-op) (c (eql (find-system :hu.dwim.home))))
+(defmethod perform :after ((o hu.dwim.asdf:develop-op) (c (eql (find-system :hu.dwim.home))))
   (eval (let ((*package* (find-package :hu.dwim.home)))
           (read-from-string
            "(progn
