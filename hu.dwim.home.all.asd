@@ -40,7 +40,6 @@
                :hu.dwim.remote-eval.documentation
                :hu.dwim.serializer.documentation
                :hu.dwim.stefil.documentation
-               :hu.dwim.projectional-editor.documentation
                :hu.dwim.syntax-sugar.documentation
                :hu.dwim.util.documentation
                :hu.dwim.vm.documentation
