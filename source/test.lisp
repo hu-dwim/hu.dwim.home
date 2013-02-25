@@ -177,13 +177,13 @@
         `((initialize-asdf-source-registry '(#P"/opt/darcs/" ,hu.dwim.asdf:*workspace-directory*))))
     (format *trace-output* "Final ASDF source registry is ~S" asdf::*source-registry*)
     (eval-when (:compile-toplevel :load-toplevel :execute)
-      (with-muffled-boring-compiler-warnings
+      (hu.dwim.util:with-muffled-boring-compiler-warnings
         (let ((systems '(:hu.dwim.def :hu.dwim.util.error-handling :sb-cover)))
           (format *trace-output* "Preloading some systems needed for the test infrastructure: ~S" systems)
           (map nil 'asdf:load-system systems))))
 
     (hu.dwim.def:def hu.dwim.def:with-macro with-wrapper ()
-      (with-muffled-boring-compiler-warnings
+      (hu.dwim.util:with-muffled-boring-compiler-warnings
         (hu.dwim.util:with-layered-error-handlers
             ((lambda (error)
                (let ((error-message (hu.dwim.util:build-error-log-message :error-condition error :message (list "Error while running the standalone test of system ~S, version ~S" ',hu.dwim.home::system-name ',hu.dwim.home::system-version))))
