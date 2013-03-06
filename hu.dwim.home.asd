@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.home
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.system
+  :class "hu.dwim.asdf:hu.dwim.system"
   :description "The web application running at http://dwim.hu"
   :depends-on (:cl-smtp
                :hu.dwim.logger

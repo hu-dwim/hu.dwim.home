@@ -6,7 +6,7 @@
 
 (defsystem :hu.dwim.home.test
   :defsystem-depends-on (:hu.dwim.asdf)
-  :class hu.dwim.asdf:hu.dwim.test-system
+  :class "hu.dwim.asdf:hu.dwim.test-system"
   :licence "BSD / Public domain"
   :depends-on (:hu.dwim.home
                :hu.dwim.stefil+hu.dwim.def)
