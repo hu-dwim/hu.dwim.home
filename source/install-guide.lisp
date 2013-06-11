@@ -258,7 +258,7 @@
         "sudo chown root:adm ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.*"
         "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.daily /etc/cron.daily/00-${DWIM_PROJECT_NAME}"
         "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.hourly /etc/cron.hourly/00-${DWIM_PROJECT_NAME}"
-        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.weekly /etc/cron.hourly/00-${DWIM_PROJECT_NAME}"))
+        "sudo ln -s ${DWIM_WORKSPACE}/${DWIM_PROJECT_NAME}/etc/cron.weekly /etc/cron.weekly/00-${DWIM_PROJECT_NAME}"))
     (chapter (:title "Increase the maximum amount of separate memory mappings on linux")
       (shell-script ()
         "sudo bash -c 'echo \"vm.max_map_count = 262144\" >/etc/sysctl.d/30-sbcl.conf'")))
