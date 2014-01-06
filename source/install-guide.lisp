@@ -31,8 +31,7 @@
                                   (if live?
                                       (string+ darcs-get "http://dwim.hu/live/" name)
                                       (bind ((darcs-info (with-output-to-string (output)
-                                                           (sb-ext:run-program "/usr/bin/darcs"
-                                                                               `("show" "repo" "--repodir" ,pathname-string)
+                                                           (uiop:run-program `("/usr/bin/darcs" "show" "repo" "--repodir" ,pathname-string)
                                                                                :output output)))
                                              ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
                                              (project (unless (zerop (length groups))
@@ -44,16 +43,14 @@
                                   (if live?
                                       (string+ git-clone "git://dwim.hu/live/" name)
                                       (bind ((git-info (with-output-to-string (output)
-                                                         (sb-ext:run-program "/usr/bin/git"
-                                                                             `("--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
+                                                         (uiop:run-program `("/usr/bin/git" "--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
                                                                              :output output)))
                                              ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
                                              (project-git-url (first-elt groups)))
                                             (string+ git-clone project-git-url))))
                                  ((probe-file (merge-pathnames ".svn" pathname))
                                   (bind ((svn-info (with-output-to-string (output)
-                                                     (sb-ext:run-program "/usr/bin/svn"
-                                                                         `("info" ,pathname-string)
+                                                     (uiop:run-program `("/usr/bin/svn" "info" ,pathname-string)
                                                                          :output output)))
                                          ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
                                          (project-svn-url (first-elt groups))

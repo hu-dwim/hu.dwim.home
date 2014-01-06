@@ -18,7 +18,8 @@
                :hu.dwim.presentation+hu.dwim.perec
                :hu.dwim.presentation+hu.dwim.reader
                :hu.dwim.presentation+hu.dwim.stefil
-               :sb-cover)
+               :sb-cover
+               :uiop)
   :components ((:module "source"
                 :components ((:file "authentication" :depends-on ("server"))
                              (:file "echo-server" :depends-on ("server"))
