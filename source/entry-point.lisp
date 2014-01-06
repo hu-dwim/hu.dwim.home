@@ -23,7 +23,7 @@
 (macrolet ((forward (name)
              `(def entry-point (*home-application* file-serving-broker
                                                    :path ,name
-                                                   :file-to-serve ,(system-relative-pathname :hu.dwim.home (string+ "www/attila.lendvai/" name))
+                                                   :file-to-serve ,(string+ "/home/alendvai/Documents/www/" name)
                                                    :priority most-positive-fixnum))))
   (forward "attila.lendvai.vcf")
   (forward "attila.lendvai.vcf.sig")
@@ -31,6 +31,10 @@
   (forward "attila.lendvai.cv.pdf")
   (forward "attila.lendvai.cv.pdf.sig")
   (forward "attila.lendvai.jpg"))
+
+(def file-serving-entry-point *home-application* "attila.lendvai/" "/home/alendvai/Documents/www/"
+     :priority most-positive-fixnum
+     :allow-access-to-external-files #t)
 
 ;; TODO this should come from some structured map of url's, entry points, and their properties
 ;; NOTE: this only works if *home-application* is mapped to the root url "/"
