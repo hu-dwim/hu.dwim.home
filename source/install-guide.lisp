@@ -9,27 +9,68 @@
 (def function make-uri-to-workspace-location (workspace-relative-path)
   (hu.dwim.uri:make-uri :scheme "http" :host "dwim.hu" :path (string+ "/file/" workspace-relative-path)))
 
+(def function build-repo-clone-command/git (project-pathname &key (preserve-exact-revision #t))
+  (check-type project-pathname pathname)
+  (assert (fad:directory-pathname-p project-pathname))
+  (bind ((project-pathname-as-string (namestring project-pathname)))
+    (flet ((run-git (&rest args)
+             (with-output-to-string (output)
+               (uiop:run-program `("/usr/bin/git" "--git-dir" ,(string+ project-pathname-as-string "/.git") ,@args)
+                                 :output output))))
+      (bind ((directory-name (last-elt (pathname-directory project-pathname)))
+             (branch-name (string-trim-whitespace (run-git "symbolic-ref" "-q" "HEAD")))
+             (repo-url (bind ((git-info (run-git "remote" "show" "origin" "-n"))
+                              ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info)))
+                         (first-elt groups)))
+             (revision-hash (string-trim-whitespace (run-git "log" "-1" "--format=%H"))))
+        (if (string= branch-name "(unnamed branch)")
+            (error "The git repo ~S is in a detached HEAD state, cannot build a clone command for it." project-pathname)
+            (setf branch-name (subseq branch-name (length "refs/heads/"))))
+        ;; TODO: maybe add --depth 1 after it is proven to be worth it
+        (values (string+ "git clone --branch " branch-name " " repo-url " " directory-name
+                         (when preserve-exact-revision
+                           (string+ "; git --work-tree " directory-name " --git-dir " directory-name "/.git reset --hard " revision-hash)))
+                (list directory-name repo-url branch-name revision-hash))))))
+
+(def function build-repo-clone-command/svn (project-pathname &key (preserve-exact-revision #t))
+  (check-type project-pathname pathname)
+  (assert (fad:directory-pathname-p project-pathname))
+  (bind ((project-pathname-as-string (namestring project-pathname))
+         (directory-name (last-elt (pathname-directory project-pathname)))
+         (svn-info (with-output-to-string (output)
+                     (uiop:run-program `("/usr/bin/svn" "info" ,project-pathname-as-string)
+                                       :output output)))
+         ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
+         (repo-url (first-elt groups))
+         ((:values nil groups) (cl-ppcre:scan-to-strings ".*Revision: (.*?)\\n.*" svn-info))
+         (revision (first-elt groups)))
+    (values (string+ "svn checkout " repo-url " "
+                     (when preserve-exact-revision
+                       (string+ "-r " revision " "))
+                     directory-name)
+            (list directory-name repo-url revision))))
+
 (def function collect-project-installing-shell-commands (pathnames live?)
   (with-simple-restart (skip-all "Return NIL from COLLECT-PROJECT-INSTALLING-SHELL-COMMANDS")
     (sort (iter (with darcs-get = "darcs get ") ;; TODO: add --lazy after it is proved to be worth
-                (with git-clone = "git clone ") ;; TODO: add --depth 1 after it is proved to be worth
                 (for pathname :in pathnames)
                 (for pathname-string = (namestring pathname))
-                (for name = (last-elt (pathname-directory pathname)))
+                (for directory-name = (last-elt (pathname-directory pathname)))
                 (format *debug-io* "Getting project information for ~A (~A)~%"
                         pathname-string (if live?
                                             "live"
                                             "head"))
                 (with-simple-restart (skip "Skip project ~A" pathname)
-                  (collect (cond ((search "hu.dwim" name)
+                  (collect (cond ((search "hu.dwim" directory-name)
                                   (string+ darcs-get "http://dwim.hu/"
                                            (if live?
                                                "live/"
                                                "darcs/")
-                                           name))
+                                           directory-name))
                                  ((probe-file (merge-pathnames "_darcs" pathname))
+                                  ;; TODO maybe use darcs log --context >contextfile and then darcs get --context="contextfile"?
                                   (if live?
-                                      (string+ darcs-get "http://dwim.hu/live/" name)
+                                      (string+ darcs-get "http://dwim.hu/live/" directory-name)
                                       (bind ((darcs-info (with-output-to-string (output)
                                                            (uiop:run-program `("/usr/bin/darcs" "show" "repo" "--repodir" ,pathname-string)
                                                                                :output output)))
@@ -37,36 +78,19 @@
                                              (project (unless (zerop (length groups))
                                                         (first-elt groups))))
                                         (if (search "/var/opt/darcs" project)
-                                            (string+ darcs-get "http://dwim.hu/darcs/" name)
+                                            (string+ darcs-get "http://dwim.hu/darcs/" directory-name)
                                             (string+ darcs-get project)))))
                                  ((probe-file (merge-pathnames ".git" pathname))
-                                  (if live?
-                                      (string+ git-clone "git://dwim.hu/live/" name)
-                                      (bind ((git-info (with-output-to-string (output)
-                                                         (uiop:run-program `("/usr/bin/git" "--git-dir" ,(string+ pathname-string "/.git") "remote" "show" "origin" "-n")
-                                                                             :output output)))
-                                             ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info))
-                                             (project-git-url (first-elt groups)))
-                                            (string+ git-clone project-git-url))))
+                                  (build-repo-clone-command/git pathname :preserve-exact-revision live?))
                                  ((probe-file (merge-pathnames ".svn" pathname))
-                                  (bind ((svn-info (with-output-to-string (output)
-                                                     (uiop:run-program `("/usr/bin/svn" "info" ,pathname-string)
-                                                                         :output output)))
-                                         ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" svn-info))
-                                         (project-svn-url (first-elt groups))
-                                         ((:values nil groups) (cl-ppcre:scan-to-strings ".*Revision: (.*?)\\n.*" svn-info))
-                                         (revision (first-elt groups)))
-                                    (string+ "svn checkout " project-svn-url
-                                             (when live?
-                                               (string+ " -r " revision))
-                                             " " name)))
+                                  (build-repo-clone-command/svn pathname :preserve-exact-revision live?))
                                  ((probe-file (merge-pathnames "CVS" pathname))
                                   (bind ((root (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Root" pathname))))
                                          (project-cvs-url (string-trim-whitespace (read-file-into-string (merge-pathnames "CVS/Repository" pathname)))))
-                                    (string+ "cvs -z3 -d " root " checkout -d " name " " project-cvs-url)))
+                                    (string+ "cvs -z3 -d " root " checkout -d " directory-name " " project-cvs-url)))
                                  (t
-                                  (warn "Don't know how to install project ~A" name)
-                                  (string+ "# TODO: Don't know how to install project " name))))))
+                                  (warn "Don't know how to install project ~A" directory-name)
+                                  (string+ "# TODO: Don't know how to install project " directory-name))))))
           #'string<)))
 
 ;; TODO make head and live italic
