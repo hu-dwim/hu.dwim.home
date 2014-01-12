@@ -3,11 +3,16 @@
 # keep a mirror of the backup dir on the nafi dev machine.
 # the weekly version is without --quiet, so that a mail is sent to the email specified in the crontab.
 
-echo Backing up /opt/hu.dwim.home/backup/ to nafi-dev
+echo
+echo
+echo "Weekly backup: hu.dwim.home -> jokaimor.dyndns.org"
+echo
+echo
 
-sudo -u alendvai rsync --recursive --links --times --omit-dir-times --progress /opt/hu.dwim.home/backup/ alendvai@nafi42-dev.okm.gov.hu:/var/backups/hu.dwim.home
-sudo -u alendvai ssh alendvai@nafi42-dev.okm.gov.hu "echo ----------- && hostname && echo ----------- && df --human-readable --local"
+#sudo -u alendvai rsync --recursive --links --times --omit-dir-times --progress /opt/hu.dwim.home/backup/ alendvai@nafi42-dev.okm.gov.hu:/var/backups/hu.dwim.home
+sudo -u alendvai rsync --progress --recursive --size-only --links --omit-dir-times --rsh='ssh -q -p 222 -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" -o "CheckHostIP no" -o "KbdInteractiveAuthentication no" -o "PasswordAuthentication no"' /opt/hu.dwim.home/backup/ backup@jokaimor.dyndns.org:hu.dwim.home/
+#sudo -u alendvai ssh -p 222 alendvai@jokaimor.dyndns.org "echo ----------- && hostname && echo ----------- && df --human-readable --local"
 echo -----------
-hostname
+hostname --long
 echo -----------
 df --human-readable --local
