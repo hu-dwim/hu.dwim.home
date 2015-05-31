@@ -56,11 +56,7 @@
                                                        :database-user-name +default-database-user-name+
                                                        :database-password +default-database-password+)
                             +generic-command-line-options+))
-           (arguments (process-command-line-options options (progn
-                                                              ;; TODO FIXME this call should not be needed if we used the uiop imaging infrastructure.
-                                                              ;; this is registered as an image restore hook, but the way we start our image it doesn't get called.
-                                                              (uiop:setup-command-line-arguments)
-                                                              (get-command-line-arguments)))))
+           (arguments (process-command-line-options options (get-command-line-arguments))))
       (process-help-command-line-argument options arguments)
       (process-quiet-command-line-argument arguments)
       (home.debug "Parsed command line arguments are: ~S" arguments)

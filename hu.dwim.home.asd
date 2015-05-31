@@ -20,6 +20,8 @@
                :hu.dwim.presentation+hu.dwim.stefil
                :sb-cover
                :uiop)
+  :entry-point "hu.dwim.home::executable-toplevel"
+  :build-pathname "hu.dwim.home" ;; the base name of the executable
   :components ((:module "source"
                 :components ((:file "authentication" :depends-on ("server"))
                              (:file "echo-server" :depends-on ("server"))
