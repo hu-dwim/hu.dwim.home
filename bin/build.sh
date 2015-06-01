@@ -44,20 +44,35 @@ export ASDF_OUTPUT_TRANSLATIONS="(:output-translations (\"${DWIM_WORKSPACE}\" (\
 # "call" the lisp part below
 exec ${LISP} --dynamic-space-size "${DWIM_MAXIMUM_MEMORY_SIZE}" --end-runtime-options --no-sysinit --no-userinit --script "$0" --end-toplevel-options 2>&1 | tee ${BUILD_LOG_FILE}
 
-# TODO maybe this should be done by hand anyways...? if so then check the other uses of DWIM_EXECUTABLE_CORE_FILE
-#mv ???where-from??? "${DWIM_EXECUTABLE_CORE_FILE}"
-#chown ${DWIM_DAEMON_USER}:${DWIM_DAEMON_USER} "${DWIM_EXECUTABLE_CORE_FILE}"
-#chmod o-rwx "${DWIM_EXECUTABLE_CORE_FILE}"
+chown ${DWIM_DAEMON_USER}:${DWIM_DAEMON_USER} "${DWIM_EXECUTABLE_CORE_FILE}.new"
+chmod o-rwx "${DWIM_EXECUTABLE_CORE_FILE}.new"
 
-echo "*** "`date`" Finished building ${DWIM_PROJECT_NAME}, executable should be at ${DWIM_EXECUTABLE_CORE_FILE}"
+echo "*** "`date`" Finished building ${DWIM_PROJECT_NAME}, executable should be at ${DWIM_EXECUTABLE_CORE_FILE}.new"
 
-# let's quit the shell part before it runs on the lisp stuff below
+# let's quit the shell part before the shell interpreter runs on the lisp stuff below
 kill -INT $$
 
-# and from here follows the lisp part that gets launched above |#
+# and from here follows the lisp part that gets "called" above |#
 
 (in-package :cl-user)
 
 (require :asdf)
 
+(let ((output-translations (uiop:getenv "ASDF_OUTPUT_TRANSLATIONS")))
+  (assert output-translations)
+  (defun hu.dwim.home/set-output-translations-hook ()
+    (asdf:initialize-output-translations output-translations)))
+
+;; WARNING: this is fragile as is, because the UIOP API doesn't state it clearly that hooks registered later will be called later, but
+;; we need that behavior for shadowing the default UIOP behavior of setting the output-translations to the user's home.
+(uiop:register-image-restore-hook 'hu.dwim.home/set-output-translations-hook)
+
+(defmethod asdf:output-files ((o asdf:program-op) (s (eql (asdf:find-system :hu.dwim.home))))
+  (let ((exe-path (uiop:getenv "DWIM_EXECUTABLE_CORE_FILE")))
+    (if exe-path
+        (values (list (concatenate 'string exe-path ".new")) t)
+        (call-next-method))))
+
 (asdf:operate 'asdf:program-op :hu.dwim.home)
+
+;; this is dead man's land here on implementations like SBCL that can only SAVE-LISP-AND-DIE where the die part is not optional.
