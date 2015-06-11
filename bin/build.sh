@@ -41,6 +41,11 @@ BUILD_LOG_FILE="${DWIM_EXECUTABLE_CORE_FILE}.build-log"
 export CL_SOURCE_REGISTRY="(:source-registry (:also-exclude \"sbcl\") (:tree \"${DWIM_WORKSPACE}\") :ignore-inherited-configuration)"
 export ASDF_OUTPUT_TRANSLATIONS="(:output-translations (\"${DWIM_WORKSPACE}\" (\"${DWIM_INSTALL_PATH}/.cache/common-lisp/\" :implementation)) :ignore-inherited-configuration)"
 
+# i don't know how to convince program-op to overwrite the output, so delete from here...
+# a suggested alternative: (defmethod asdf:perform :before ((op asdf:program-op) (sys (eql (asdf:find-system :my-system)))) (uiop:delete-file-if-exists (asdf:output-file op sys)))
+# another one, better: (defmethod asdf/plan:traverse-action :before (plan (op asdf:program-op) (sys (eql (asdf:find-system :system))) niip) (uiop:delete-file-if-exists (asdf:output-file op sys)))
+rm "${DWIM_EXECUTABLE_CORE_FILE}.new"
+
 # "call" the lisp part below
 exec ${LISP} --dynamic-space-size "${DWIM_MAXIMUM_MEMORY_SIZE}" --end-runtime-options --no-sysinit --no-userinit --script "$0" --end-toplevel-options 2>&1 | tee ${BUILD_LOG_FILE}
 
@@ -87,5 +92,7 @@ kill -INT $$
 ;;(setf asdf:*immutable-systems* (uiop:list-to-hash-set (asdf:already-loaded-systems)))
 
 (asdf:operate 'asdf:program-op :hu.dwim.home)
+
+(format *error-output* "~%*** Something went wrong, SBCL should not return from asdf:program-op...~%~%")
 
 ;; this is dead man's land here on implementations like SBCL that can only SAVE-LISP-AND-DIE where the die part is not optional.
