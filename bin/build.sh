@@ -73,6 +73,19 @@ kill -INT $$
         (values (list (concatenate 'string exe-path ".new")) t)
         (call-next-method))))
 
+(defun make-all-loaded-asdf-systems-immutable ()
+  (let ((loaded-systems/name (asdf:already-loaded-systems)))
+    ;; (format t "~%Making the following ASDF systems immutable:~%~A~%~%" loaded-systems/name)
+    (setf asdf:*immutable-systems* (uiop:list-to-hash-set loaded-systems/name)))
+  (values))
+
+(pushnew 'make-all-loaded-asdf-systems-immutable uiop:*image-dump-hook*)
+
+;; first make sure everything is loaded, so that when the image is dumped then our hook above makes the required systems immutable.
+;; ...except that it quietly doesn't work. maybe because of making hu.dwim.home asdf system immutable?
+;;(asdf:load-system :hu.dwim.home)
+;;(setf asdf:*immutable-systems* (uiop:list-to-hash-set (asdf:already-loaded-systems)))
+
 (asdf:operate 'asdf:program-op :hu.dwim.home)
 
 ;; this is dead man's land here on implementations like SBCL that can only SAVE-LISP-AND-DIE where the die part is not optional.
