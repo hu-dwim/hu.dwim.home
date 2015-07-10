@@ -2,7 +2,7 @@
 #| -*- mode: lisp; coding: utf-8-unix -*-
 
 # this script assumes SBCL at multiple places. ideally it should use
-# cl-launch, be see Fare's thoughts below (from around 2014):
+# cl-launch, but see Fare's thoughts below (from around 2014):
 #
 # Quick answer: cl-launch could help indeed, though it might need some love.
 #
@@ -57,7 +57,7 @@ echo "*** "`date`" Finished building ${DWIM_PROJECT_NAME}, executable should be 
 # let's quit the shell part before the shell interpreter runs on the lisp stuff below
 kill -INT $$
 
-# and from here follows the lisp part that gets "called" above |#
+# and from here follows the lisp part that gets invoked by the above shell part |#
 
 (in-package :cl-user)
 
@@ -81,7 +81,7 @@ kill -INT $$
 (defun make-all-loaded-asdf-systems-immutable ()
   (let ((loaded-systems/name (asdf:already-loaded-systems)))
     ;; (format t "~%Making the following ASDF systems immutable:~%~A~%~%" loaded-systems/name)
-    (setf asdf:*immutable-systems* (uiop:list-to-hash-set loaded-systems/name)))
+    (map nil 'asdf:register-immutable-system loaded-systems/name))
   (values))
 
 (pushnew 'make-all-loaded-asdf-systems-immutable uiop:*image-dump-hook*)
