@@ -38,7 +38,7 @@ echo "*** "`date`" Building '${DWIM_PROJECT_NAME}' from workspace '${DWIM_WORKSP
 
 BUILD_LOG_FILE="${DWIM_EXECUTABLE_CORE_FILE}.build-log"
 
-export CL_SOURCE_REGISTRY="(:source-registry (:also-exclude \"sbcl\") (:tree \"${DWIM_WORKSPACE}\") :ignore-inherited-configuration)"
+export CL_SOURCE_REGISTRY="(:source-registry (:also-exclude \"sbcl\" \"disabled-systems\") (:tree \"${DWIM_WORKSPACE}\") :ignore-inherited-configuration)"
 export ASDF_OUTPUT_TRANSLATIONS="(:output-translations (\"${DWIM_WORKSPACE}\" (\"${DWIM_INSTALL_PATH}/.cache/common-lisp/\" :implementation)) :ignore-inherited-configuration)"
 
 # i don't know how to convince program-op to overwrite the output, so delete from here...

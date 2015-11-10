@@ -10,7 +10,6 @@ export DWIM_HTTP_SERVER_PORT="8080"
 export DWIM_SWANK_PORT="13000"
 export DWIM_MAXIMUM_MEMORY_SIZE="1500" # in megabytes; goes straight to sbcl
 export DWIM_DAEMON_USER="home-service"
-export DWIM_TOPLEVEL_FUNCTION="hu.dwim.home::executable-toplevel"
 export DWIM_ASDF_SYSTEM_NAME="hu.dwim.home.all"
 export DWIM_POSTGRESQL_VERSION="9.1"
 
