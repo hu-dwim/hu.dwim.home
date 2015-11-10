@@ -178,7 +178,7 @@
     (format *trace-output* "Final ASDF source registry is ~S" asdf::*source-registry*)
     (eval-when (:compile-toplevel :load-toplevel :execute)
       (hu.dwim.util:with-muffled-boring-compiler-warnings
-        (let ((systems '(:hu.dwim.def :hu.dwim.util.error-handling :sb-cover)))
+        (let ((systems '(:hu.dwim.def :hu.dwim.util/error-handling :sb-cover)))
           (format *trace-output* "Preloading some systems needed for the test infrastructure: ~S" systems)
           (map nil 'asdf:load-system systems))))
 
