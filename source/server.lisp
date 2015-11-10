@@ -56,9 +56,10 @@
                                                        :database-user-name +default-database-user-name+
                                                        :database-password +default-database-password+)
                             +generic-command-line-options+))
-           (arguments (process-command-line-options options (get-command-line-arguments))))
+           (arguments (parse-command-line-arguments options)))
+      (home.debug "Parsed command line arguments are: ~S" arguments)
+      (assert (not (null arguments)) (arguments) "Something is wrong: command line arguments are empty, but at least the default values should be there.")
       (process-help-command-line-argument options arguments)
       (process-quiet-command-line-argument arguments)
-      (home.debug "Parsed command line arguments are: ~S" arguments)
       (run-production-server arguments :hu.dwim.home *home-server* *home-application* :database *home-database*))
     +process-return-code/no-error+))
