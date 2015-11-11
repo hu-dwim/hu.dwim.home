@@ -10,7 +10,6 @@
   :description "All hu.dwim systems including their test suite and documentation."
   :depends-on (:hu.dwim.asdf.documentation
                :hu.dwim.blog.documentation
-               :hu.dwim.build.documentation
                :hu.dwim.common-lisp.documentation
                :hu.dwim.common.documentation
                :hu.dwim.computed-class.documentation
