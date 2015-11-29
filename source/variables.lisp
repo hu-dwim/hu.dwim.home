@@ -6,6 +6,8 @@
 
 (in-package :hu.dwim.home)
 
+(def global-variable *workspace-directory* (asdf:system-relative-pathname :hu.dwim.home "../"))
+
 ;;;;;;
 ;;; Constants
 

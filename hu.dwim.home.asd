@@ -30,9 +30,10 @@
                              (:file "install-guide" :depends-on ("screen"))
                              (:file "logger" :depends-on ("package" "variables"))
                              (:file "package")
-                             (:file "screen" :depends-on ("test" "server"))
-                             (:file "server" :depends-on ("test"))
-                             (:file "test" :depends-on ("logger"))
+                             (:file "screen" :depends-on ("server"))
+                             (:file "server" :depends-on ("logger"))
+                             ;; the tests are not run anymore and the code got bitrotten, so let's just make that explicit.
+                             ;; (:file "test" :depends-on ("logger"))
                              (:file "tutorial" :depends-on ("logger"))
                              (:file "variables" :depends-on ("package"))))))
 
