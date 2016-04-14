@@ -17,20 +17,23 @@
              (with-output-to-string (output)
                (uiop:run-program `("/usr/bin/git" "--git-dir" ,(string+ project-pathname-as-string "/.git") ,@args)
                                  :output output))))
+      ;; to get the tag: (run-git "tag" "--points-at" "HEAD")
+      ;; or an alternative: git name-rev --tags --name-only $(git rev-parse HEAD)
       (bind ((directory-name (last-elt (pathname-directory project-pathname)))
+             #+nil ;; this may fail if it's not a checked out branch (e.g. a tagged commit)
              (branch-name (string-trim-whitespace (run-git "symbolic-ref" "-q" "HEAD")))
              (repo-url (bind ((git-info (run-git "remote" "show" "origin" "-n"))
                               ((:values nil groups) (cl-ppcre:scan-to-strings ".*URL: (.*?)/?\\n.*" git-info)))
                          (first-elt groups)))
              (revision-hash (string-trim-whitespace (run-git "log" "-1" "--format=%H"))))
-        (if (string= branch-name "(unnamed branch)")
-            (error "The git repo ~S is in a detached HEAD state, cannot build a clone command for it." project-pathname)
-            (setf branch-name (subseq branch-name (length "refs/heads/"))))
-        ;; TODO: maybe add --depth 1 after it is proven to be worth it
-        (values (string+ "git clone --branch " branch-name " " repo-url " " directory-name
+        (values (string+ "git clone"
+                         #+nil
+                         (when branch-name
+                           (string+ " --branch " branch-name))
+                         " " repo-url " " directory-name
                          (when preserve-exact-revision
-                           (string+ "; git --work-tree " directory-name " --git-dir " directory-name "/.git reset --hard " revision-hash)))
-                (list directory-name repo-url branch-name revision-hash))))))
+                           (string+ "; git --work-tree " directory-name " --git-dir " directory-name "/.git checkout " revision-hash)))
+                (list directory-name repo-url revision-hash))))))
 
 (def function build-repo-clone-command/svn (project-pathname &key (preserve-exact-revision #t))
   (check-type project-pathname pathname)
