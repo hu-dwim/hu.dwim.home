@@ -170,6 +170,7 @@
           (defparameter hu.dwim.asdf::*swank-directory* ,(merge-pathnames hu.dwim.home::swank-directory hu.dwim.home::*workspace-directory*))))
     (eval-when (:compile-toplevel :load-toplevel :execute)
       (asdf:load-system :hu.dwim.asdf))
+    ;; TODO FIXME this is obsolete
     (hu.dwim.asdf:initialize-asdf-source-registry (list ,hu.dwim.home::*workspace-directory*))
     ,@(when (eq hu.dwim.home::system-version :head)
         ;; alternatively. but it doesn't work as expected, because :inherit-configuration will inherit the default logic, not the current config

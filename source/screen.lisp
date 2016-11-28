@@ -87,6 +87,7 @@
                          (paragraph ()
                            "You can email us at attila.lendvai and/or levente.meszaros on gmail.com.")
                          (paragraph ()
+                           ;; TODO #dwim.hu goes as it is into the html... check whether that's legal or not.
                            "Alternatively you can catch us on IRC at European daytime, on the " (hyperlink "http://freenode.net/") " server, in the #dwim.hu channel.")))))))
     (values (menu-item/widget ()
                 (replace-target-place/widget ()
