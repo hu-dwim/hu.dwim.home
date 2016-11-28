@@ -321,13 +321,15 @@
                 (timestamp< (run-at-of instance) run-at-before)))
     (order-by :descending (run-at-of instance))))
 
-(def (function e) collect-hu.dwim-system-names ()
-  (sort (iter (for (name specification) :in-hashtable asdf::*defined-systems*)
-              (for system = (cdr specification))
-              (for system-name = (asdf:component-name system))
-              (when (typep system 'hu.dwim.system)
-                (collect system-name)))
-        #'string<))
+(def (function e) collect-hu.dwim-systems ()
+  (bind ((result (list)))
+    (asdf:map-systems (lambda (system)
+                        (when (typep system 'hu.dwim.system)
+                          (push system result))))
+    (sort result (lambda (a b)
+                   (string< (asdf:primary-system-name a)
+                            (asdf:primary-system-name b))))
+    result))
 
 ;;;;;;
 ;;; System test result comparison
@@ -404,9 +406,10 @@
 
 (def function collect-periodic-standalone-test-system-names ()
   (collect-if (lambda (system)
-                (awhen (find-system (system-test-system-name (find-system system)) nil)
+                (check-type system hu.dwim.system)
+                (awhen (find-system (system-test-system-name system))
                   (typep it 'hu.dwim.test-system)))
-              (collect-hu.dwim-system-names)))
+              (collect-hu.dwim-systems)))
 
 (def function periodic-standalone-test ()
   (with-layered-error-handlers ((lambda (error)
