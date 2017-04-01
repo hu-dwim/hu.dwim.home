@@ -24,10 +24,10 @@
 # * same for output translation — though you can already export the
 # environment variable.
 
-. `dirname "$0"`/environment.sh
-
 SCRIPT_DIR=`dirname "$0"`
 SCRIPT_DIR=`readlink -f ${SCRIPT_DIR}`
+
+. ${SCRIPT_DIR}/environment.sh
 
 LISP=${SCRIPT_DIR}/../../sbcl/run-sbcl.sh
 LISP=`readlink -f ${LISP}`
@@ -55,7 +55,10 @@ chmod o-rwx "${DWIM_EXECUTABLE_CORE_FILE}.new"
 echo "*** "`date`" Finished building ${DWIM_PROJECT_NAME}, executable should be at ${DWIM_EXECUTABLE_CORE_FILE}.new"
 
 # let's quit the shell part before the shell interpreter runs on the lisp stuff below
-kill -INT $$
+exit 0
+
+# try even harder? why was this here instead of exit 0?
+#kill -INT $$
 
 # and from here follows the lisp part that gets invoked by the above shell part |#
 
