@@ -19,7 +19,8 @@
                      (make-repository-menu)
                      (make-source-menu)
                      (make-test-menu)
-                     (make-debug-menu))))
+                     ;; we don't want random visitors to turn on debugging... (make-debug-menu)
+                     )))
     (frame/widget (:title "dwim.hu"
                    :stylesheet-uris (make-stylesheet-uris :hu.dwim.home "static/home/" "css/home.css")
                    :page-icon-uri (make-page-icon-uri :hu.dwim.home "static/home/" "favicon.ico"))
