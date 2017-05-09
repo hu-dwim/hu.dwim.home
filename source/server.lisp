@@ -16,7 +16,9 @@
   ())
 
 (def (special-variable e) *home-application* (make-instance 'home-application
-                                                            :database *home-database*))
+                                                            :database *home-database*
+                                                            :dojo-script-uri "static/home/dojotoolkit-1.12.2/dojo/dojo.js"
+                                                            :dojo-base-uri "static/home/dojotoolkit-1.12.2/"))
 
 ;;;;;;
 ;;; Server
