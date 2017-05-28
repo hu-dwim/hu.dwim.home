@@ -63,6 +63,5 @@
       (assert (not (null arguments)) (arguments) "Something is wrong: command line arguments are empty, but at least the default values should be there.")
       (process-help-command-line-argument options arguments)
       (process-quiet-command-line-argument arguments)
-      (run-production-server/prepare arguments :hu.dwim.home *home-server* *home-application* *home-database*)
-      (run-production-server arguments *home-server* *home-application* *home-database*))
+      (run-production-server arguments :hu.dwim.home *home-server* *home-application*))
     +process-return-code/no-error+))
