@@ -64,13 +64,7 @@
                                             "live"
                                             "head"))
                 (with-simple-restart (skip "Skip project ~A" pathname)
-                  (collect (cond ((search "hu.dwim" directory-name)
-                                  (string+ darcs-get "http://dwim.hu/"
-                                           (if live?
-                                               "live/"
-                                               "darcs/")
-                                           directory-name))
-                                 ((probe-file (merge-pathnames "_darcs" pathname))
+                  (collect (cond ((probe-file (merge-pathnames "_darcs" pathname))
                                   ;; TODO maybe use darcs log --context >contextfile and then darcs get --context="contextfile"?
                                   (if live?
                                       (string+ darcs-get "http://dwim.hu/live/" directory-name)
