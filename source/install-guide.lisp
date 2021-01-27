@@ -15,7 +15,7 @@
   (bind ((project-pathname-as-string (namestring project-pathname)))
     (flet ((run-git (&rest args)
              (with-output-to-string (output)
-               (uiop:run-program `("/usr/bin/git" "--git-dir" ,(string+ project-pathname-as-string "/.git") ,@args)
+               (uiop:run-program `("git" "--git-dir" ,(string+ project-pathname-as-string "/.git") ,@args)
                                  :output output))))
       ;; to get the tag: (run-git "tag" "--points-at" "HEAD")
       ;; or an alternative: git name-rev --tags --name-only $(git rev-parse HEAD)
@@ -69,7 +69,7 @@
                                   (if live?
                                       (string+ darcs-get "http://dwim.hu/live/" directory-name)
                                       (bind ((darcs-info (with-output-to-string (output)
-                                                           (uiop:run-program `("/usr/bin/darcs" "show" "repo" "--repodir" ,pathname-string)
+                                                           (uiop:run-program `("darcs" "show" "repo" "--repodir" ,pathname-string)
                                                                                :output output)))
                                              ((:values nil groups) (cl-ppcre:scan-to-strings ".*Default Remote: (.*?)/?\\n.*" darcs-info))
                                              (project (unless (zerop (length groups))
