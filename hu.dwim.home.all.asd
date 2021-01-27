@@ -16,7 +16,7 @@
                :hu.dwim.debug.documentation
                :hu.dwim.def.documentation
                :hu.dwim.defclass-star.documentation
-               :hu.dwim.delico.documentation
+               :hu.dwim.delico/documentation
                :hu.dwim.dises.documentation
                :hu.dwim.genetic-programming.documentation
                :hu.dwim.graphviz.documentation
@@ -35,11 +35,11 @@
                :hu.dwim.reiterate.documentation
                :hu.dwim.remote-eval.documentation
                :hu.dwim.serializer.documentation
-               :hu.dwim.stefil.documentation
+               ;; :hu.dwim.stefil.documentation
                :hu.dwim.syntax-sugar.documentation
                :hu.dwim.util.documentation
                :hu.dwim.vm.documentation
-               :hu.dwim.walker.documentation
+               :hu.dwim.walker/documentation
                :hu.dwim.web-server.documentation
                :hu.dwim.wiki.documentation))
 
