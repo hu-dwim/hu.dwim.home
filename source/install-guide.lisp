@@ -64,7 +64,9 @@
                                             "live"
                                             "head"))
                 (with-simple-restart (skip "Skip project ~A" pathname)
-                  (collect (cond ((probe-file (merge-pathnames "_darcs" pathname))
+                  (collect (cond ((probe-file (merge-pathnames ".git" pathname))
+                                  (build-repo-clone-command/git pathname :preserve-exact-revision live?))
+                                 ((probe-file (merge-pathnames "_darcs" pathname))
                                   ;; TODO maybe use darcs log --context >contextfile and then darcs get --context="contextfile"?
                                   (if live?
                                       (string+ darcs-get "http://dwim.hu/live/" directory-name)
@@ -77,8 +79,6 @@
                                         (if (search "/var/opt/darcs" project)
                                             (string+ darcs-get "http://dwim.hu/darcs/" directory-name)
                                             (string+ darcs-get project)))))
-                                 ((probe-file (merge-pathnames ".git" pathname))
-                                  (build-repo-clone-command/git pathname :preserve-exact-revision live?))
                                  ((probe-file (merge-pathnames ".svn" pathname))
                                   (build-repo-clone-command/svn pathname :preserve-exact-revision live?))
                                  ((probe-file (merge-pathnames "CVS" pathname))
