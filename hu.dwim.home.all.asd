@@ -15,13 +15,13 @@
                :hu.dwim.computed-class.documentation
                :hu.dwim.debug.documentation
                :hu.dwim.def.documentation
-               :hu.dwim.defclass-star.documentation
+               :hu.dwim.defclass-star/documentation
                :hu.dwim.delico/documentation
                :hu.dwim.dises.documentation
                :hu.dwim.genetic-programming.documentation
                :hu.dwim.graphviz.documentation
                :hu.dwim.home.documentation
-               :hu.dwim.lazy-eval.documentation
+               :hu.dwim.lazy-eval/documentation
                :hu.dwim.logger.documentation
                :hu.dwim.meta-model.documentation
                :hu.dwim.model.documentation
