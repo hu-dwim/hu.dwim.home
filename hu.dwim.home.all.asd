@@ -14,7 +14,7 @@
                :hu.dwim.common.documentation
                :hu.dwim.computed-class.documentation
                :hu.dwim.debug.documentation
-               :hu.dwim.def.documentation
+               :hu.dwim.def/documentation
                :hu.dwim.defclass-star/documentation
                :hu.dwim.delico/documentation
                :hu.dwim.dises.documentation
